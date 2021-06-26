@@ -1,0 +1,6 @@
+virtualenv
+.idea
+__pycache__
+
+credentials
+.env.develop
