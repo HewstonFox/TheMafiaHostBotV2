@@ -1,10 +1,14 @@
 import logging
+
 from aiogram import Dispatcher, executor, types
 
+from bot_types import ChatType
+from bot_utils.decorators import with_locale
 from config import env
+from controllers.MessageController import MessageController
 from models.RetryBot import RetryBot
 
-logging.basicConfig(level=logging.INFO if env.MODE == 'production' else logging.DEBUG)
+logging.basicConfig(level=logging.INFO if env.MODE == 'production' else logging.INFO)
 
 bot = RetryBot(token=env.BOT_TOKEN, parse_mode='html')
 dp = Dispatcher(bot)
@@ -16,8 +20,12 @@ async def callback_query_handler(query: types.CallbackQuery):
 
 
 @dp.message_handler(commands=['start'])
-async def start_handler(message: types.Message):
-    await message.reply('U wrote start')
+@with_locale
+async def start_handler(message: types.Message, locale):
+    if message.chat.type == ChatType.private:
+        await MessageController.send_private_start_message(bot, message.chat.id, locale)
+    else:
+        pass
 
 
 @dp.message_handler(commands=['game'])

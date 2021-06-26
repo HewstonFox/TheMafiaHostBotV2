@@ -29,3 +29,11 @@ class CallbackQueryActions:
     role_action = 'role_action'
     vote_user = 'vote_user'
     vote_agree = 'vote_agree'
+    faq = 'faq'
+
+
+class ChatType:
+    private = 'private'
+    group = 'group'
+    supergroup = 'supergroup'
+    channel = 'channel'

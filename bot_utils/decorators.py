@@ -4,6 +4,7 @@ from typing import Callable
 import traceback
 
 from aiogram import Bot
+from aiogram.types import Message
 from aiogram.utils.exceptions import Unauthorized
 
 from config import env
@@ -56,5 +57,15 @@ def soft_error(func: Callable) -> Callable:
         except Exception as e:
             print(e)
             return e
+
+    return wrapper
+
+
+def with_locale(func: Callable[[Message, str], any]) -> Callable:
+    """func(*args, **kwargs)"""
+
+    @wraps(func)
+    async def wrapper(msg: Message):
+        return await func(msg, msg.from_user.language_code)
 
     return wrapper
