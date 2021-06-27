@@ -1,38 +1,24 @@
 import os
 import json
-from dataclasses import dataclass
 
-from dict_to_dataclass import DataclassFromDict, field_from_dict
+from localization.Localization import Localization
 
-dirname = os.path.dirname(__file__)
-locales_files = [f for f in os.listdir(dirname) if os.path.isfile(os.path.join(dirname, f)) and f.endswith('.json')]
+__translations: dict[str, Localization] = {}
 
 
-@dataclass
-class PrivateButton(DataclassFromDict):
-    more: str = field_from_dict()
+def parse_localizations():
+    dirname = os.path.join(os.path.dirname(__file__), 'translations')
+    locales_files = [f for f in os.listdir(dirname) if
+                     os.path.isfile(os.path.join(dirname, f)) and f.endswith('.json')]
+    for f in locales_files:
+        with open(os.path.join(dirname, f), encoding='utf-8') as translation:
+            locale_name = f.split('.')[0]
+            data = json.load(translation)
+            __translations[locale_name] = Localization.from_dict(data)
 
 
-@dataclass
-class Private(DataclassFromDict):
-    start: str = field_from_dict()
-    button: PrivateButton = field_from_dict()
-
-
-@dataclass
-class Localization(DataclassFromDict):
-    language: str = field_from_dict()
-    private: Private = field_from_dict()
-
-
-translations = {}
-
-for f in locales_files:
-    with open(os.path.join(dirname, f), encoding='utf-8') as translation:
-        locale_name = f.split('.')[0]
-        data = json.load(translation)
-        translations[locale_name] = Localization.from_dict(data)
+parse_localizations()
 
 
 def get_translation(locale: str):
-    return translations['en' if locale not in translations else locale]
+    return __translations['en' if locale not in __translations else locale]
