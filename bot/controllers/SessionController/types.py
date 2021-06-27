@@ -1,6 +1,8 @@
 from typing import TypedDict, List, Dict, Union
 from aiogram.types import User
 
+from bot.models.Roles.BaseRole import BaseRole
+
 
 class SessionStatus:
     registration = 'registration'
@@ -11,11 +13,11 @@ class SessionStatus:
 
 class KilledPlayerData(TypedDict):
     user: User
-    role: None  # todo replace with role type
+    role: BaseRole
 
 
 KilledPlayersList = List[KilledPlayerData]
 
 PlayersList = Dict[Union[str, int], User]
 
-RolesList = Dict[Union[str, int], None]  # todo replace with role type
+RolesList = Dict[Union[str, int], BaseRole]
