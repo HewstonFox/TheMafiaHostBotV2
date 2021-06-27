@@ -5,7 +5,7 @@ from bot.controllers.SessionController.SessionController import SessionControlle
 from bot.controllers.SessionController.types import SessionStatus
 from bot.types import ChatId
 from bot.utils.message import cleanup_messages
-from localization import get_translation, Localization
+from localization import Localization
 
 
 class GameController:
@@ -15,8 +15,7 @@ class GameController:
         try:
             session = SessionController.create_session(chat_id)
         except Exception as e:
-            # todo: print message
-            print('session is already started')
+            await MessageController.send_registration_is_already_started(chat_id, t)
             return
         msg = await MessageController.send_registration_start(chat_id, t)
         timer = 60 * 1
