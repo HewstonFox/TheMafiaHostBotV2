@@ -1,3 +1,9 @@
 {
-  "language": "English"
+  "language": "English",
+  "private": {
+    "start": "Hello, I'm the host of the <b>Mafia</b> game",
+    "button": {
+      "more": "More"
+    }
+  }
 }

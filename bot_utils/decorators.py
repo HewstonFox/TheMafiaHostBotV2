@@ -1,13 +1,14 @@
 from asyncio import sleep
 from functools import wraps
-from typing import Callable
+from typing import Callable, Union
 import traceback
 
 from aiogram import Bot
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
 from aiogram.utils.exceptions import Unauthorized
 
 from config import env
+from localization import get_translation
 
 
 def message_retry(func: Callable) -> Callable:
@@ -61,11 +62,11 @@ def soft_error(func: Callable) -> Callable:
     return wrapper
 
 
-def with_locale(func: Callable[[Message, str], any]) -> Callable:
+def with_locale(func: Callable[[Union[Message, CallbackQuery], str], any]) -> Callable:
     """func(*args, **kwargs)"""
 
     @wraps(func)
-    async def wrapper(msg: Message):
-        return await func(msg, msg.from_user.language_code)
+    async def wrapper(msg: Union[Message, CallbackQuery]):
+        return await func(msg, get_translation(msg.from_user.language_code))
 
     return wrapper

@@ -1,11 +1,15 @@
 import logging
+from typing import Callable
 
-from aiogram import Dispatcher, executor, types
+from aiogram import Dispatcher, executor, types, Bot
+from aiogram.types import CallbackQuery
 
-from bot_types import ChatType
+from bot_types import ChatType, CallbackQueryActions, ChatId
 from bot_utils.decorators import with_locale
 from config import env
-from controllers.MessageController import MessageController
+from controllers.CallbackQueryController import CallbackQueryController
+from controllers.MessageSender import MessageSender
+from localization import Localization
 from models.RetryBot import RetryBot
 
 logging.basicConfig(level=logging.INFO if env.MODE == 'production' else logging.INFO)
@@ -15,15 +19,17 @@ dp = Dispatcher(bot)
 
 
 @dp.callback_query_handler()
-async def callback_query_handler(query: types.CallbackQuery):
-    print(query)
+@with_locale
+async def callback_query_handler(query: CallbackQuery, t):
+    await CallbackQueryController.apply(query, bot, t)
 
 
 @dp.message_handler(commands=['start'])
 @with_locale
-async def start_handler(message: types.Message, locale):
+async def start_handler(message: types.Message, t):
+    args = (bot, message.chat.id, t)
     if message.chat.type == ChatType.private:
-        await MessageController.send_private_start_message(bot, message.chat.id, locale)
+        await MessageSender.send_private_start_message(*args)
     else:
         pass
 
