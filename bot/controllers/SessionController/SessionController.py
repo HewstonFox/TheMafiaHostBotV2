@@ -1,14 +1,17 @@
 from typing import Union, Dict
 
-from bot_types import ChatId
-from models.Session import Session
+from bot.controllers.SessionController.Session import Session
+from bot.controllers.SessionController.types import SessionStatus
+from bot.types import ChatId
 
 
-class SessionManager:
-    __sessions: Dict[ChatId, Session] = []
+class SessionController:
+    __sessions: Dict[ChatId, Session] = {}
 
     @classmethod
     def create_session(cls, chat_id: ChatId) -> Union[Session, None]:
+        if SessionController.is_active_session(chat_id):
+            raise
         cls.__sessions[chat_id] = Session(chat_id)
         return cls.get_session(chat_id)
 
@@ -19,7 +22,11 @@ class SessionManager:
     @classmethod
     def kill_session(cls, chat_id: ChatId):
         session = cls.get_session(chat_id)
-        if chat_id in cls.__sessions.keys():
+        if chat_id in cls.__sessions:
             del cls.__sessions[chat_id]
-        # stop session instance
+        session.status = SessionStatus.end
         return session
+
+    @classmethod
+    def is_active_session(cls, chat_id: ChatId):
+        return chat_id in cls.__sessions

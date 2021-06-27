@@ -7,7 +7,7 @@ from aiogram import Bot
 from aiogram.types import Message, CallbackQuery
 from aiogram.utils.exceptions import Unauthorized
 
-from config import env
+from bot.config import env
 from localization import get_translation
 
 
@@ -36,8 +36,9 @@ def notify_error(func: Callable) -> Callable:
     async def wrapper(self: Bot, *args, **kwargs):
         try:
             result = await func(self, *args, **kwargs)
-            if issubclass(result, Exception):
+            if issubclass(type(result), Exception):
                 raise result
+            return result
         except (Unauthorized, TypeError) as e:
             return e
         except Exception as e:

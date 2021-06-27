@@ -1,6 +1,6 @@
 from aiogram import Bot
 
-from bot_utils.decorators import message_retry, notify_error, soft_error
+from bot.utils.decorators import message_retry, notify_error, soft_error
 
 
 class RetryBot(Bot):
