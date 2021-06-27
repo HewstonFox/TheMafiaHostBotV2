@@ -7,8 +7,11 @@ from aiogram import Bot
 from aiogram.types import Message, CallbackQuery
 from aiogram.utils.exceptions import Unauthorized
 
-from bot.config import env
-from localization import get_translation
+from bot.controllers.SessionController.Session import Session
+from bot.controllers.SessionController.types import SessionStatus
+from config import env
+from database.session import get_session_record_by_chat_id, create_session_record
+from localization import get_translation, Localization
 
 
 def message_retry(func: Callable) -> Callable:
@@ -63,11 +66,42 @@ def soft_error(func: Callable) -> Callable:
     return wrapper
 
 
-def with_locale(func: Callable[[Union[Message, CallbackQuery], str], any]) -> Callable:
+def with_locale(func: Callable[[Union[Message, CallbackQuery], Localization], any]) -> Callable:
     """func(*args, **kwargs)"""
 
     @wraps(func)
     async def wrapper(msg: Union[Message, CallbackQuery]):
         return await func(msg, get_translation(msg.from_user.language_code))
+
+    return wrapper
+
+
+def with_session(func: Callable[[Union[Message, CallbackQuery], Session], any]) -> Callable:
+    """func(*args, **kwargs)"""
+
+    @wraps(func)
+    async def wrapper(msg: Union[Message, CallbackQuery]):
+        chat = msg.chat
+        session_record = await get_session_record_by_chat_id(chat.id)
+        if not session_record:
+            session_record = await create_session_record(
+                chat_id=chat.id,
+                name=chat.full_name,
+                status=SessionStatus.pending,
+                lang=msg.from_user.language_code or 'en'
+            )
+        session = Session.from_dict(session_record)
+        return await func(msg, session)
+
+    return wrapper
+
+
+def clean_command(func: Callable[[Message, ...], any]) -> Callable:
+    """func(*args, **kwargs)"""
+
+    @wraps(func)
+    async def wrapper(msg: Message, *args, **kwargs):
+        await msg.delete()
+        return await func(msg, *args, **kwargs)
 
     return wrapper

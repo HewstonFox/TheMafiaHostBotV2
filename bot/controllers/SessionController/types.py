@@ -5,8 +5,8 @@ from aiogram.types import User
 class SessionStatus:
     registration = 'registration'
     game = 'game'
-    pending = 'pending'  # delete if unnecessary
-    end = 'end'  # delete if unnecessary
+    pending = 'pending'
+    end = 'end'
 
 
 class KilledPlayerData(TypedDict):

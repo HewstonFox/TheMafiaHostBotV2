@@ -26,7 +26,7 @@ class MessageController:
         return await bot.send_message(chat_id, 'Registration is already started')
 
     @classmethod
-    async def send_registration_reminder(cls, chat_id: ChatId, t, time: int, reply_id: ChatId):
+    async def send_registration_reminder(cls, chat_id: ChatId, t: Localization, time: int, reply_id: ChatId):
         inline_keyboard = arr2keyword_markup([[{'text': 'Connect', 'callback_data': CallbackQueryActions.add_player}]])
         return await bot.send_message(chat_id, f'Timer is {time}', reply_markup=inline_keyboard,
                                       reply_to_message_id=reply_id)

@@ -4,7 +4,7 @@ from aiogram.utils import executor
 
 from bot import handlers
 from bot.bot import dp
-from bot.config import env
+from config import env
 
 
 def start():

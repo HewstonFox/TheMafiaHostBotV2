@@ -1,6 +1,7 @@
 from asyncio import sleep
 
 from bot.controllers.MessaggeController.MessageController import MessageController
+from bot.controllers.SessionController.Session import Session
 from bot.controllers.SessionController.SessionController import SessionController
 from bot.controllers.SessionController.types import SessionStatus
 from bot.types import ChatId
@@ -11,17 +12,19 @@ from localization import Localization
 class GameController:
 
     @classmethod
-    async def run_new_game(cls, chat_id: ChatId, t: Localization):
+    async def run_new_game(cls, chat_id: ChatId, session: Session, time: int = None):
+        t = session.t
         try:
-            session = SessionController.create_session(chat_id)
+            SessionController.push_session(session)
         except Exception as e:
+            print(e)
             await MessageController.send_registration_is_already_started(chat_id, t)
             return
         msg = await MessageController.send_registration_start(chat_id, t)
-        timer = 60 * 1
+        timer = time or 60 * 1
         to_clean_msg = [msg.message_id]
+        session.status = SessionStatus.registration
         while timer:
-            print(session.status)
             if session.status != SessionStatus.registration:
                 break
             await sleep(1)
@@ -45,9 +48,9 @@ class GameController:
         await MessageController.send_registration_force_stopped(chat_id, t)
 
     @classmethod
-    async def force_stop(cls, chat_id: ChatId, t: Localization):
-        session = SessionController.get_session(chat_id)
-        if not session:
+    async def force_stop(cls, chat_id: ChatId, session: Session):
+        t = session.t
+        if not SessionController.is_active_session(session.chat_id):
             await MessageController.send_nothing_to_stop(chat_id, t)
             return
 

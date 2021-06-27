@@ -7,7 +7,7 @@ from bot.types import MarkupKeyboardDict, ChatId
 
 
 def arr2keyword_markup(buttons: List[List[MarkupKeyboardDict]]):
-    return InlineKeyboardMarkup([[InlineKeyboardButton(**btn) for btn in row] for row in buttons])
+    return InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(**btn) for btn in row] for row in buttons])
 
 
 async def cleanup_messages(chat_id: ChatId, ids: List[ChatId]):
