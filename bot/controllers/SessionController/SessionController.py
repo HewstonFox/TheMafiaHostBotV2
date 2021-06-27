@@ -2,6 +2,7 @@ from typing import Union, Dict
 
 from bot.controllers.SessionController.Session import Session
 from bot.controllers.SessionController.types import SessionStatus
+from bot.models.MafiaBotError import SessionAlreadyActiveError
 from bot.types import ChatId
 
 
@@ -11,7 +12,7 @@ class SessionController:
     @classmethod
     def create_session(cls, chat_id: ChatId) -> Union[Session, None]:
         if SessionController.is_active_session(chat_id):
-            raise  # todo add exception
+            raise SessionAlreadyActiveError
         cls.__sessions[chat_id] = Session(chat_id)
         return cls.get_session(chat_id)
 
@@ -19,7 +20,7 @@ class SessionController:
     def push_session(cls, session: Session):
         s_id = session.chat_id
         if SessionController.is_active_session(s_id):
-            raise  # todo add exception
+            raise SessionAlreadyActiveError
         cls.__sessions[s_id] = session
 
     @classmethod

@@ -4,6 +4,7 @@ from bot.controllers.MessaggeController.MessageController import MessageControll
 from bot.controllers.SessionController.Session import Session
 from bot.controllers.SessionController.SessionController import SessionController
 from bot.controllers.SessionController.types import SessionStatus
+from bot.models.MafiaBotError import SessionAlreadyActiveError
 from bot.types import ChatId
 from bot.utils.message import cleanup_messages
 from localization import Localization
@@ -16,8 +17,7 @@ class GameController:
         t = session.t
         try:
             SessionController.push_session(session)
-        except Exception as e:
-            print(e)
+        except SessionAlreadyActiveError:
             await MessageController.send_registration_is_already_started(chat_id, t)
             return
         msg = await MessageController.send_registration_start(chat_id, t)
