@@ -9,6 +9,7 @@ chardet==4.0.0
 dict-to-dataclass==0.0.8
 dnspython==2.1.0
 idna==2.10
+motor==2.4.0
 multidict==5.1.0
 pymongo==3.11.4
 python-dateutil==2.8.1
@@ -20,5 +21,3 @@ soupsieve==2.2.1
 typing-extensions==3.10.0.0
 urllib3==1.26.6
 yarl==1.6.3
-
-motor>=2.4.0
