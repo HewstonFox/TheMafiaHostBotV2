@@ -1,3 +1,4 @@
+import asyncio
 from asyncio import sleep
 from functools import wraps
 from typing import Callable, Union
@@ -9,8 +10,9 @@ from aiogram.utils.exceptions import Unauthorized
 
 from bot.controllers.SessionController.Session import Session
 from bot.controllers.SessionController.types import SessionStatus
+from bot.utils.shared import raise_if_error
 from config import env
-from database.session import get_session_record_by_chat_id, create_session_record
+from database.session import get_session_record_by_chat_id, create_session_record, update_session_record
 from localization import get_translation, Localization
 
 
@@ -39,8 +41,7 @@ def notify_error(func: Callable) -> Callable:
     async def wrapper(self: Bot, *args, **kwargs):
         try:
             result = await func(self, *args, **kwargs)
-            if issubclass(type(result), Exception):
-                raise result
+            raise_if_error(result)
             return result
         except (Unauthorized, TypeError) as e:
             return e
@@ -90,6 +91,9 @@ def with_session(func: Callable[[Union[Message, CallbackQuery], Session], any]) 
                 status=SessionStatus.pending,
                 lang=msg.from_user.language_code or 'en'
             )
+        if chat.full_name != session_record['name']:
+            session_record['name'] = chat.full_name
+            asyncio.create_task(update_session_record(chat.id, session_record))
         session = Session.from_dict(session_record)
         return await func(msg, session)
 

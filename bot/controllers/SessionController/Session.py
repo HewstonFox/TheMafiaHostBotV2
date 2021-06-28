@@ -30,6 +30,10 @@ class Session:
 
     def add_player(self, user: User):
         self.players[user.id] = user
+        print(self.players)
+
+    def is_user_in(self, user_id: ChatId):
+        return user_id in self.players
 
     def remove_player(self, user_id):
         self.players.pop(user_id)

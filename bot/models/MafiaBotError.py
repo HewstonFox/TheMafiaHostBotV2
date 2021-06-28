@@ -11,3 +11,8 @@ class SessionAlreadyActiveError(Exception):
 class InvalidSessionStatusError(Exception):
     def __init__(self, *args):
         super(InvalidSessionStatusError, self).__init__(*args)
+
+
+class UserNotExistsError(Exception):
+    def __init__(self, *args):
+        super(UserNotExistsError, self).__init__(*args)

@@ -3,6 +3,7 @@ from aiogram.types import CallbackQuery, Message, ChatType
 
 from bot.controllers.GameController.GameController import GameController
 from bot.controllers.SessionController.Session import Session
+from bot.controllers.UserController.UserController import UserController
 from bot.utils.decorators import with_locale, with_session, clean_command
 from bot.bot import dp
 from bot.controllers.CallbackQueryController.CallbackQueryController import CallbackQueryController
@@ -20,7 +21,7 @@ async def callback_query_handler(query: CallbackQuery, t: Localization):
 @clean_command
 @with_locale
 async def private_start_handler(message: Message, t: Localization):
-    await MessageController.send_private_start_message(message.chat.id, t)
+    await UserController.start_user(message, t)
 
 
 @dp.message_handler(filters.CommandHelp(), chat_type=ChatType.PRIVATE)
@@ -33,7 +34,7 @@ async def private_help_handler(message: Message, t: Localization):
 @dp.message_handler(filters.CommandStart(), chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
 @clean_command
 @with_session
-async def group_start_handler(message: Message):
+async def group_start_handler(message: Message, session: Session):
     await message.reply('U wrote start in group')
 
 
@@ -76,7 +77,7 @@ async def leave_handler(message: Message, session: Session):
     await message.reply('U wrote leave')
 
 
-@dp.message_handler(filters.CommandSettings(), chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
+@dp.message_handler(filters.CommandSettings(), chat_type=[ChatType.GROUP, ChatType.SUPERGROUP], is_chat_admin=True)
 @clean_command
 @with_session
 async def settings_handler(message: Message, session: Session):

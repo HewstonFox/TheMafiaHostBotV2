@@ -30,7 +30,7 @@ async def create_session_record(**kwargs) -> SessionRecord:
     return await get_session_record_by_chat_id(record['chat_id'])
 
 
-async def update_session_record(chat_id: ChatId, data: dict[str, any]):
+async def update_session_record(chat_id: ChatId, data: dict[str, any]) -> SessionRecord:
     data['updated_at'] = get_current_time()
     await sessions_collection.update_one({'chat_id': chat_id}, {'$set': data})
     return await get_session_record_by_chat_id(chat_id)
