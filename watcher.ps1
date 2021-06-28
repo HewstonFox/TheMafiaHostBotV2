@@ -6,6 +6,12 @@ if ($activator_exist)
 else
 {
     $venv_path = Read-Host -Prompt 'Enter your python virtual environment folder'
+    while (-Not(Test-Path -Path "$venv_path\Scripts\"))
+    {
+        echo "Invalid path ($venv_path\Scripts\)"
+        $venv_path = Read-Host -Prompt 'Try again'
+    }
+
     echo "
 Set-Location '$venv_path\Scripts\'
 .\activate
