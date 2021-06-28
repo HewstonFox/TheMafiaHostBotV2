@@ -1,6 +1,9 @@
 virtualenv
 .idea
 __pycache__
+node_modules
+yarn.lock
 
 credentials
 .env.develop
+/env_activator.ps1

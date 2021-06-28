@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "nodemon": "^2.0.7"
+  },
+  "scripts": {
+    "watcher": "@powershell -NoProfile -ExecutionPolicy Unrestricted -Command ./watcher.ps1; nodemon main.py"
+  }
+}
