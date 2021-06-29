@@ -7,7 +7,7 @@ from bot.controllers.SessionController.types import SessionStatus
 from bot.models.MafiaBotError import SessionAlreadyActiveError
 from bot.types import ChatId
 from bot.utils.message import cleanup_messages
-from localization import Localization
+from bot.localization import Localization
 
 
 class GameController:

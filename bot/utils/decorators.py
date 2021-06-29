@@ -12,8 +12,7 @@ from bot.controllers.SessionController.Session import Session
 from bot.controllers.SessionController.types import SessionStatus
 from bot.utils.shared import raise_if_error
 from config import env
-from database.session import get_session_record_by_chat_id, create_session_record, update_session_record
-from localization import get_translation, Localization
+from bot.localization import get_translation, Localization
 
 
 def message_retry(func: Callable) -> Callable:
@@ -83,18 +82,17 @@ def with_session(func: Callable[[Union[Message, CallbackQuery], Session], any]) 
     @wraps(func)
     async def wrapper(msg: Union[Message, CallbackQuery]):
         chat = msg.chat
-        session_record = await get_session_record_by_chat_id(chat.id)
-        if not session_record:
-            session_record = await create_session_record(
+        session = await Session.get_by_chat_id(chat.id)
+        if not session:
+            session = await Session.create(
                 chat_id=chat.id,
                 name=chat.full_name,
                 status=SessionStatus.pending,
                 lang=msg.from_user.language_code or 'en'
             )
-        if chat.full_name != session_record['name']:
-            session_record['name'] = chat.full_name
-            asyncio.create_task(update_session_record(chat.id, session_record))
-        session = Session.from_dict(session_record)
+        if chat.full_name != session.name:
+            session.name = chat.full_name
+            asyncio.create_task(session.update(chat.id, name=chat.full_name))
         return await func(msg, session)
 
     return wrapper

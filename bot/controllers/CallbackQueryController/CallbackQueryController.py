@@ -8,8 +8,8 @@ from bot.controllers.SessionController.types import SessionStatus
 from bot.models.MafiaBotError import UserNotExistsError
 from bot.types import ChatId
 from bot.utils.shared import raise_if_error
-from database.user import check_if_user_record_exists
-from localization import Localization
+from bot.controllers.UserController import collection as user_collection
+from bot.localization import Localization
 
 
 class CallbackQueryController:
@@ -37,7 +37,7 @@ class CallbackQueryController:
             return
 
         try:
-            if not await check_if_user_record_exists(user_id):
+            if not await user_collection.check_if_user_record_exists(user_id):
                 raise UserNotExistsError
             res = await MessageController.send_user_connected_to_game(user_id, session)
             raise_if_error(res)

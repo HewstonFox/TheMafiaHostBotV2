@@ -3,7 +3,7 @@ from bot.types import ChatId
 from bot.bot import bot
 from bot.controllers.CallbackQueryController.types import CallbackQueryActions
 from bot.utils.message import arr2keyword_markup
-from localization import Localization
+from bot.localization import Localization
 
 
 class MessageController:

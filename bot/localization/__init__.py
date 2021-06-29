@@ -1,7 +1,7 @@
 import os
 import json
 
-from localization.Localization import Localization
+from bot.localization.Localization import Localization
 
 __translations: dict[str, Localization] = {}
 
@@ -13,7 +13,8 @@ def parse_localizations():
     for f in locales_files:
         with open(os.path.join(dirname, f), encoding='utf-8') as translation:
             locale_name = f.split('.')[0]
-            data = json.load(translation)
+            data: dict = json.load(translation)
+            data['Locale'] = locale_name
             __translations[locale_name] = Localization.from_dict(data)
 
 

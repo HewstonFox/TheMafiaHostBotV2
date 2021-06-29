@@ -16,5 +16,6 @@ class Private(DataclassFromDict):
 
 @dataclass
 class Localization(DataclassFromDict):
+    Locale: str = field_from_dict()
     language: str = field_from_dict()
     private: Private = field_from_dict()

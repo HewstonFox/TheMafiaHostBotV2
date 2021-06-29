@@ -8,7 +8,7 @@ from bot.utils.decorators import with_locale, with_session, clean_command
 from bot.bot import dp
 from bot.controllers.CallbackQueryController.CallbackQueryController import CallbackQueryController
 from bot.controllers.MessaggeController.MessageController import MessageController
-from localization import Localization
+from bot.localization import Localization
 
 
 @dp.callback_query_handler()

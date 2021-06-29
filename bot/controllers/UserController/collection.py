@@ -1,21 +1,11 @@
-from typing import TypedDict, Union
+from typing import Union
 
-from bson import ObjectId
-
+from bot.controllers.UserController.types import UserRecord
+from bot.db import db
 from bot.types import ChatId
 from bot.utils.shared import get_current_time
-from database import db
 
 users_collection = db.users
-
-
-class UserRecord(TypedDict):
-    _id: ObjectId
-    chat_id: ChatId
-    full_name: str
-    username: str
-    created_at: int
-    updated_at: int
 
 
 async def get_user_record_by_chat_id(chat_id: ChatId) -> Union[UserRecord, None]:

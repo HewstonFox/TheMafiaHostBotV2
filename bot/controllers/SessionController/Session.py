@@ -2,12 +2,13 @@ import asyncio
 
 from aiogram.types import User
 
-from bot.controllers.SessionController.types import PlayersList, RolesList, KilledPlayersList, SessionStatus
+from bot.controllers.SessionController.types import PlayersList, RolesList, KilledPlayersList, SessionStatus, \
+    SessionRecord
+from bot.controllers.SessionController import collection
 from bot.models import MafiaBotError
 from bot.models.MafiaBotError import InvalidSessionStatusError
 from bot.types import ChatId
-from database.session import SessionRecord, change_session_record_status
-from localization import Localization, get_translation
+from bot.localization import Localization, get_translation
 
 
 class Session:
@@ -49,9 +50,29 @@ class Session:
     def status(self, value):
         if value not in SessionStatus.__dict__.values():
             raise InvalidSessionStatusError
-        asyncio.create_task(change_session_record_status(self.chat_id, value))
+        asyncio.create_task(self.update(status=value))
         self.__status = value
 
     @classmethod
-    def from_dict(cls, obj: SessionRecord):
-        return Session(**obj)
+    async def get_by_chat_id(cls, chat_id: ChatId):
+        session_record = await collection.get_session_record_by_chat_id(chat_id)
+        return Session(**session_record) if session_record else None
+
+    @classmethod
+    async def create(cls, **kwargs):
+        record: SessionRecord = await collection.create_session_record(**kwargs)
+        return Session(**record)
+
+    async def update(self, *_, **kwargs):
+        data = {}
+        if 'name' in kwargs:
+            data['name'] = kwargs['name']
+        if 'status' in kwargs:
+            data['status'] = kwargs['status']
+        if 'lang' in kwargs:
+            data['lang'] = kwargs['lang']
+
+        record = await collection.update_session_record(self.chat_id, data)
+        self.__status = record['status']
+        self.name = record['name']
+        self.t = get_translation(record['lang'])
