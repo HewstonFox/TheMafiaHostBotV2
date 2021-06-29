@@ -46,15 +46,14 @@ class Session:
     def __del__(self):
         self.status = SessionStatus.pending
 
-    async def __watch_chat_participants(self):
+    async def __watch_chat_members(self):
         bot: Bot = self.bot
         if not bot:
             return
-
-        while self.status != SessionStatus.pending:
-            for player_id in self.players:
-                # todo fix
-                if not await bot.get_chat_member(self.chat_id, player_id):
+        end_statuses = (SessionStatus.pending, SessionStatus.end)
+        while self.status not in end_statuses:
+            for player_id in list(self.players):
+                if not (await bot.get_chat_member(self.chat_id, player_id)).is_chat_member():
                     self.remove_player(player_id)
             await asyncio.sleep(1)
 
@@ -69,7 +68,7 @@ class Session:
         asyncio.create_task(self.update(status=value))
         self.__status = value
         if value == SessionStatus.registration:
-            asyncio.create_task(self.__watch_chat_participants())
+            asyncio.create_task(self.__watch_chat_members())
 
     @classmethod
     async def get_by_chat_id(cls, chat_id: ChatId):
