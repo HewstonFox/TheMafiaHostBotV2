@@ -2,8 +2,15 @@
   "language": "Русский",
   "private": {
     "start": "Здравствуйте, я ведущий игры в <b>Мафию</b>",
+    "help": "Хелп кушает",
+    "more_description": "Описял",
     "button": {
       "more": "Подробнее"
+    }
+  },
+  "group": {
+    "registration": {
+      "already_started": "Бот уже пашет!"
     }
   }
 }

@@ -15,7 +15,7 @@ class MessageController:
 
     @classmethod
     async def send_private_more(cls, chat_id: ChatId, t: Localization):
-        return await bot.send_message(chat_id, "Bot`s more, add transition")  # todo add translation
+        return await bot.send_message(chat_id, t.private.more_description)
 
     @classmethod
     async def send_registration_start(cls, chat_id: ChatId, t: Localization):
@@ -25,7 +25,7 @@ class MessageController:
 
     @classmethod
     async def send_registration_is_already_started(cls, chat_id: ChatId, t: Localization):
-        return await bot.send_message(chat_id, 'Registration is already started')  # todo add translation
+        return await bot.send_message(chat_id, t.group.registration.already_started)
 
     @classmethod
     async def send_registration_reminder(cls, chat_id: ChatId, t: Localization, time: int, reply_id: ChatId):
@@ -46,9 +46,11 @@ class MessageController:
         return await bot.send_message(chat_id, 'Nothing to stop')  # todo add translation
 
     @classmethod
-    async def send_user_connected_to_game(cls, chat_id: ChatId, session: Session):
+    async def send_user_connected_to_game(cls, chat_id: ChatId, session: Session): #t.prive.user_connected.format(session.name) в строке фигурные скобочки на том месте где собираюст подставить!
         return await bot.send_message(chat_id, f'You connected to {session.name}')  # todo add translation
 
     @classmethod
     async def send_user_left_game(cls, chat_id: ChatId, session: Session):
         return await bot.send_message(chat_id, f'You left {session.name}')  # todo add translation
+
+

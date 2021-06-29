@@ -2,8 +2,15 @@
   "language": "English",
   "private": {
     "start": "Hello, I'm the host of the <b>Mafia</b> game",
+    "help": "Help button writed",
+    "more_description": "Description",
     "button": {
       "more": "More"
+    }
+  },
+  "group": {
+    "registration": {
+      "already_started": "Bot is already started!"
     }
   }
 }
