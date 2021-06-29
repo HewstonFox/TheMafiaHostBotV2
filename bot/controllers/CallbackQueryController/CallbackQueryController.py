@@ -2,7 +2,7 @@ from aiogram.types import CallbackQuery
 from aiogram.utils.exceptions import Unauthorized
 
 from bot.bot import bot
-from bot.controllers.MessaggeController.MessageController import MessageController
+from bot.controllers.MessageController.MessageController import MessageController
 from bot.controllers.SessionController.SessionController import SessionController
 from bot.controllers.SessionController.types import SessionStatus
 from bot.models.MafiaBotError import UserNotExistsError

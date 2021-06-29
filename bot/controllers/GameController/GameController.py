@@ -1,6 +1,6 @@
 from asyncio import sleep
 
-from bot.controllers.MessaggeController.MessageController import MessageController
+from bot.controllers.MessageController.MessageController import MessageController
 from bot.controllers.SessionController.Session import Session
 from bot.controllers.SessionController.SessionController import SessionController
 from bot.controllers.SessionController.types import SessionStatus
@@ -48,11 +48,13 @@ class GameController:
         await MessageController.send_registration_force_stopped(chat_id, t)
 
     @classmethod
-    async def force_stop(cls, chat_id: ChatId, session: Session):
+    async def force_stop(cls, session: Session):
         t = session.t
+        chat_id = session.chat_id
         if not SessionController.is_active_session(session.chat_id):
             await MessageController.send_nothing_to_stop(chat_id, t)
             return
 
-        if session.status == SessionStatus.registration:
+        _session = SessionController.get_session(session.chat_id)  # get latest status
+        if _session.status == SessionStatus.registration:
             await GameController.cancel_registration(chat_id, t)

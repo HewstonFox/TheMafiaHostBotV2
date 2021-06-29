@@ -3,11 +3,12 @@ from aiogram.types import CallbackQuery, Message, ChatType
 
 from bot.controllers.GameController.GameController import GameController
 from bot.controllers.SessionController.Session import Session
+from bot.controllers.SessionController.SessionController import SessionController
 from bot.controllers.UserController.UserController import UserController
 from bot.utils.decorators import with_locale, with_session, clean_command
 from bot.bot import dp
 from bot.controllers.CallbackQueryController.CallbackQueryController import CallbackQueryController
-from bot.controllers.MessaggeController.MessageController import MessageController
+from bot.controllers.MessageController.MessageController import MessageController
 from bot.localization import Localization
 
 
@@ -52,29 +53,26 @@ async def game_handler(message: Message, session: Session):
 @dp.message_handler(commands=['stop'], chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
 @clean_command
 @with_session
-async def stop_handler(message: Message, session: Session):
-    await GameController.force_stop(message.chat.id, session)
+async def stop_handler(_: Message, session: Session):
+    await GameController.force_stop(session)
 
 
 @dp.message_handler(commands=['extend'], chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
 @clean_command
-@with_session
-async def extend_handler(message: Message, session: Session):
+async def extend_handler(message: Message):
     await message.reply('U wrote extend')
 
 
 @dp.message_handler(commands=['reduce'], chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
 @clean_command
-@with_session
-async def reduce_handler(message: Message, session: Session):
+async def reduce_handler(message: Message):
     await message.reply('U wrote reduce')
 
 
 @dp.message_handler(commands=['leave'], chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
 @clean_command
-@with_session
-async def leave_handler(message: Message, session: Session):
-    await message.reply('U wrote leave')
+async def leave_handler(message: Message):
+    await SessionController.leave_user(message.chat.id, message.from_user.id)
 
 
 @dp.message_handler(filters.CommandSettings(), chat_type=[ChatType.GROUP, ChatType.SUPERGROUP], is_chat_admin=True)

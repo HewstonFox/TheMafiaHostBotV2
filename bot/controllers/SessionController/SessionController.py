@@ -1,5 +1,6 @@
 from typing import Union, Dict
 
+from bot.controllers.MessageController.MessageController import MessageController
 from bot.controllers.SessionController.Session import Session
 from bot.controllers.SessionController.types import SessionStatus
 from bot.models.MafiaBotError import SessionAlreadyActiveError
@@ -38,3 +39,12 @@ class SessionController:
     @classmethod
     def is_active_session(cls, chat_id: ChatId):
         return chat_id in cls.__sessions
+
+    @classmethod
+    async def leave_user(cls, session_id: ChatId, user_id: ChatId):
+        session: Session = SessionController.get_session(session_id)
+        if not session or not session.is_user_in(user_id):
+            return
+
+        session.remove_player(user_id)
+        await MessageController.send_user_left_game(user_id, session)

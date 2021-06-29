@@ -1,5 +1,6 @@
 import asyncio
 
+from aiogram import Bot
 from aiogram.types import User
 
 from bot.controllers.SessionController.types import PlayersList, RolesList, KilledPlayersList, SessionStatus, \
@@ -28,6 +29,8 @@ class Session:
         self.killed: KilledPlayersList = []
         self.t: Localization = get_translation(lang)
         self.__status: str = status
+        if 'bot' in kwargs:
+            self.bot = kwargs['bot']
 
     def add_player(self, user: User):
         self.players[user.id] = user
@@ -37,10 +40,23 @@ class Session:
         return user_id in self.players
 
     def remove_player(self, user_id):
-        self.players.pop(user_id)
+        if self.status == SessionStatus.registration:
+            self.players.pop(user_id)
 
     def __del__(self):
         self.status = SessionStatus.pending
+
+    async def __watch_chat_participants(self):
+        bot: Bot = self.bot
+        if not bot:
+            return
+
+        while self.status != SessionStatus.pending:
+            for player_id in self.players:
+                # todo fix
+                if not await bot.get_chat_member(self.chat_id, player_id):
+                    self.remove_player(player_id)
+            await asyncio.sleep(1)
 
     @property
     def status(self):
@@ -52,6 +68,8 @@ class Session:
             raise InvalidSessionStatusError
         asyncio.create_task(self.update(status=value))
         self.__status = value
+        if value == SessionStatus.registration:
+            asyncio.create_task(self.__watch_chat_participants())
 
     @classmethod
     async def get_by_chat_id(cls, chat_id: ChatId):

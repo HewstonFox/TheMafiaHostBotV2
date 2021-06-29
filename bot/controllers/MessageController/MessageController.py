@@ -1,7 +1,7 @@
-from bot.controllers.SessionController.Session import Session
 from bot.types import ChatId
 from bot.bot import bot
 from bot.controllers.CallbackQueryController.types import CallbackQueryActions
+from bot.controllers.SessionController.Session import Session
 from bot.utils.message import arr2keyword_markup
 from bot.localization import Localization
 
@@ -48,3 +48,7 @@ class MessageController:
     @classmethod
     async def send_user_connected_to_game(cls, chat_id: ChatId, session: Session):
         return await bot.send_message(chat_id, f'You connected to {session.name}')  # todo add translation
+
+    @classmethod
+    async def send_user_left_game(cls, chat_id: ChatId, session: Session):
+        return await bot.send_message(chat_id, f'You left {session.name}')  # todo add translation

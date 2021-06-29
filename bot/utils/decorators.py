@@ -82,7 +82,9 @@ def with_session(func: Callable[[Union[Message, CallbackQuery], Session], any]) 
     @wraps(func)
     async def wrapper(msg: Union[Message, CallbackQuery]):
         chat = msg.chat
+
         session = await Session.get_by_chat_id(chat.id)
+
         if not session:
             session = await Session.create(
                 chat_id=chat.id,
@@ -93,6 +95,9 @@ def with_session(func: Callable[[Union[Message, CallbackQuery], Session], any]) 
         if chat.full_name != session.name:
             session.name = chat.full_name
             asyncio.create_task(session.update(chat.id, name=chat.full_name))
+
+        session.bot = msg.bot
+
         return await func(msg, session)
 
     return wrapper
