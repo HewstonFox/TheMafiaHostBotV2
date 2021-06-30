@@ -25,4 +25,4 @@ def prepare_controllers():
         UserController
     )
     for controller in controllers:
-        controller.db = dp
+        controller.dp = dp

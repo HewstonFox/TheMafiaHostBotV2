@@ -8,7 +8,7 @@ from bot.controllers.SessionController.types import PlayersList, RolesList, Kill
 from bot.controllers.SessionController import collection
 from bot.models import MafiaBotError
 from bot.models.MafiaBotError import InvalidSessionStatusError
-from bot.types import ChatId
+from bot.types import ChatId, Proxy
 from bot.localization import Localization, get_translation
 
 
@@ -24,8 +24,8 @@ class Session:
             raise MafiaBotError.InvalidSessionIdError
         self.chat_id: ChatId = chat_id
         self.name = name
-        self.players: PlayersList = {}
-        self.roles: RolesList = {}
+        self.players: PlayersList = Proxy({})
+        self.roles: RolesList = Proxy({})
         self.killed: KilledPlayersList = []
         self.t: Localization = get_translation(lang)
         self.__status: str = status
@@ -34,7 +34,6 @@ class Session:
 
     def add_player(self, user: User):
         self.players[user.id] = user
-        print(self.players)
 
     def is_user_in(self, user_id: ChatId):
         return user_id in self.players
