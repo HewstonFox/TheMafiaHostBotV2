@@ -2,8 +2,32 @@
   "language": "English",
   "private": {
     "start": "Hello, I'm the host of the <b>Mafia</b> game",
+    "help": "Help button writed",
+    "more_description": "Description",
+    "user_connected": "You connected to mafia game in {}",
+    "user_left": "You left from mafia game in {}",
     "button": {
       "more": "More"
+    }
+  },
+  "group": {
+    "registration": {
+      "start": "Bot started registration",
+      "already_started": "Bot is already started registration!",
+      "reminder": "Time left {} seconds",
+      "force_stopped": "Registration canceled",
+      "skipped": "The game was launched ahead of schedule"
+    },
+    "nothing_to_stop": "Nothing to stop"
+  },
+  "callback_query": {
+    "session": {
+      "is_not_active": "Session is not active",
+      "registration_already_ended": "Session already start"
+    },
+    "player": {
+      "already_join": "You are already in session",
+      "joined": "You Successfully connected"
     }
   }
 }
