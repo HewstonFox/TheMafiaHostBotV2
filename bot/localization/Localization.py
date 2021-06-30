@@ -34,8 +34,27 @@ class Group(DataclassFromDict):
 
 
 @dataclass
+class Session(DataclassFromDict):
+    is_not_active: str = field_from_dict()
+    registration_already_ended: str = field_from_dict()
+
+
+@dataclass
+class Player(DataclassFromDict):
+    already_join: str = field_from_dict()
+    joined: str = field_from_dict()
+
+
+@dataclass
+class CallbackQuery(DataclassFromDict):
+    session: Session = field_from_dict()
+    player: Player = field_from_dict()
+
+
+@dataclass
 class Localization(DataclassFromDict):
     Locale: str = field_from_dict()
     language: str = field_from_dict()
     private: Private = field_from_dict()
     group: Group = field_from_dict()
+    callback_query: CallbackQuery = field_from_dict()
