@@ -1,5 +1,7 @@
 from typing import Union, Dict
 
+from aiogram import Dispatcher
+
 from bot.controllers.MessageController.MessageController import MessageController
 from bot.controllers.SessionController.Session import Session
 from bot.controllers.SessionController.types import SessionStatus
@@ -8,6 +10,8 @@ from bot.types import ChatId
 
 
 class SessionController:
+    dp: Dispatcher
+
     __sessions: Dict[ChatId, Session] = {}
 
     @classmethod

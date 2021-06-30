@@ -1,29 +1,41 @@
 from asyncio import sleep
 
+from aiogram import Dispatcher
+
 from bot.controllers.MessageController.MessageController import MessageController
 from bot.controllers.SessionController.Session import Session
 from bot.controllers.SessionController.SessionController import SessionController
 from bot.controllers.SessionController.types import SessionStatus
 from bot.models.MafiaBotError import SessionAlreadyActiveError
 from bot.types import ChatId
-from bot.utils.message import cleanup_messages
 from bot.localization import Localization
 
 
 class GameController:
+    dp: Dispatcher
 
     @classmethod
-    async def run_new_game(cls, chat_id: ChatId, session: Session, time: int = None):
+    async def run_new_game(cls, session: Session, time: int = None):
         t = session.t
+        chat_id = session.chat_id
         try:
             SessionController.push_session(session)
         except SessionAlreadyActiveError:
             await MessageController.send_registration_is_already_started(chat_id, t)
             return
+
         msg = await MessageController.send_registration_start(chat_id, t)
+
+        async def player_subscriber(players):
+            await MessageController.update_registration_start(chat_id, msg.message_id, session)
+
+        session.players.subscribe(player_subscriber)
+
         timer = time or 60 * 1
         to_clean_msg = [msg.message_id]
+
         session.status = SessionStatus.registration
+
         while timer:
             if session.status != SessionStatus.registration:
                 break
@@ -32,7 +44,11 @@ class GameController:
             if not timer % 10:
                 m = await MessageController.send_registration_reminder(chat_id, t, timer, to_clean_msg[0])
                 to_clean_msg.append(m.message_id)
-        await cleanup_messages(chat_id, to_clean_msg)
+
+        session.players.unsubscribe(player_subscriber)
+
+        await MessageController.cleanup_messages(chat_id, to_clean_msg)
+
         if session.status == SessionStatus.registration:
             session.status = SessionStatus.game
 

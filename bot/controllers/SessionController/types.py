@@ -3,7 +3,7 @@ from aiogram.types import User
 from bson import ObjectId
 
 from bot.models.Roles.BaseRole import BaseRole
-from bot.types import ChatId
+from bot.types import ChatId, Proxy
 
 
 class SessionStatus:
@@ -30,6 +30,6 @@ class SessionRecord(TypedDict):
 
 KilledPlayersList = List[KilledPlayerData]
 
-PlayersList = Dict[Union[str, int], User]
+PlayersList = Proxy[Union[str, int], User]
 
-RolesList = Dict[Union[str, int], BaseRole]
+RolesList = Proxy[Union[str, int], BaseRole]
