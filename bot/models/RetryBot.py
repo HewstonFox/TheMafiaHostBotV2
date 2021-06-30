@@ -30,18 +30,13 @@ class RetryBot(Bot):
 
     @notify_error
     @message_retry
-    async def send_video(self, *args, **kwargs):
-        return await super(RetryBot, self).send_video(*args, **kwargs)
-
-    @notify_error
-    @message_retry
     async def edit_message_reply_markup(self, *args, **kwargs):
         return await super(RetryBot, self).edit_message_reply_markup(*args, **kwargs)
 
     @notify_error
     @message_retry
     async def edit_message_text(self, *args, **kwargs):
-        return await super(RetryBot, self).edit_message_reply_markup(*args, **kwargs)
+        return await super(RetryBot, self).edit_message_text(*args, **kwargs)
 
     @notify_error
     @message_retry

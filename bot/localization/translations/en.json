@@ -12,13 +12,16 @@
   },
   "group": {
     "registration": {
-      "start": "Bot started registration",
+      "start": "Registration for <b>Mafia</b> game started!\nParticipants:\n\n{}\n\nPress <code>Connect</code> to connect to the game",
       "already_started": "Bot is already started registration!",
       "reminder": "Time left {} seconds",
       "force_stopped": "Registration canceled",
       "skipped": "The game was launched ahead of schedule"
     },
-    "nothing_to_stop": "Nothing to stop"
+    "nothing_to_stop": "Nothing to stop",
+    "button": {
+      "connect": "Connect"
+    }
   },
   "callback_query": {
     "session": {

@@ -47,7 +47,7 @@ async def game_handler(message: Message, session: Session):
         time = int(message.text.split(maxsplit=1)[1])
     except (ValueError, IndexError):
         time = None
-    await GameController.run_new_game(message.chat.id, session, time)
+    await GameController.run_new_game(session, time)
 
 
 @dp.message_handler(commands=['stop'], chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])

@@ -9,6 +9,11 @@ class PrivateButton(DataclassFromDict):
 
 
 @dataclass
+class GroupButton:
+    connect: str = field_from_dict()
+
+
+@dataclass
 class Private(DataclassFromDict):
     start: str = field_from_dict()
     help: str = field_from_dict()
@@ -31,6 +36,7 @@ class Registration(DataclassFromDict):
 class Group(DataclassFromDict):
     registration: Registration = field_from_dict()
     nothing_to_stop: str = field_from_dict()
+    button: GroupButton = field_from_dict()
 
 
 @dataclass

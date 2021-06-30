@@ -1,5 +1,6 @@
 import asyncio
 
+from aiogram import Dispatcher
 from aiogram.types import Message
 
 from bot.controllers.MessageController.MessageController import MessageController
@@ -10,6 +11,8 @@ from bot.localization import Localization
 
 
 class UserController:
+    dp: Dispatcher
+
     @classmethod
     async def start_user(cls, message: Message, t: Localization):
         user = message.from_user

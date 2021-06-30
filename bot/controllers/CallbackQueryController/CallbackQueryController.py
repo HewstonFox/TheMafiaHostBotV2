@@ -1,7 +1,7 @@
+from aiogram import Dispatcher
 from aiogram.types import CallbackQuery
 from aiogram.utils.exceptions import Unauthorized
 
-from bot.bot import bot
 from bot.controllers.MessageController.MessageController import MessageController
 from bot.controllers.SessionController.SessionController import SessionController
 from bot.controllers.SessionController.types import SessionStatus
@@ -13,6 +13,8 @@ from bot.localization import Localization
 
 
 class CallbackQueryController:
+    dp: Dispatcher
+
     @classmethod
     async def more(cls, query: CallbackQuery, chat_id: ChatId, t: Localization):
         await MessageController.send_private_more(chat_id, t)
@@ -42,7 +44,7 @@ class CallbackQueryController:
             res = await MessageController.send_user_connected_to_game(user_id, session)
             raise_if_error(res)
         except (UserNotExistsError, Unauthorized):
-            await query.answer(url=f'https://t.me/{(await bot.me).username}?start={chat_id}')
+            await query.answer(url=f'https://t.me/{(await CallbackQueryController.dp.bot.me).username}?start={chat_id}')
             return
 
         session.add_player(query.from_user)
