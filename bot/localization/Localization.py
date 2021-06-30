@@ -13,17 +13,24 @@ class Private(DataclassFromDict):
     start: str = field_from_dict()
     help: str = field_from_dict()
     more_description: str = field_from_dict()
+    user_connected: str = field_from_dict()
+    user_left: str = field_from_dict()
     button: PrivateButton = field_from_dict()
 
 
 @dataclass
 class Registration(DataclassFromDict):
+    start: str = field_from_dict()
     already_started: str = field_from_dict()
+    reminder: str = field_from_dict()
+    force_stopped: str = field_from_dict()
+    skipped: str = field_from_dict()
 
 
 @dataclass
 class Group(DataclassFromDict):
     registration: Registration = field_from_dict()
+    nothing_to_stop: str = field_from_dict()
 
 
 @dataclass

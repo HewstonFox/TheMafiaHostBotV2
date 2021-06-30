@@ -4,13 +4,20 @@
     "start": "Hello, I'm the host of the <b>Mafia</b> game",
     "help": "Help button writed",
     "more_description": "Description",
+    "user_connected": "You connected to mafia game in {}",
+    "user_left": "You left from mafia game in {}",
     "button": {
       "more": "More"
     }
   },
   "group": {
     "registration": {
-      "already_started": "Bot is already started!"
-    }
+      "start": "Bot started registration",
+      "already_started": "Bot is already started registration!",
+      "reminder": "Time left {} seconds",
+      "force_stopped": "Registration canceled",
+      "skipped": "The game was launched ahead of schedule"
+    },
+    "nothing_to_stop": "Nothing to stop"
   }
 }
