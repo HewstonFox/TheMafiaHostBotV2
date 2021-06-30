@@ -21,19 +21,19 @@ class CallbackQueryController:
     @classmethod
     async def add_player(cls, query: CallbackQuery, chat_id: ChatId, t: Localization):
         if not SessionController.is_active_session(chat_id):
-            await query.answer(text='Session is not active')  # todo add translation
+            await query.answer(t.callback_query.session.is_not_active)
             return
 
         session = SessionController.get_session(chat_id)
         if session.status != SessionStatus.registration:
-            await query.answer(text='Session is registration')  # todo add translation
+            await query.answer(t.callback_query.session.registration_already_ended)
             return
 
         # todo add to many players check
 
         user_id = query.from_user.id
         if session.is_user_in(user_id):
-            await query.answer(text='You are already in session')  # todo add translation
+            await query.answer(t.callback_query.player.already_join)
             return
 
         try:
@@ -46,7 +46,7 @@ class CallbackQueryController:
             return
 
         session.add_player(query.from_user)
-        await query.answer(text="You Successfully connected")  # todo add translation
+        await query.answer(t.callback_query.player.joined)
 
     @classmethod
     async def apply(cls, query: CallbackQuery, t: Localization):

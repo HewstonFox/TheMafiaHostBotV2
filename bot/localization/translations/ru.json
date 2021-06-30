@@ -19,5 +19,15 @@
       "skipped": "Регистрация окончена раньше времени, игра начинается"
     },
     "nothing_to_stop": "Нечего останавливать"
+  },
+  "callback_query": {
+    "session": {
+      "is_not_active": "Игра не запущена",
+      "registration_already_ended": "Игра уже началась"
+    },
+    "player": {
+      "already_join": "Вы уже зарегестрированы",
+      "joined": "Вы присоединились"
+    }
   }
 }

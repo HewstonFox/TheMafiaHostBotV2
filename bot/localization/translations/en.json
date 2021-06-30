@@ -19,5 +19,15 @@
       "skipped": "The game was launched ahead of schedule"
     },
     "nothing_to_stop": "Nothing to stop"
+  },
+  "callback_query": {
+    "session": {
+      "is_not_active": "Session is not active",
+      "registration_already_ended": "Session already start"
+    },
+    "player": {
+      "already_join": "You are already in session",
+      "joined": "You Successfully connected"
+    }
   }
 }
