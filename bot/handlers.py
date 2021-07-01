@@ -10,6 +10,7 @@ from bot.bot import dp
 from bot.controllers.CallbackQueryController.CallbackQueryController import CallbackQueryController
 from bot.controllers.MessageController.MessageController import MessageController
 from bot.localization import Localization
+from bot.utils.message import parse_timer
 
 
 @dp.callback_query_handler()
@@ -43,10 +44,7 @@ async def group_start_handler(message: Message, session: Session):
 @clean_command
 @with_session
 async def game_handler(message: Message, session: Session):
-    try:
-        time = int(message.text.split(maxsplit=1)[1])
-    except (ValueError, IndexError):
-        time = None
+    time, sign = parse_timer(message.text)
     await GameController.run_new_game(session, time)
 
 
@@ -59,14 +57,18 @@ async def stop_handler(_: Message, session: Session):
 
 @dp.message_handler(commands=['extend'], chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
 @clean_command
-async def extend_handler(message: Message):
-    await message.reply('U wrote extend')
+@with_session
+async def extend_handler(message: Message, session: Session):
+    time, sign = parse_timer(message.text)
+    await GameController.change_registration_time(session, time, sign)
 
 
 @dp.message_handler(commands=['reduce'], chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
 @clean_command
-async def reduce_handler(message: Message):
-    await message.reply('U wrote reduce')
+@with_session
+async def reduce_handler(message: Message, session: Session):
+    time, sign = parse_timer(message.text)
+    await GameController.change_registration_time(session, time, -sign)
 
 
 @dp.message_handler(commands=['leave'], chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])

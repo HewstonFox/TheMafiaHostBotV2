@@ -44,7 +44,7 @@ class CallbackQueryController:
             res = await MessageController.send_user_connected_to_game(user_id, session)
             raise_if_error(res)
         except (UserNotExistsError, Unauthorized):
-            await query.answer(url=f'https://t.me/{(await CallbackQueryController.dp.bot.me).username}?start={chat_id}')
+            await query.answer(url=f'https://t.me/{(await cls.dp.bot.me).username}?start={chat_id}')
             return
 
         session.add_player(query.from_user)

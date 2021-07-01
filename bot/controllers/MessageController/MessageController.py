@@ -64,7 +64,24 @@ class MessageController:
         return await cls.dp.bot.send_message(chat_id, t.group.registration.skipped)
 
     @classmethod
+    async def send_registration_reduced(cls, chat_id: ChatId, t: Localization, delta: int, time: int):
+        print('reduce')
+        return await cls.dp.bot.send_message(chat_id, t.group.registration.reduced.format(delta, time))
+
+    @classmethod
+    async def send_registration_extended(cls, chat_id: ChatId, t: Localization, delta: int, time: int):
+        return await cls.dp.bot.send_message(chat_id, t.group.registration.extended.format(delta, time))
+
+    @classmethod
     async def send_nothing_to_stop(cls, chat_id: ChatId, t: Localization):
+        return await cls.dp.bot.send_message(chat_id, t.group.nothing_to_stop)
+
+    @classmethod
+    async def send_nothing_to_reduce(cls, chat_id: ChatId, t: Localization):
+        return await cls.dp.bot.send_message(chat_id, t.group.nothing_to_stop)
+
+    @classmethod
+    async def send_nothing_to_extend(cls, chat_id: ChatId, t: Localization):
         return await cls.dp.bot.send_message(chat_id, t.group.nothing_to_stop)
 
     @classmethod

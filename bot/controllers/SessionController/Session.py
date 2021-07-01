@@ -13,6 +13,7 @@ from bot.localization import Localization, get_translation
 
 
 class Session:
+
     def __init__(self,
                  chat_id: ChatId,
                  name: str = '',
@@ -31,6 +32,8 @@ class Session:
         self.__status: str = status
         if 'bot' in kwargs:
             self.bot = kwargs['bot']
+
+        self.timer: int = 0
 
     def add_player(self, user: User):
         self.players[user.id] = user
