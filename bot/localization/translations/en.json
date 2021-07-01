@@ -16,9 +16,13 @@
       "already_started": "Bot is already started registration!",
       "reminder": "Time left {} seconds",
       "force_stopped": "Registration canceled",
-      "skipped": "The game was launched ahead of schedule"
+      "skipped": "The game was launched ahead of schedule",
+      "reduced": "Registration time reduced by {0} seconds \n({1} seconds left)",
+      "extended": "Registration time extended by {0} seconds \n({1} seconds left)"
     },
     "nothing_to_stop": "Nothing to stop",
+    "nothing_to_reduce": "Nothing to reduce",
+    "nothing_to_extend": "Nothing to extend",
     "button": {
       "connect": "Connect"
     }

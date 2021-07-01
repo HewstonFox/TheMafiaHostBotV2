@@ -30,12 +30,16 @@ class Registration(DataclassFromDict):
     reminder: str = field_from_dict()
     force_stopped: str = field_from_dict()
     skipped: str = field_from_dict()
+    reduced: str = field_from_dict()
+    extended: str = field_from_dict()
 
 
 @dataclass
 class Group(DataclassFromDict):
     registration: Registration = field_from_dict()
     nothing_to_stop: str = field_from_dict()
+    nothing_to_reduce: str = field_from_dict()
+    nothing_to_extend: str = field_from_dict()
     button: GroupButton = field_from_dict()
 
 
