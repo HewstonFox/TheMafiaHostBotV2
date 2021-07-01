@@ -9,6 +9,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.utils.exceptions import Unauthorized
 
 from bot.controllers.SessionController.Session import Session
+from bot.controllers.SessionController.SessionController import SessionController
 from bot.controllers.SessionController.types import SessionStatus
 from bot.utils.shared import raise_if_error
 from config import env
@@ -83,7 +84,10 @@ def with_session(func: Callable[[Union[Message, CallbackQuery], Session], any]) 
     async def wrapper(msg: Union[Message, CallbackQuery]):
         chat = msg.chat
 
-        session = await Session.get_by_chat_id(chat.id)
+        try:
+            session = SessionController.get_session(chat.id)
+        except KeyError:
+            session = await Session.get_by_chat_id(chat.id)
 
         if not session:
             session = await Session.create(
@@ -92,6 +96,7 @@ def with_session(func: Callable[[Union[Message, CallbackQuery], Session], any]) 
                 status=SessionStatus.pending,
                 lang=msg.from_user.language_code or 'en'
             )
+
         if chat.full_name != session.name:
             session.name = chat.full_name
             asyncio.create_task(session.update(chat.id, name=chat.full_name))

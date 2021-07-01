@@ -1,6 +1,7 @@
 from asyncio import sleep
 
 from aiogram import Dispatcher
+from aiogram.types import ChatActions
 
 from bot.controllers.MessageController.MessageController import MessageController
 from bot.controllers.SessionController.Session import Session
@@ -16,6 +17,8 @@ class GameController:
 
     @classmethod
     async def run_new_game(cls, session: Session, time: int = None):
+        await cls.dp.bot.send_chat_action(session.chat_id, ChatActions.TYPING)
+
         t = session.t
         chat_id = session.chat_id
         try:
@@ -31,18 +34,18 @@ class GameController:
 
         session.players.subscribe(player_subscriber)
 
-        timer = time or 60 * 1
+        session.timer = time or 60 * 1
         to_clean_msg = [msg.message_id]
 
         session.status = SessionStatus.registration
 
-        while timer:
+        while session.timer:
             if session.status != SessionStatus.registration:
                 break
             await sleep(1)
-            timer -= 1
-            if not timer % 10:
-                m = await MessageController.send_registration_reminder(chat_id, t, timer, to_clean_msg[0])
+            session.timer -= 1
+            if not session.timer % 10:
+                m = await MessageController.send_registration_reminder(chat_id, t, session.timer, to_clean_msg[0])
                 to_clean_msg.append(m.message_id)
 
         session.players.unsubscribe(player_subscriber)
@@ -74,3 +77,22 @@ class GameController:
         _session = SessionController.get_session(session.chat_id)  # get latest status
         if _session.status == SessionStatus.registration:
             await GameController.cancel_registration(chat_id, t)
+
+    @classmethod
+    async def change_registration_time(cls, session: Session, time: int, sign: int):
+        chat_id = session.chat_id
+        t = session.t
+        if session.status != SessionStatus.registration:
+            if sign:
+                await MessageController.send_nothing_to_extend(chat_id, t)
+            else:
+                await MessageController.send_nothing_to_reduce(chat_id, t)
+            return
+
+        delta = time or 30  # todo replace "30" with settings registration extend/reduce time
+        session.timer += delta * sign
+
+        if sign >= 0:
+            await MessageController.send_registration_extended(chat_id, t, delta, session.timer)
+        else:
+            await MessageController.send_registration_reduced(chat_id, t, delta, session.timer)
