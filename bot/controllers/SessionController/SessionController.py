@@ -6,13 +6,15 @@ from bot.controllers.MessageController.MessageController import MessageControlle
 from bot.controllers.SessionController.Session import Session
 from bot.controllers.SessionController.types import SessionStatus
 from bot.models.MafiaBotError import SessionAlreadyActiveError
-from bot.types import ChatId
+from bot.types import ChatId, Proxy
 
 
 class SessionController:
     dp: Dispatcher
 
-    __sessions: Dict[ChatId, Session] = {}
+    __sessions: Proxy = Proxy({})
+
+    __sessions.subscribe(print)
 
     @classmethod
     def create_session(cls, chat_id: ChatId) -> Union[Session, None]:
@@ -35,7 +37,7 @@ class SessionController:
     @classmethod
     def kill_session(cls, chat_id: ChatId):
         session = cls.get_session(chat_id)
-        if chat_id in cls.__sessions:
+        if session:
             del cls.__sessions[chat_id]
         session.status = SessionStatus.end
         return session

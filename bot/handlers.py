@@ -1,5 +1,6 @@
 from aiogram.dispatcher import filters
 from aiogram.types import CallbackQuery, Message, ChatType
+from aiogram.utils.exceptions import Throttled
 
 from bot.controllers.GameController.GameController import GameController
 from bot.controllers.SessionController.Session import Session
@@ -37,15 +38,20 @@ async def private_help_handler(message: Message, t: Localization):
 @clean_command
 @with_session
 async def group_start_handler(message: Message, session: Session):
-    await message.reply('U wrote start in group')
+    await message.bot.send_message(message.chat.id, 'U wrote start in group')
 
 
 @dp.message_handler(commands=['game'], chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
 @clean_command
 @with_session
 async def game_handler(message: Message, session: Session):
-    time, sign = parse_timer(message.text)
-    await GameController.run_new_game(session, time)
+    try:
+        await dp.throttle('game', rate=2, chat_id=session.chat_id)
+    except Throttled:
+        await message.bot.send_message(session.chat_id, 'hold on!')
+    else:
+        time, sign = parse_timer(message.text)
+        await GameController.run_new_game(session, time)
 
 
 @dp.message_handler(commands=['stop'], chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
@@ -82,3 +88,8 @@ async def leave_handler(message: Message):
 @with_session
 async def settings_handler(message: Message, session: Session):
     await message.reply('U wrote settings')
+
+
+@dp.message_handler(commands=['sessions'])
+async def sessions_handler(message):
+    print(SessionController._SessionController__sessions)

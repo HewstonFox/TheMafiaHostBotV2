@@ -6,7 +6,7 @@ import traceback
 
 from aiogram import Bot
 from aiogram.types import Message, CallbackQuery
-from aiogram.utils.exceptions import Unauthorized
+from aiogram.utils.exceptions import Unauthorized, RetryAfter, MessageToDeleteNotFound, MessageToReplyNotFound
 
 from bot.controllers.SessionController.Session import Session
 from bot.controllers.SessionController.SessionController import SessionController
@@ -25,9 +25,12 @@ def message_retry(func: Callable) -> Callable:
         while i < self.repeat:
             try:
                 return await func(self, *args, **kwargs)
-            except Unauthorized as e:
+            except (Unauthorized, MessageToDeleteNotFound, MessageToReplyNotFound) as e:
                 return e
+            except RetryAfter as e:
+                await sleep(e.timeout)
             except Exception as e:
+                print(e)
                 i += 1
                 await sleep(1)
                 if i == self.repeat:

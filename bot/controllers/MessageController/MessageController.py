@@ -65,7 +65,6 @@ class MessageController:
 
     @classmethod
     async def send_registration_reduced(cls, chat_id: ChatId, t: Localization, delta: int, time: int):
-        print('reduce')
         return await cls.dp.bot.send_message(chat_id, t.group.registration.reduced.format(delta, time))
 
     @classmethod
