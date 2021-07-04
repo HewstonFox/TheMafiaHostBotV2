@@ -95,3 +95,6 @@ class Session:
         self.__status = record['status']
         self.name = record['name']
         self.t = get_translation(record['lang'])
+
+    def __repr__(self):
+        return str(self.__dict__)
