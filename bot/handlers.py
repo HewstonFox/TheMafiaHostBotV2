@@ -1,5 +1,8 @@
+import traceback
+
 from aiogram.dispatcher import filters
-from aiogram.types import CallbackQuery, Message, ChatType
+from aiogram.types import CallbackQuery, Message, ChatType, Update
+from aiogram.utils.exceptions import BadRequest
 
 from bot.controllers.GameController.GameController import GameController
 from bot.controllers.SessionController.Session import Session
@@ -12,6 +15,16 @@ from bot.localization import Localization
 from bot.utils.decorators.handlers import with_locale, clean_command, with_session
 from bot.utils.decorators.throttle import throttle_message_handler, throttle_callback_query_handler
 from bot.utils.message import parse_timer
+from config import env
+
+
+@dp.errors_handler()
+async def error_handler(update: Update, error: BadRequest):
+    try:
+        await dp.bot.send_message(env.NOTIFICATION_CHAT, f"Error:<code>\n`{traceback.format_exc()}`</code>")
+    except Exception as e:
+        print(e)
+    print(SessionController._SessionController__sessions)
 
 
 @throttle_callback_query_handler()
@@ -84,9 +97,3 @@ async def leave_handler(message: Message):
 @with_session
 async def settings_handler(message: Message, session: Session, *_, **__):
     await message.reply('U wrote settings')
-
-
-# todo: remove, just for debug
-@dp.message_handler(commands=['sessions'])
-async def sessions_handler(message):
-    print(SessionController._SessionController__sessions)

@@ -2,6 +2,7 @@ from asyncio import sleep
 
 from aiogram import Dispatcher
 from aiogram.types import ChatActions
+from aiogram.utils.exceptions import MessageToReplyNotFound
 
 from bot.controllers.MessageController.MessageController import MessageController
 from bot.controllers.SessionController.Session import Session
@@ -10,6 +11,7 @@ from bot.controllers.SessionController.types import SessionStatus
 from bot.models.MafiaBotError import SessionAlreadyActiveError
 from bot.types import ChatId
 from bot.localization import Localization
+from bot.utils.shared import is_error
 
 
 class GameController:
@@ -44,8 +46,17 @@ class GameController:
                 break
             await sleep(1)
             session.timer -= 1
-            if not session.timer % 10:
-                m = await MessageController.send_registration_reminder(chat_id, t, session.timer, to_clean_msg[0])
+            if not session.timer % 10 and session.timer > 0:
+                try:
+                    m = await MessageController.send_registration_reminder(chat_id, t, session.timer, to_clean_msg[0])
+                    if is_error(m):
+                        raise m
+                except MessageToReplyNotFound:
+                    m = await MessageController.send_registration_start(chat_id, t, session)
+                to_clean_msg.append(m.message_id)
+
+            if 0 < session.timer <= 5:
+                m = await cls.dp.bot.send_message(chat_id, str(session.timer))  # todo add final countdown
                 to_clean_msg.append(m.message_id)
 
         session.players.unsubscribe(player_subscriber)
