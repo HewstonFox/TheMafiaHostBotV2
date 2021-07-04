@@ -2,7 +2,7 @@ from asyncio import sleep
 
 from aiogram import Dispatcher
 from aiogram.types import ChatActions
-from aiogram.utils.exceptions import MessageToReplyNotFound
+from aiogram.utils.exceptions import MessageToReplyNotFound, BadRequest
 
 from bot.controllers.MessageController.MessageController import MessageController
 from bot.controllers.SessionController.Session import Session
@@ -51,9 +51,10 @@ class GameController:
                     m = await MessageController.send_registration_reminder(chat_id, t, session.timer, to_clean_msg[0])
                     if is_error(m):
                         raise m
-                except MessageToReplyNotFound:
+                    to_clean_msg.append(m.message_id)
+                except BadRequest:
                     m = await MessageController.send_registration_start(chat_id, t, session)
-                to_clean_msg.append(m.message_id)
+                    to_clean_msg.insert(0, m.message_id)
 
             if 0 < session.timer <= 5:
                 m = await cls.dp.bot.send_message(chat_id, str(session.timer))  # todo add final countdown
