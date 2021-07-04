@@ -10,12 +10,12 @@ from bot.controllers.SessionController.types import SessionStatus
 from bot.localization import Localization, get_translation
 
 
-def with_locale(func: Callable[[Union[Message, CallbackQuery], Localization], any]) -> Callable:
+def with_locale(func: Callable[[Union[Message, CallbackQuery], Localization, ...], any]) -> Callable:
     """func(*args, **kwargs)"""
 
     @wraps(func)
-    async def wrapper(msg: Union[Message, CallbackQuery]):
-        return await func(msg, get_translation(msg.from_user.language_code))
+    async def wrapper(msg: Union[Message, CallbackQuery], *args, **kwargs):
+        return await func(msg, get_translation(msg.from_user.language_code), *args, **kwargs)
 
     return wrapper
 

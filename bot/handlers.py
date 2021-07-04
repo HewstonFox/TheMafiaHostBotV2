@@ -10,13 +10,13 @@ from bot.controllers.CallbackQueryController.CallbackQueryController import Call
 from bot.controllers.MessageController.MessageController import MessageController
 from bot.localization import Localization
 from bot.utils.decorators.handlers import with_locale, clean_command, with_session
-from bot.utils.decorators.throttle import throttle_message_handler
+from bot.utils.decorators.throttle import throttle_message_handler, throttle_callback_query_handler
 from bot.utils.message import parse_timer
 
 
-@dp.callback_query_handler()
+@throttle_callback_query_handler()
 @with_locale
-async def callback_query_handler(query: CallbackQuery, t: Localization):
+async def callback_query_handler(query: CallbackQuery, t: Localization, *_, **__):
     await CallbackQueryController.apply(query, t)
 
 
