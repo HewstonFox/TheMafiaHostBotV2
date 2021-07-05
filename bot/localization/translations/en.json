@@ -36,5 +36,21 @@
       "already_join": "You are already in session",
       "joined": "You Successfully connected"
     }
+  },
+  "commands": {
+    "private": {
+      "start": "Start me",
+      "help": "Show additional information"
+    },
+    "group": {
+      "start": "Start me",
+      "help": "Show additional information",
+      "game": "Start registration",
+      "reduce": "Reduce registration time",
+      "extend": "Extend registration time",
+      "leave": "Leave a game",
+      "settings": "Open bot settings",
+      "stop": "Stop a game/registration"
+    }
   }
 }
