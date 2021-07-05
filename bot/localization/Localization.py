@@ -62,9 +62,34 @@ class CallbackQuery(DataclassFromDict):
 
 
 @dataclass
+class PrivateCommands(DataclassFromDict):
+    start: str = field_from_dict()
+    help: str = field_from_dict()
+
+
+@dataclass
+class GroupCommands(DataclassFromDict):
+    start: str = field_from_dict()
+    help: str = field_from_dict()
+    game: str = field_from_dict()
+    reduce: str = field_from_dict()
+    extend: str = field_from_dict()
+    leave: str = field_from_dict()
+    settings: str = field_from_dict()
+    stop: str = field_from_dict()
+
+
+@dataclass
+class Commands(DataclassFromDict):
+    private: PrivateCommands = field_from_dict()
+    group: GroupCommands = field_from_dict()
+
+
+@dataclass
 class Localization(DataclassFromDict):
     Locale: str = field_from_dict()
     language: str = field_from_dict()
     private: Private = field_from_dict()
     group: Group = field_from_dict()
     callback_query: CallbackQuery = field_from_dict()
+    commands: Commands = field_from_dict()
