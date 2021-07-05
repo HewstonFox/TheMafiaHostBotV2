@@ -25,10 +25,14 @@ class MessageController:
         return await cls.dp.bot.send_message(chat_id, t.private.more_description)
 
     @classmethod
-    async def send_registration_start(cls, chat_id: ChatId, t: Localization):
+    async def send_registration_start(cls, chat_id: ChatId, t: Localization, session: Session = None):
+        if not session:
+            players = ''
+        else:
+            players = ', '.join(map(lambda x: x.get_mention(), session.players.values()))
         return await cls.dp.bot.send_message(
             chat_id,
-            t.group.registration.start.format(''),
+            t.group.registration.start.format(players),
             reply_markup=buttons.connect(t)
         )
 
@@ -65,7 +69,6 @@ class MessageController:
 
     @classmethod
     async def send_registration_reduced(cls, chat_id: ChatId, t: Localization, delta: int, time: int):
-        print('reduce')
         return await cls.dp.bot.send_message(chat_id, t.group.registration.reduced.format(delta, time))
 
     @classmethod

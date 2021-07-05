@@ -21,5 +21,13 @@ def parse_localizations():
 parse_localizations()
 
 
+def get_default_translation():
+    return __translations['en']
+
+
 def get_translation(locale: str):
-    return __translations['en' if locale not in __translations else locale]
+    return get_default_translation() if locale not in __translations else __translations[locale]
+
+
+def get_all_translations():
+    return __translations

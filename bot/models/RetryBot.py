@@ -1,6 +1,6 @@
 from aiogram import Bot
 
-from bot.utils.decorators import message_retry, notify_error, soft_error
+from bot.utils.decorators.bot_instance import message_retry, soft_error
 
 
 class RetryBot(Bot):
@@ -8,37 +8,30 @@ class RetryBot(Bot):
         super(RetryBot, self).__init__(*args, **kwargs)
         self.repeat = 5
 
-    @notify_error
     @message_retry
     async def send_message(self, *args, **kwargs):
         return await super(RetryBot, self).send_message(*args, **kwargs)
 
-    @notify_error
     @message_retry
     async def send_photo(self, *args, **kwargs):
         return await super(RetryBot, self).send_photo(*args, **kwargs)
 
-    @notify_error
     @message_retry
     async def send_animation(self, *args, **kwargs):
         return await super(RetryBot, self).send_animation(*args, **kwargs)
 
-    @notify_error
     @message_retry
     async def send_video(self, *args, **kwargs):
         return await super(RetryBot, self).send_video(*args, **kwargs)
 
-    @notify_error
     @message_retry
     async def edit_message_reply_markup(self, *args, **kwargs):
         return await super(RetryBot, self).edit_message_reply_markup(*args, **kwargs)
 
-    @notify_error
     @message_retry
     async def edit_message_text(self, *args, **kwargs):
         return await super(RetryBot, self).edit_message_text(*args, **kwargs)
 
-    @notify_error
     @message_retry
     async def answer_callback_query(self, *args, **kwargs):
         return await super(RetryBot, self).answer_callback_query(*args, **kwargs)
