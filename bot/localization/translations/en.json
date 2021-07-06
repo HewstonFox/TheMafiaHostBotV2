@@ -12,7 +12,7 @@
   },
   "group": {
     "registration": {
-      "start": "Registration for <b>Mafia</b> game started!\nParticipants:\n\n{}\n\nPress <code>Connect</code> to connect to the game",
+      "start": "Registration for <b>Mafia</b> game started!\nParticipants ({}):\n\n{}\n\nPress <code>Connect</code> to connect to the game",
       "already_started": "Bot is already started registration!",
       "reminder": "Time left {} seconds",
       "force_stopped": "Registration canceled",
@@ -25,6 +25,131 @@
     "nothing_to_extend": "Nothing to extend",
     "button": {
       "connect": "Connect"
+    },
+    "settings_menu": {
+      "description": "Settings",
+      "name": "",
+      "values": {
+        "language": {
+          "description": "Choose a language",
+          "name": "Language"
+        },
+        "command_rights": {
+          "description": "Select command permissions",
+          "name": "Commands",
+          "game": "Command to start registration",
+          "start": "Command for early completion of registration",
+          "stop": "Command for early stopping of the game / registration",
+          "extend": "Command to extend registration time",
+          "reduce": "Command to reduce registration time",
+          "options": {
+            "admin_only": "Only admins",
+            "all": "All"
+          }
+        },
+        "time": {
+          "description": "Changing the time of in-game intervals",
+          "name": "Time",
+          "values": {
+            "registration": {
+              "description": "Default registration duration",
+              "name": "Registration"
+            },
+            "extend": {
+              "description": "Default registration renewal time",
+              "name": "Renewal of registration"
+            },
+            "reduce": {
+              "description": "Decrease the default registration time",
+              "name": "Shortening registers"
+            },
+            "night": {
+              "description": "Duration of the night",
+              "name": "Night"
+            },
+            "day": {
+              "description": "Length of the day",
+              "name": "Day"
+            },
+            "poll": {
+              "description": "Duration of voting to select a player to be eliminated",
+              "name": "Vote"
+            },
+            "vote": {
+              "description": "The duration of the confirmation for the departure of the player selected in the vote",
+              "name": "Confirmation"
+            }
+          }
+        },
+        "players": {
+          "description": "Player settings",
+          "name": "Players",
+          "values": {
+            "max": {
+              "description": "Maximum number of players in a session",
+              "name": "Maximum number"
+            },
+            "min": {
+              "description": "The minimum number of players in the session",
+              "name": "Minimum quantity"
+            }
+          }
+        },
+        "game": {
+          "description": "Game settings",
+          "name": "Game",
+          "values": {
+            "start_at_night": "Start at night",
+            "mute_messages_from_dead": "Mute dead",
+            "show_role_of_dead": "Show the role of the deceased",
+            "show_role_of_departed": "Show departing role",
+            "show_killer": "Show the killer",
+            "allow_mafia_chat": "Enable mafia chat",
+            "show_night_actions": "Show night actions",
+            "show_private_night_actions": "Show private night effects",
+            "last_words": "Last words",
+            "commissioner_can_kill": "The commissioner can kill",
+            "show_live_roles": "Show Live Roles",
+            "show_message_on_vote": "Show message when voting"
+          },
+          "options": {
+            "enable": "Enabled",
+            "disable": "Disabled",
+            "anonymously": "Anonymously",
+            "without_numbers": "Without quantity"
+          }
+        },
+        "roles": {
+          "description": "Role settings",
+          "name": "Roles",
+          "values": {
+            "maf": {
+              "description": "Mafia settings",
+              "name": "Mafia"
+            },
+            "scd": {
+              "description": "Suicide Settings",
+              "name": "Suicide"
+            },
+            "whr": {
+              "description": "Moth settings",
+              "name": "Moth"
+            },
+            "doc": {
+              "description": "Doctor settings",
+              "name": "Doctor"
+            },
+            "shr": {
+              "description": "Sheriff's Settings",
+              "name": "Sheriff"
+            }
+          },
+          "options": {
+            "enable": "Enabled",
+            "disable": "Disabled"
+          }
+        }
+      }
     }
   },
   "callback_query": {

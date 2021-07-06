@@ -32,7 +32,7 @@ class MessageController:
             players = ', '.join(map(lambda x: x.get_mention(), session.players.values()))
         return await cls.dp.bot.send_message(
             chat_id,
-            t.group.registration.start.format(players),
+            t.group.registration.start.format(len(session.players), players),
             reply_markup=buttons.connect(t)
         )
 
@@ -40,7 +40,7 @@ class MessageController:
     async def update_registration_start(cls, chat_id: ChatId, message_id: int, session: Session):
         players = ', '.join(map(lambda x: x.get_mention(), session.players.values()))
         res = await cls.dp.bot.edit_message_text(
-            text=session.t.group.registration.start.format(players),
+            text=session.t.group.registration.start.format(len(session.players), players),
             chat_id=chat_id,
             message_id=message_id,
             reply_markup=buttons.connect(session.t),

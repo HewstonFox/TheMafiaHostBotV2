@@ -9,6 +9,7 @@ from bot.controllers.GameController.GameController import GameController
 from bot.controllers.SessionController.Session import Session
 from bot.controllers.SessionController.SessionController import SessionController
 from bot.controllers.SessionController.settings.Settings import Settings
+from bot.controllers.SessionController.settings.settings_config import get_settings_menu_config
 from bot.controllers.UserController.UserController import UserController
 from bot.bot import dp
 from bot.controllers.CallbackQueryController.CallbackQueryController import CallbackQueryController
@@ -98,9 +99,10 @@ async def leave_handler(message: Message, *_, **__):
 @clean_command
 @with_session
 async def settings_handler(message: Message, session: Session, *_, **__):
-    settings = Settings()
+    settings = Settings(lang=session.lang)
     pprint(settings.values)
     print(Settings.validate(settings.values))
+    pprint(get_settings_menu_config(session.t))
 
 
 @dp.message_handler(content_types=[ContentType.PINNED_MESSAGE])

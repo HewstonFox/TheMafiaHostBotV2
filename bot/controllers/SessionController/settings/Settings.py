@@ -8,7 +8,7 @@ from bot.utils.shared import dict_merge
 class Settings:
     def __init__(self, *, lang: str = None, config: dict = None):
         if not config:
-            self.values = dict_merge(SettingsPreset.default, {'language': config.get('language') or lang or 'en'})
+            self.values = dict_merge(SettingsPreset.default, {'language': lang or 'en'})
             return
 
         if Settings.validate(config):

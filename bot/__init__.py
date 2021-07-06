@@ -15,5 +15,4 @@ def start():
     else:
         logging.error("Handlers NOT attached", handlers)
     prepare_controllers()
-
-    executor.start_polling(dp, skip_updates=True, on_startup=set_commands_list )
+    executor.start_polling(dp, skip_updates=True, on_startup=set_commands_list)

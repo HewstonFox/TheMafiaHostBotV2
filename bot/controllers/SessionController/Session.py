@@ -28,6 +28,7 @@ class Session:
         self.players: PlayersList = Proxy({})
         self.roles: RolesList = Proxy({})
         self.killed: KilledPlayersList = []
+        self.lang = lang
         self.t: Localization = get_translation(lang)
         self.__status: str = status
         if 'bot' in kwargs:

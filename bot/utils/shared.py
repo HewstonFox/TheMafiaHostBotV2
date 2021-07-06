@@ -1,5 +1,6 @@
+from collections.abc import Mapping
 from time import time
-import collections
+import copy
 
 
 def get_current_time() -> int:
@@ -15,10 +16,24 @@ def raise_if_error(value):
         raise value
 
 
-def dict_merge(dct, merge_dct):
-    for k, v in merge_dct.iteritems():
-        if (k in dct and isinstance(dct[k], dict)
-                and isinstance(merge_dct[k], collections.Mapping)):
-            dict_merge(dct[k], merge_dct[k])
+def dict_merge(*dicts: dict):
+    args_len = len(dicts)
+
+    if args_len == 0:
+        return {}
+
+    target = copy.deepcopy(dicts[0])
+
+    if args_len == 1:
+        return target
+
+    merge_dct = dicts[1]
+
+    for k, v in merge_dct.items():
+        if (k in target and isinstance(target[k], dict)
+                and isinstance(merge_dct[k], Mapping)):
+            target[k] = dict_merge(target[k], merge_dct[k])
         else:
-            dct[k] = merge_dct[k]
+            target[k] = merge_dct[k]
+
+    return target if args_len < 3 else dict_merge(target, *dicts[2:])
