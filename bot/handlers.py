@@ -1,4 +1,5 @@
 import traceback
+from pprint import pprint
 
 from aiogram.dispatcher import filters
 from aiogram.types import CallbackQuery, Message, ChatType, Update, ContentType
@@ -7,6 +8,7 @@ from aiogram.utils.exceptions import BadRequest
 from bot.controllers.GameController.GameController import GameController
 from bot.controllers.SessionController.Session import Session
 from bot.controllers.SessionController.SessionController import SessionController
+from bot.controllers.SessionController.settings.Settings import Settings
 from bot.controllers.UserController.UserController import UserController
 from bot.bot import dp
 from bot.controllers.CallbackQueryController.CallbackQueryController import CallbackQueryController
@@ -96,7 +98,9 @@ async def leave_handler(message: Message, *_, **__):
 @clean_command
 @with_session
 async def settings_handler(message: Message, session: Session, *_, **__):
-    await message.reply('U wrote settings')
+    settings = Settings()
+    pprint(settings.values)
+    print(Settings.validate(settings.values))
 
 
 @dp.message_handler(content_types=[ContentType.PINNED_MESSAGE])
