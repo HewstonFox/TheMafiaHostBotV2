@@ -14,8 +14,6 @@ class SessionController:
 
     __sessions: Proxy = Proxy({})
 
-    __sessions.subscribe(print)
-
     @classmethod
     def create_session(cls, chat_id: ChatId) -> Union[Session, None]:
         if SessionController.is_active_session(chat_id):

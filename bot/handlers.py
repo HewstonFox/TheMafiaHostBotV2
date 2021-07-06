@@ -1,7 +1,7 @@
 import traceback
 
 from aiogram.dispatcher import filters
-from aiogram.types import CallbackQuery, Message, ChatType, Update
+from aiogram.types import CallbackQuery, Message, ChatType, Update, ContentType
 from aiogram.utils.exceptions import BadRequest
 
 from bot.controllers.GameController.GameController import GameController
@@ -87,7 +87,7 @@ async def reduce_handler(message: Message, session: Session, *_, **__):
 
 @throttle_message_handler(commands=['leave'], chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
 @clean_command
-async def leave_handler(message: Message):
+async def leave_handler(message: Message, *_, **__):
     await SessionController.leave_user(message.chat.id, message.from_user.id)
 
 
@@ -97,3 +97,10 @@ async def leave_handler(message: Message):
 @with_session
 async def settings_handler(message: Message, session: Session, *_, **__):
     await message.reply('U wrote settings')
+
+
+@dp.message_handler(content_types=[ContentType.PINNED_MESSAGE])
+async def clear_pined_by_bot(message: Message):
+    username = (await dp.bot.me).username
+    if message.from_user.username == username:
+        await message.delete()

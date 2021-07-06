@@ -2,7 +2,7 @@ from asyncio import sleep
 
 from aiogram import Dispatcher
 from aiogram.types import ChatActions
-from aiogram.utils.exceptions import MessageToReplyNotFound, BadRequest
+from aiogram.utils.exceptions import BadRequest
 
 from bot.controllers.MessageController.MessageController import MessageController
 from bot.controllers.SessionController.Session import Session
@@ -29,15 +29,21 @@ class GameController:
             await MessageController.send_registration_is_already_started(chat_id, t)
             return
 
-        msg = await MessageController.send_registration_start(chat_id, t)
+        to_clean_msg = []
+
+        async def send_connect_message():
+            msg = await MessageController.send_registration_start(chat_id, t, session)
+            to_clean_msg.insert(0, msg.message_id)
+            await cls.dp.bot.pin_chat_message(chat_id, msg.message_id, True)
+
+        await send_connect_message()
 
         async def player_subscriber(players):
-            await MessageController.update_registration_start(chat_id, msg.message_id, session)
+            await MessageController.update_registration_start(chat_id, to_clean_msg[0], session)
 
         session.players.subscribe(player_subscriber)
 
         session.timer = time or 60 * 1
-        to_clean_msg = [msg.message_id]
 
         session.status = SessionStatus.registration
 
@@ -53,8 +59,7 @@ class GameController:
                         raise m
                     to_clean_msg.append(m.message_id)
                 except BadRequest:
-                    m = await MessageController.send_registration_start(chat_id, t, session)
-                    to_clean_msg.insert(0, m.message_id)
+                    await send_connect_message()
 
             if 0 < session.timer <= 5:
                 m = await cls.dp.bot.send_message(chat_id, str(session.timer))  # todo add final countdown
@@ -62,6 +67,7 @@ class GameController:
 
         session.players.unsubscribe(player_subscriber)
 
+        await cls.dp.bot.unpin_chat_message(chat_id, to_clean_msg[0])
         await MessageController.cleanup_messages(chat_id, to_clean_msg)
 
         if session.status == SessionStatus.registration:

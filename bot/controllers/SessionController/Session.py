@@ -1,7 +1,7 @@
 import asyncio
 
 from aiogram import Bot
-from aiogram.types import User
+from aiogram.types import User, ChatMemberStatus
 
 from bot.controllers.SessionController.types import PlayersList, RolesList, KilledPlayersList, SessionStatus, \
     SessionRecord
@@ -55,7 +55,8 @@ class Session:
         end_statuses = (SessionStatus.pending, SessionStatus.end)
         while self.status not in end_statuses:
             for player_id in list(self.players):
-                if not (await bot.get_chat_member(self.chat_id, player_id)).is_chat_member():
+                if (await bot.get_chat_member(self.chat_id, player_id)).status in (
+                        ChatMemberStatus.BANNED, ChatMemberStatus.LEFT, ChatMemberStatus.KICKED):
                     self.remove_player(player_id)
             await asyncio.sleep(1)
 

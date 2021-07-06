@@ -11,7 +11,11 @@ def throttle_message_handler(*args, **kwargs):
         @dp.message_handler(*args, **kwargs)
         async def _wrapper(msg: Message, *_args, **_kwargs):
             try:
-                await dp.throttle(''.join(kwargs['commands']), rate=3, chat_id=msg.chat.id)
+                if 'commands' in kwargs:
+                    throttle_key = ''.join(kwargs['commands'])
+                else:
+                    throttle_key = msg.text
+                await dp.throttle(throttle_key, rate=3, chat_id=msg.chat.id)
             except Throttled:
                 return
             else:
