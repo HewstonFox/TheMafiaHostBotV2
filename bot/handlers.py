@@ -100,9 +100,7 @@ async def leave_handler(message: Message, *_, **__):
 @with_session
 async def settings_handler(message: Message, session: Session, *_, **__):
     settings = Settings(lang=session.lang)
-    pprint(settings.values)
-    print(Settings.validate(settings.values))
-    pprint(get_settings_menu_config(session.t))
+    print(get_settings_menu_config(session.t))
 
 
 @dp.message_handler(content_types=[ContentType.PINNED_MESSAGE])

@@ -9,8 +9,8 @@ class SettingsPreset:
         },
         'time': {
             'registration': 600,
-            'extend_default': 30,
-            'reduce_default': 30,
+            'extend': 30,
+            'reduce': 30,
             'night': 60,
             'day': 300,
             'poll': 60,

@@ -13,8 +13,8 @@ settings_schema = Schema({
     },
     'time': {
         'registration': Or(int, float),
-        'extend_default': Or(int, float),
-        'reduce_default': Or(int, float),
+        'extend': Or(int, float),
+        'reduce': Or(int, float),
         'night': Or(int, float),
         'day': Or(int, float),
         'poll': Or(int, float),

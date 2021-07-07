@@ -9,7 +9,7 @@ from bot.controllers.SessionController import collection
 from bot.models import MafiaBotError
 from bot.models.MafiaBotError import InvalidSessionStatusError
 from bot.types import ChatId, Proxy
-from bot.localization import Localization, get_translation
+from bot.localization import Localization, get_translation, get_default_translation_index
 
 
 class Session:
@@ -18,7 +18,7 @@ class Session:
                  chat_id: ChatId,
                  name: str = '',
                  status: str = SessionStatus.pending,
-                 lang: str = 'en',
+                 lang: str = get_default_translation_index(),
                  **kwargs
                  ):
         if int(chat_id) > 0:

@@ -7,7 +7,7 @@ from aiogram.types import Message, CallbackQuery
 from bot.controllers.SessionController.Session import Session
 from bot.controllers.SessionController.SessionController import SessionController
 from bot.controllers.SessionController.types import SessionStatus
-from bot.localization import Localization, get_translation
+from bot.localization import Localization, get_translation, get_default_translation_index
 
 
 def with_locale(func: Callable[[Union[Message, CallbackQuery], Localization, ...], any]) -> Callable:
@@ -37,7 +37,7 @@ def with_session(func: Callable[[Union[Message, CallbackQuery], Session, ...], a
                 chat_id=chat.id,
                 name=chat.full_name,
                 status=SessionStatus.pending,
-                lang=msg.from_user.language_code or 'en'
+                lang=msg.from_user.language_code or get_default_translation_index()
             )
 
         if chat.full_name != session.name:

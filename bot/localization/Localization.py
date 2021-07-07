@@ -36,14 +36,10 @@ class Registration(DataclassFromDict):
     extended: str = _()
 
 
-class SettingsMenuPropertyFIELDS:
+@dataclass
+class SettingsMenuProperty(DataclassFromDict):
     name: str = _()
     description: str = _()
-
-
-@dataclass
-class SettingsMenuProperty(DataclassFromDict, SettingsMenuPropertyFIELDS):
-    pass
 
 
 @dataclass
@@ -53,7 +49,9 @@ class SettingsMenuCommandsOptions(DataclassFromDict):
 
 
 @dataclass
-class SettingsMenuCommands(DataclassFromDict, SettingsMenuPropertyFIELDS):
+class SettingsMenuCommands(DataclassFromDict):
+    name: str = _()
+    description: str = _()
     game: str = _()
     start: str = _()
     stop: str = _()
@@ -74,7 +72,9 @@ class SettingsMenuTimeValues(DataclassFromDict):
 
 
 @dataclass
-class SettingsMenuTime(DataclassFromDict, SettingsMenuPropertyFIELDS):
+class SettingsMenuTime(DataclassFromDict):
+    name: str = _()
+    description: str = _()
     values: SettingsMenuTimeValues = _()
 
 
@@ -85,7 +85,9 @@ class SettingsMenuPlayersValues(DataclassFromDict):
 
 
 @dataclass
-class SettingsMenuPlayers(DataclassFromDict, SettingsMenuPropertyFIELDS):
+class SettingsMenuPlayers(DataclassFromDict):
+    name: str = _()
+    description: str = _()
     values: SettingsMenuPlayersValues = _()
 
 
@@ -114,7 +116,9 @@ class SettingsMenuGameOptions(DataclassFromDict):
 
 
 @dataclass
-class SettingsMenuGame(DataclassFromDict, SettingsMenuPropertyFIELDS):
+class SettingsMenuGame(DataclassFromDict):
+    name: str = _()
+    description: str = _()
     values: SettingsMenuGameValues = _()
     options: SettingsMenuGameOptions = _()
 
@@ -136,13 +140,10 @@ class SettingsMenuRolesOptions(DataclassFromDict):
 
 @dataclass
 class SettingsMenuRoles(DataclassFromDict):
+    name: str = _()
+    description: str = _()
     values: SettingsMenuRolesValues = _()
     options: SettingsMenuRolesOptions = _()
-
-
-@dataclass
-class SettingsMenuRoles(DataclassFromDict, SettingsMenuPropertyFIELDS):
-    values: SettingsMenuRolesValues = _()
 
 
 @dataclass
@@ -156,7 +157,9 @@ class SettingsMenuValues(DataclassFromDict):
 
 
 @dataclass
-class SettingsMenu(DataclassFromDict, SettingsMenuPropertyFIELDS):
+class SettingsMenu(DataclassFromDict):
+    name: str = _()
+    description: str = _()
     values: SettingsMenuValues = _()
 
 
