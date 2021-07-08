@@ -2,7 +2,9 @@ import asyncio
 
 from aiogram import Bot
 from aiogram.types import User, ChatMemberStatus
+from schema import SchemaError
 
+from bot.controllers.SessionController.settings.Settings import Settings
 from bot.controllers.SessionController.types import PlayersList, RolesList, KilledPlayersList, SessionStatus, \
     SessionRecord
 from bot.controllers.SessionController import collection
@@ -14,11 +16,12 @@ from bot.localization import Localization, get_translation, get_default_translat
 
 class Session:
 
-    def __init__(self,
+    def __init__(self, *,
                  chat_id: ChatId,
+                 lang: str = None,
                  name: str = '',
                  status: str = SessionStatus.pending,
-                 lang: str = get_default_translation_index(),
+                 settings: dict = None,
                  **kwargs
                  ):
         if int(chat_id) > 0:
@@ -28,11 +31,19 @@ class Session:
         self.players: PlayersList = Proxy({})
         self.roles: RolesList = Proxy({})
         self.killed: KilledPlayersList = []
-        self.lang = lang
-        self.t: Localization = get_translation(lang)
+        _lang = lang or settings.get('language') or get_default_translation_index()
+        self.t: Localization = get_translation(_lang)
+
         self.__status: str = status
         if 'bot' in kwargs:
             self.bot = kwargs['bot']
+
+        try:
+            if not settings:
+                raise SchemaError
+            self.settings = Settings(config=settings)
+        except SchemaError:
+            self.settings = Settings(lang=_lang)
 
         self.timer: int = 0
 
@@ -81,6 +92,7 @@ class Session:
 
     @classmethod
     async def create(cls, **kwargs):
+
         record: SessionRecord = await collection.create_session_record(**kwargs)
         return Session(**record)
 
@@ -90,13 +102,14 @@ class Session:
             data['name'] = kwargs['name']
         if 'status' in kwargs:
             data['status'] = kwargs['status']
-        if 'lang' in kwargs:
-            data['lang'] = kwargs['lang']
+        if 'settings' in kwargs:
+            data['settings'] = kwargs['setting']
 
         record = await collection.update_session_record(self.chat_id, data)
         self.__status = record['status']
         self.name = record['name']
-        self.t = get_translation(record['lang'])
+        self.t = get_translation(record['settings']['language'])
+        self.settings = Settings(config=record['settings'])
 
     def __repr__(self):
         return str(self.__dict__)
