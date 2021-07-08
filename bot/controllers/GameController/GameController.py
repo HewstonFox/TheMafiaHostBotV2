@@ -1,9 +1,9 @@
 from asyncio import sleep
 
-from aiogram import Dispatcher
 from aiogram.types import ChatActions
 from aiogram.utils.exceptions import BadRequest
 
+from bot.controllers import BaseController
 from bot.controllers.MessageController.MessageController import MessageController
 from bot.controllers.SessionController.Session import Session
 from bot.controllers.SessionController.SessionController import SessionController
@@ -14,8 +14,7 @@ from bot.localization import Localization
 from bot.utils.shared import is_error
 
 
-class GameController:
-    dp: Dispatcher
+class GameController(BaseController):
 
     @classmethod
     async def run_new_game(cls, session: Session, time: int = None):

@@ -1,15 +1,15 @@
 import traceback
-from pprint import pprint
 
 from aiogram.dispatcher import filters
 from aiogram.types import CallbackQuery, Message, ChatType, Update, ContentType
 from aiogram.utils.exceptions import BadRequest
 
 from bot.controllers.GameController.GameController import GameController
+from bot.controllers.MenuController.MenuController import MenuController
 from bot.controllers.SessionController.Session import Session
 from bot.controllers.SessionController.SessionController import SessionController
-from bot.controllers.SessionController.settings.Settings import Settings
 from bot.controllers.SessionController.settings.settings_config import get_settings_menu_config
+from bot.controllers.SessionController.types import SessionStatus
 from bot.controllers.UserController.UserController import UserController
 from bot.bot import dp
 from bot.controllers.CallbackQueryController.CallbackQueryController import CallbackQueryController
@@ -24,7 +24,7 @@ from config import env
 @dp.errors_handler()
 async def error_handler(update: Update, error: BadRequest):
     try:
-        await dp.bot.send_message(env.NOTIFICATION_CHAT, f"Error:<code>\n`{traceback.format_exc()}`</code>")
+        await dp.bot.send_message(env.NOTIFICATION_CHAT, f"Error:<code>\n{traceback.format_exc()}</code>")
     except Exception as e:
         print(e)
     print(SessionController._SessionController__sessions)
@@ -98,9 +98,11 @@ async def leave_handler(message: Message, *_, **__):
                           is_chat_admin=True)
 @clean_command
 @with_session
-async def settings_handler(message: Message, session: Session, *_, **__):
-    pprint(session.settings.values)
-    pprint(get_settings_menu_config(session.t))
+async def settings_handler(msg: Message, session: Session, *_, **__):
+    if session.status not in (SessionStatus.settings, SessionStatus.pending):
+        return await MessageController.send_settings_unavailable_in_game(session.chat_id, session.t)
+    await MenuController.show_menu(session, get_settings_menu_config(session.t), session.settings.get_property,
+                                   session.update_settings)
 
 
 @dp.message_handler(content_types=[ContentType.PINNED_MESSAGE])

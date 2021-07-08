@@ -1,15 +1,13 @@
 from typing import List
 
-from aiogram import Dispatcher
-
+from bot.controllers import BaseController
 from bot.controllers.MessageController import buttons
 from bot.types import ChatId
 from bot.controllers.SessionController.Session import Session
 from bot.localization import Localization
 
 
-class MessageController:
-    dp: Dispatcher
+class MessageController(BaseController):
 
     @classmethod
     async def cleanup_messages(cls, chat_id: ChatId, ids: List[ChatId]):
@@ -74,6 +72,10 @@ class MessageController:
     @classmethod
     async def send_registration_extended(cls, chat_id: ChatId, t: Localization, delta: int, time: int):
         return await cls.dp.bot.send_message(chat_id, t.group.registration.extended.format(delta, time))
+
+    @classmethod
+    async def send_settings_unavailable_in_game(cls, chat_id: ChatId, t: Localization):
+        return await cls.dp.bot.send_message(chat_id, 'Settings unavailable in game')  # todo: add translation
 
     @classmethod
     async def send_nothing_to_stop(cls, chat_id: ChatId, t: Localization):

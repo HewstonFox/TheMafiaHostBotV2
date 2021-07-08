@@ -32,7 +32,7 @@
       "values": {
         "language": {
           "description": "Выберете язык",
-          "name": "Language"
+          "name": "Язык"
         },
         "command_rights": {
           "description": "Выберите права доступа для команд",

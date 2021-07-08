@@ -80,10 +80,15 @@ class Session:
     def status(self, value):
         if value not in SessionStatus.__dict__.values():
             raise InvalidSessionStatusError
-        asyncio.create_task(self.update(status=value))
         self.__status = value
+        self.update()
         if value == SessionStatus.registration:
             asyncio.create_task(self.__watch_chat_members())
+
+    def update_settings(self, key: str, value):
+        res = self.settings.set_property(key, value)
+        self.update()
+        return res
 
     @classmethod
     async def get_by_chat_id(cls, chat_id: ChatId):
@@ -96,20 +101,13 @@ class Session:
         record: SessionRecord = await collection.create_session_record(**kwargs)
         return Session(**record)
 
-    async def update(self, *_, **kwargs):
-        data = {}
-        if 'name' in kwargs:
-            data['name'] = kwargs['name']
-        if 'status' in kwargs:
-            data['status'] = kwargs['status']
-        if 'settings' in kwargs:
-            data['settings'] = kwargs['setting']
-
-        record = await collection.update_session_record(self.chat_id, data)
-        self.__status = record['status']
-        self.name = record['name']
-        self.t = get_translation(record['settings']['language'])
-        self.settings = Settings(config=record['settings'])
+    def update(self):
+        data = {
+            'name': self.name,
+            'status': self.status,
+            'settings': self.settings.values
+        }
+        asyncio.create_task(collection.update_session_record(self.chat_id, data))
 
     def __repr__(self):
         return str(self.__dict__)

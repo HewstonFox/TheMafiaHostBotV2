@@ -43,7 +43,7 @@ def with_session(func: Callable[[Union[Message, CallbackQuery], Session, ...], a
 
         if chat.full_name != session.name:
             session.name = chat.full_name
-            asyncio.create_task(session.update(chat.id, name=chat.full_name))
+            session.update()
 
         session.bot = msg.bot
 

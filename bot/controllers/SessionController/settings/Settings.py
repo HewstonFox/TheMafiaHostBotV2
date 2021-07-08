@@ -1,3 +1,5 @@
+import operator
+from functools import reduce
 from schema import SchemaError
 
 from bot.controllers.SessionController.settings.presets import SettingsPreset
@@ -23,6 +25,14 @@ class Settings:
             return SchemaError
 
         self.values = dict_merge(self.values, getattr(SettingsPreset, preset))
+
+    def get_property(self, key: str):
+        return reduce(operator.getitem, key.split('.'), self.values)
+
+    def set_property(self, key: str, value):
+        key_list = key.split('.')
+        self.get_property('.'.join(key_list[:-1]))[key_list[-1]] = value
+        return True
 
     @classmethod
     def validate(cls, values: dict):
