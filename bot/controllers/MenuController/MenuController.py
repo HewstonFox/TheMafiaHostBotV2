@@ -51,7 +51,8 @@ class MenuController(BaseController):
             cls,
             buttons: List[Union[MessageMenuButton, MessageMenuButtonOption]],
             get_data,
-            parent: MessageMenuButton = None
+            parent: MessageMenuButton = None,
+            current: MessageMenuButton = None
     ):
         reply_markup = []
         for i, btn in enumerate(buttons):
@@ -89,13 +90,15 @@ class MenuController(BaseController):
                 display = tmp[0] if len(
                     tmp := [opt['name'] for opt in btn['options'] if opt['value'] == value]) else value
                 reply_markup.append([{'text': str(display), 'callback_data': f'menu mutate {i}'}])
-            else:  # option button and it has parent
-                reply_markup.append([{'text': btn['name'], 'callback_data': f'menu mutate {i}'}])
+            else:  # option button and it has 'select' parent
+                value = get_data(current['key'])
+                str_wrapper = '☛ {}' if value == btn['value'] else '{}'
+                reply_markup.append([{'text': str_wrapper.format(btn['name']), 'callback_data': f'menu mutate {i}'}])
 
         if parent:
-            reply_markup.append([{'text': '>> Back <<', 'callback_data': f'menu back'}])  # todo: add translation
+            reply_markup.append([{'text': '🔙 Back', 'callback_data': f'menu back'}])  # todo: add translation
         else:
-            reply_markup.append([{'text': '>> Close <<', 'callback_data': f'menu close'}])  # todo: add translation
+            reply_markup.append([{'text': '❌ Close', 'callback_data': f'menu close'}])  # todo: add translation
         return arr2keyword_markup(reply_markup)
 
     @classmethod
@@ -118,6 +121,8 @@ class MenuController(BaseController):
         if way == 'route':
             await cls.router(chat_id, i)
             return await query.answer()
+        if way == 'mutate':
+            await cls.mutator(chat_id, i, keys[2:])
 
     @classmethod
     async def close(cls, chat_id: ChatId):
@@ -137,6 +142,14 @@ class MenuController(BaseController):
         await cls.rerender(chat_id)
 
     @classmethod
+    async def mutator(cls, chat_id: ChatId, i: int, meta: List[str]):
+        session = cls.__sessions[chat_id]
+        current = session['current']
+        set_data = session['set']
+        if current['type'] == ButtonType.select:
+            pass
+
+    @classmethod
     async def router(cls, chat_id: ChatId, i: int):
         session = cls.__sessions[chat_id]
         session['parents'].append(session['current'])
@@ -151,6 +164,7 @@ class MenuController(BaseController):
             reply_markup=cls.get_reply_markup(
                 session['current']['options' if session['current'].get('type') == ButtonType.select else 'buttons'],
                 session['get'],
-                session['parents'][-1] if len(session['parents']) else None
+                session['parents'][-1] if len(session['parents']) else None,
+                session['current']
             )
         )
