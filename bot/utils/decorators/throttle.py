@@ -31,7 +31,8 @@ def throttle_callback_query_handler():
         @dp.callback_query_handler()
         async def _wrapper(query: CallbackQuery, *args, **kwargs):
             try:
-                await dp.throttle(query.data, rate=3, chat_id=query.message.chat.id, user_id=query.from_user.id)
+                data = query.data.split()
+                await dp.throttle(data[0] if data else '~', rate=.3, chat_id=query.message.chat.id, user_id=query.from_user.id)
             except Throttled:
                 return
             else:

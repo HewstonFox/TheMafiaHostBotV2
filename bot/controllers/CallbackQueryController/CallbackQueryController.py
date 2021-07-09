@@ -1,4 +1,4 @@
-from aiogram.types import CallbackQuery
+from aiogram.types import CallbackQuery, ChatMemberStatus
 from aiogram.utils.exceptions import Unauthorized
 
 from bot.controllers import BaseController
@@ -49,7 +49,8 @@ class CallbackQueryController(BaseController):
     @classmethod
     async def apply(cls, query: CallbackQuery, t: Localization):
         key = query.data.split()[0]
-        if key == 'menu':
+        if key == 'menu' and \
+                ChatMemberStatus.is_chat_admin((await query.message.chat.get_member(query.from_user.id)).status):
             return await MenuController.callback_handler(query)
         if key in cls.__dict__:
             return await getattr(cls, key)(query, query.message.chat.id, t)

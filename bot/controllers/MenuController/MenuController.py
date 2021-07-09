@@ -3,7 +3,7 @@ from typing import Callable, Any, Union, List
 from aiogram.types import CallbackQuery
 
 from bot.controllers import BaseController
-from bot.controllers.MenuController.types import MessageMenu, MessageMenuButton, ButtonType
+from bot.controllers.MenuController.types import MessageMenu, MessageMenuButton, ButtonType, MessageMenuButtonOption
 from bot.controllers.SessionController.Session import Session
 from bot.controllers.SessionController.SessionController import SessionController
 from bot.controllers.SessionController.types import SessionStatus
@@ -47,10 +47,15 @@ class MenuController(BaseController):
         )
 
     @classmethod
-    def get_reply_markup(cls, buttons: List[MessageMenuButton], get_data, has_parent: bool = False):
+    def get_reply_markup(
+            cls,
+            buttons: List[Union[MessageMenuButton, MessageMenuButtonOption]],
+            get_data,
+            parent: MessageMenuButton = None
+    ):
         reply_markup = []
         for i, btn in enumerate(buttons):
-            tp = btn['type']
+            tp = btn.get('type')
             if tp in (ButtonType.route, ButtonType.select):  # routing buttons
                 reply_markup.append([{'text': btn['name'], 'callback_data': f'menu route {i}'}])
             elif tp == ButtonType.int:
@@ -80,8 +85,14 @@ class MenuController(BaseController):
                     {'text': '+1', 'callback_data': f'menu mutate {i} +1'},
                 ])
             elif tp == ButtonType.toggle:
-                reply_markup.append([{'text': str(get_data(btn['key'])), 'callback_data': f'menu mutate {i}'}])
-        if has_parent:
+                value = get_data(btn['key'])
+                display = tmp[0] if len(
+                    tmp := [opt['name'] for opt in btn['options'] if opt['value'] == value]) else value
+                reply_markup.append([{'text': str(display), 'callback_data': f'menu mutate {i}'}])
+            else:  # option button and it has parent
+                reply_markup.append([{'text': btn['name'], 'callback_data': f'menu mutate {i}'}])
+
+        if parent:
             reply_markup.append([{'text': '>> Back <<', 'callback_data': f'menu back'}])  # todo: add translation
         else:
             reply_markup.append([{'text': '>> Close <<', 'callback_data': f'menu close'}])  # todo: add translation
@@ -135,15 +146,11 @@ class MenuController(BaseController):
     @classmethod
     async def rerender(cls, chat_id: ChatId):
         session = cls.__sessions[chat_id]
-        tp = session['current'].get('type')
-        if tp == ButtonType.select:
-            pass
-        else:
-            await session['msg'].edit_text(
-                session['current']['description'],
-                reply_markup=cls.get_reply_markup(
-                    session['current']['buttons'],
-                    session['get'],
-                    len(session['parents']) > 0
-                )
+        await session['msg'].edit_text(
+            session['current']['description'],
+            reply_markup=cls.get_reply_markup(
+                session['current']['options' if session['current'].get('type') == ButtonType.select else 'buttons'],
+                session['get'],
+                session['parents'][-1] if len(session['parents']) else None
             )
+        )

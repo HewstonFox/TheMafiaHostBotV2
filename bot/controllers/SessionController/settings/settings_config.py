@@ -152,6 +152,7 @@ def get_settings_menu_config(t: Localization) -> MessageMenu:
                                 description=t.values.game.values.show_live_roles,
                                 buttons=[Btn(
                                     type=ButtonType.toggle,
+                                    key='game.show_live_roles',
                                     options=[
                                         Opt(
                                             name=t.values.game.options.enable,
@@ -174,6 +175,7 @@ def get_settings_menu_config(t: Localization) -> MessageMenu:
                                 description=t.values.game.values.show_message_on_vote,
                                 buttons=[Btn(
                                     type=ButtonType.toggle,
+                                    key='game.show_message_on_vote',
                                     options=[
                                         Opt(
                                             name=t.values.game.options.enable,
