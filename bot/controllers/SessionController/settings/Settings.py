@@ -49,12 +49,16 @@ class Settings:
 
     def apply_from_file(self, file: io.IOBase):
         with file as f:
-            self.values = json.load(f)
+            values = json.load(f)
+            Settings.validate(values, True)
+        self.values = values
 
     @classmethod
-    def validate(cls, values: dict):
+    def validate(cls, values: dict, strict: bool = False):
         try:
             settings_schema.validate(values)
             return True
-        except SchemaError:
+        except SchemaError as e:
+            if strict:
+                raise e
             return False
