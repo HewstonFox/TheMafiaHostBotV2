@@ -123,6 +123,7 @@ class MenuController(BaseController):
             return await query.answer()
         if way == 'mutate':
             await cls.mutator(chat_id, i, keys[2:])
+            return await query.answer()
 
     @classmethod
     async def close(cls, chat_id: ChatId):
@@ -146,15 +147,48 @@ class MenuController(BaseController):
         session = cls.__sessions[chat_id]
         current = session['current']
         set_data = session['set']
+        get_data = session['get']
         if current['type'] == ButtonType.select:
-            pass
+            key = current['key']
+            current_value = get_data(key)
+            value = current['options'][i]['value']
+        else:
+            btn = current['buttons'][i]
+            key = btn.get('key')
+            if not key:
+                return
+            tp = btn['type']
+            current_value = get_data(key)
+            if tp == ButtonType.toggle:
+                i = tmp + 1 if (
+                        (tmp := [i for i, opt in enumerate(btn['options']) if opt['value'] == current_value][0])
+                        < len(btn['options']) - 1
+                ) else 0
+                value = btn['options'][i]['value']
+            elif tp in (ButtonType.int, ButtonType.float, ButtonType.decimal):
+                parser = int if tp == ButtonType.int else float
+                delta = parser(meta[0])
+                value = current_value + delta
+            else:
+                return
+
+        if value == current_value:
+            return
+
+        res = set_data(key, value)
+        if res is None or res:
+            await cls.rerender(chat_id)
 
     @classmethod
     async def router(cls, chat_id: ChatId, i: int):
         session = cls.__sessions[chat_id]
-        session['parents'].append(session['current'])
-        session['current'] = session['current']['buttons'][i]
-        await cls.rerender(chat_id)
+        try:
+            route = session['current']['buttons'][i]
+            session['parents'].append(session['current'])
+            session['current'] = route
+            await cls.rerender(chat_id)
+        except IndexError:
+            return
 
     @classmethod
     async def rerender(cls, chat_id: ChatId):

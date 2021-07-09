@@ -1,5 +1,9 @@
+import io
+import json
 import operator
 from functools import reduce
+
+from aiogram.types import InputFile
 from schema import SchemaError
 
 from bot.controllers.SessionController.settings.presets import SettingsPreset
@@ -27,12 +31,25 @@ class Settings:
         self.values = dict_merge(self.values, getattr(SettingsPreset, preset))
 
     def get_property(self, key: str):
+        keys = key.split('.')
+        if len(keys) == 1 and not keys[0]:
+            return self.values
         return reduce(operator.getitem, key.split('.'), self.values)
 
     def set_property(self, key: str, value):
-        key_list = key.split('.')
-        self.get_property('.'.join(key_list[:-1]))[key_list[-1]] = value
-        return True
+        try:
+            key_list = key.split('.')
+            self.get_property('.'.join(key_list[:-1]))[key_list[-1]] = value
+            return True
+        except KeyError:
+            return False
+
+    def export(self) -> io.IOBase:
+        return io.BytesIO(json.dumps(self.values, indent=2).encode('utf-8'))
+
+    def apply_from_file(self, file: io.IOBase):
+        with file as f:
+            self.values = json.load(f)
 
     @classmethod
     def validate(cls, values: dict):

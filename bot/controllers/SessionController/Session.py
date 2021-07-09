@@ -87,6 +87,8 @@ class Session:
 
     def update_settings(self, key: str, value):
         res = self.settings.set_property(key, value)
+        if res and key == 'language':
+            self.t = get_translation(value)  # hot localization update
         self.update()
         return res
 
@@ -100,6 +102,14 @@ class Session:
 
         record: SessionRecord = await collection.create_session_record(**kwargs)
         return Session(**record)
+
+    def apply_settings_preset(self, preset: str):
+        self.settings.apply_preset(preset)
+        self.update()
+
+    def import_settings_from_file(self, file):
+        self.settings.apply_from_file(file)
+        self.update()
 
     def update(self):
         data = {

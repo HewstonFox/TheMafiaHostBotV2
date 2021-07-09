@@ -1,8 +1,11 @@
+import io
 import traceback
 
 from aiogram.dispatcher import filters
-from aiogram.types import CallbackQuery, Message, ChatType, Update, ContentType
+from aiogram.dispatcher.filters import Command
+from aiogram.types import CallbackQuery, Message, ChatType, Update, ContentType, InputFile
 from aiogram.utils.exceptions import BadRequest
+from schema import SchemaError
 
 from bot.controllers.GameController.GameController import GameController
 from bot.controllers.MenuController.MenuController import MenuController
@@ -62,6 +65,8 @@ async def group_start_handler(message: Message, session: Session, *_, **__):
 @with_session
 async def game_handler(message: Message, session: Session, *_, **__):
     time, sign = parse_timer(message.text)
+    if session.status == SessionStatus.settings:
+        await MenuController.close(session.chat_id)
     await GameController.run_new_game(session, time)
 
 
@@ -94,8 +99,11 @@ async def leave_handler(message: Message, *_, **__):
     await SessionController.leave_user(message.chat.id, message.from_user.id)
 
 
-@throttle_message_handler(filters.CommandSettings(), chat_type=[ChatType.GROUP, ChatType.SUPERGROUP],
-                          is_chat_admin=True)
+@throttle_message_handler(
+    filters.CommandSettings(),
+    chat_type=[ChatType.GROUP, ChatType.SUPERGROUP],
+    is_chat_admin=True
+)
 @clean_command
 @with_session
 async def settings_handler(msg: Message, session: Session, *_, **__):
@@ -103,6 +111,48 @@ async def settings_handler(msg: Message, session: Session, *_, **__):
         return await MessageController.send_settings_unavailable_in_game(session.chat_id, session.t)
     await MenuController.show_menu(session, get_settings_menu_config(session.t), session.settings.get_property,
                                    session.update_settings)
+
+
+@throttle_message_handler(
+    commands=['settings_preset'],
+    chat_type=[ChatType.GROUP, ChatType.SUPERGROUP],
+    is_chat_admin=True
+)
+@clean_command
+@with_session
+async def settings_preset_handler(message: Message, session: Session, *_, **__):
+    preset = (message.get_args().split()[:1] or [''])[0]
+    try:
+        session.apply_settings_preset(preset)
+    except SchemaError:
+        pass
+    else:
+        # todo: add "preset applied successfully" message in MessageController
+        await dp.bot.send_message(message.chat.id, f'Preset <code>{preset}</code> applied successfully')
+        pass
+
+
+@throttle_message_handler(
+    commands=['settings_export'],
+    chat_type=[ChatType.GROUP, ChatType.SUPERGROUP],
+    is_chat_admin=True
+)
+@clean_command
+@with_session
+async def settings_export_handler(msg: Message, session: Session, *_, **__):
+    await dp.bot.send_document(session.chat_id, InputFile(session.settings.export(), 'MafiaHostBotSettings.json'))
+
+
+@throttle_message_handler(
+    Command(['settings_import'], ignore_caption=False),
+    chat_type=[ChatType.GROUP, ChatType.SUPERGROUP],
+    is_chat_admin=True,
+    content_types=[ContentType.DOCUMENT],
+)
+@with_session
+async def settings_import_handler(message: Message, session: Session, *_, **__):
+    session.import_settings_from_file(await (await message.document.get_file()).download(destination=io.BytesIO()))
+    await message.reply('Got it!')  # todo: add translation
 
 
 @dp.message_handler(content_types=[ContentType.PINNED_MESSAGE])

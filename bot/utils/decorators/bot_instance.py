@@ -4,7 +4,8 @@ from functools import wraps
 from typing import Callable
 
 from aiogram import Bot
-from aiogram.utils.exceptions import Unauthorized, MessageToDeleteNotFound, MessageToReplyNotFound, RetryAfter
+from aiogram.utils.exceptions import Unauthorized, MessageToDeleteNotFound, MessageToReplyNotFound, RetryAfter, \
+    MessageNotModified, InvalidQueryID
 
 from bot.utils.shared import raise_if_error
 from config import env
@@ -19,7 +20,13 @@ def message_retry(func: Callable) -> Callable:
         while i < self.repeat:
             try:
                 return await func(self, *args, **kwargs)
-            except (Unauthorized, MessageToDeleteNotFound, MessageToReplyNotFound) as e:
+            except (
+                    Unauthorized,
+                    MessageToDeleteNotFound,
+                    MessageToReplyNotFound,
+                    MessageNotModified,
+                    InvalidQueryID
+            ) as e:
                 return e
             except RetryAfter as e:
                 await sleep(e.timeout)

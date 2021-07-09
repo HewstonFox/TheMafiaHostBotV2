@@ -163,7 +163,7 @@ def get_settings_menu_config(t: Localization) -> MessageMenu:
                                             value='partially'
                                         ),
                                         Opt(
-                                            name=t.values.game.options.enable,
+                                            name=t.values.game.options.disable,
                                             value='hide'
                                         )
                                     ]
@@ -186,7 +186,7 @@ def get_settings_menu_config(t: Localization) -> MessageMenu:
                                             value='partially'
                                         ),
                                         Opt(
-                                            name=t.values.game.options.enable,
+                                            name=t.values.game.options.disable,
                                             value='hide'
                                         )
                                     ]
