@@ -29,7 +29,8 @@ class CallbackQueryController(BaseController):
         if session.status != SessionStatus.registration:
             return await query.answer(t.callback_query.session.registration_already_ended)
 
-        # todo add to many players check
+        if len(session.players) == session.settings.values['players']['max']:
+            return await query.answer('Too many players')  # todo: add translation
 
         user_id = query.from_user.id
         if session.is_user_in(user_id):

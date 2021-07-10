@@ -1,20 +1,24 @@
 from typing import Callable, Any, Union, List
 
-from aiogram.types import CallbackQuery
+from aiogram.types import CallbackQuery, Message
+from aiogram.utils.exceptions import MessageToEditNotFound, MessageNotModified
 
 from bot.controllers import BaseController
 from bot.controllers.MenuController.types import MessageMenu, MessageMenuButton, ButtonType, MessageMenuButtonOption
+from bot.controllers.MessageController.MessageController import MessageController
 from bot.controllers.SessionController.Session import Session
 from bot.controllers.SessionController.SessionController import SessionController
 from bot.controllers.SessionController.types import SessionStatus
 from bot.models.MafiaBotError import SessionAlreadyActiveError
 from bot.types import Proxy, ChatId
 from bot.utils.message import arr2keyword_markup
+from bot.utils.shared import is_error
 
 
 class MenuController(BaseController):
     __sessions = Proxy({})
 
+    # todo: move to session controller
     @classmethod
     async def show_menu(
             cls,
@@ -23,28 +27,36 @@ class MenuController(BaseController):
             get_data: Callable[[str], Any],
             set_data: Callable[[str, Any], Union[bool, None]]
     ):
-        session.status = SessionStatus.settings
-        try:
-            SessionController.push_session(session)
-        except SessionAlreadyActiveError:
-            # todo: send again if message loosed, unpin and pin if message exists
+        if session.status not in (SessionStatus.settings, SessionStatus.pending):
+            await MessageController.send_settings_unavailable_in_game(session.chat_id, session.t)
             return
-        msg = await cls.build_menu(session.chat_id, config, get_data)
-        cls.__sessions[session.chat_id] = {
-            'msg': msg,
+
+        session_data = {
+            'msg': Message(),  # will be added after first render
             'parents': [],
             'current': config,
             'get': get_data,
             'set': set_data
         }
 
-    @classmethod
-    async def build_menu(cls, chat_id: ChatId, config: MessageMenu, get_data):
-        return await cls.dp.bot.send_message(
-            chat_id,
-            config['description'],
-            reply_markup=cls.get_reply_markup(config['buttons'], get_data)
-        )
+        if SessionController.is_active_session(session.chat_id) and session.status == SessionStatus.settings:
+            menu_session = cls.__sessions.get(session.chat_id)
+            if not menu_session:
+                cls.__sessions[session.chat_id] = session_data
+                menu_session = session_data
+            try:
+                await cls.dp.bot.unpin_chat_message(session.chat_id, menu_session['msg'].message_id)
+            except:
+                pass
+            await cls.render(session.chat_id)
+            await cls.dp.bot.pin_chat_message(session.chat_id, cls.__sessions[session.chat_id]['msg'].message_id)
+            return
+
+        session.status = SessionStatus.settings
+        SessionController.push_session(session)
+        cls.__sessions[session.chat_id] = session_data
+        await cls.render(session.chat_id)
+        await cls.dp.bot.pin_chat_message(session.chat_id, session_data['msg'].message_id)
 
     @classmethod
     def get_reply_markup(
@@ -63,7 +75,7 @@ class MenuController(BaseController):
                 reply_markup.append([
                     {'text': '-5', 'callback_data': f'menu mutate {i} -5'},
                     {'text': '-1', 'callback_data': f'menu mutate {i} -1'},
-                    {'text': str(get_data(btn['key'])), 'callback_data': f'menu mutate {i}'},
+                    {'text': str(get_data(btn['key'])), 'callback_data': '_'},
                     {'text': '+1', 'callback_data': f'menu mutate {i} +1'},
                     {'text': '+5', 'callback_data': f'menu mutate {i} +5'},
                 ])
@@ -71,7 +83,7 @@ class MenuController(BaseController):
                 reply_markup.append([
                     {'text': '-1', 'callback_data': f'menu mutate {i} -1'},
                     {'text': '-0.1', 'callback_data': f'menu mutate {i} -0.1'},
-                    {'text': str(get_data(btn['key'])), 'callback_data': f'menu mutate {i}'},
+                    {'text': str(get_data(btn['key'])), 'callback_data': '_'},
                     {'text': '+0.1', 'callback_data': f'menu mutate {i} +0.1'},
                     {'text': '+1', 'callback_data': f'menu mutate {i} +1'},
                 ])
@@ -80,7 +92,7 @@ class MenuController(BaseController):
                     {'text': '-1', 'callback_data': f'menu mutate {i} -1'},
                     {'text': '-0.1', 'callback_data': f'menu mutate {i} -0.1'},
                     {'text': '-0.01', 'callback_data': f'menu mutate {i} -0.01'},
-                    {'text': str(get_data(btn['key'])), 'callback_data': f'menu mutate {i}'},
+                    {'text': str(get_data(btn['key'])), 'callback_data': '_'},
                     {'text': '+0.01', 'callback_data': f'menu mutate {i} +0.01'},
                     {'text': '+0.1', 'callback_data': f'menu mutate {i} +0.1'},
                     {'text': '+1', 'callback_data': f'menu mutate {i} +1'},
@@ -140,7 +152,7 @@ class MenuController(BaseController):
     async def back(cls, chat_id):
         session = cls.__sessions[chat_id]
         session['current'] = session['parents'].pop()
-        await cls.rerender(chat_id)
+        await cls.render(chat_id)
 
     @classmethod
     async def mutator(cls, chat_id: ChatId, i: int, meta: List[str]):
@@ -167,8 +179,12 @@ class MenuController(BaseController):
                 value = btn['options'][i]['value']
             elif tp in (ButtonType.int, ButtonType.float, ButtonType.decimal):
                 parser = int if tp == ButtonType.int else float
+                _min = btn.get('min')
+                _max = btn.get('max')
                 delta = parser(meta[0])
                 value = current_value + delta
+                if (_max and value > _max) or (_min and value < _min):
+                    return
             else:
                 return
 
@@ -177,7 +193,7 @@ class MenuController(BaseController):
 
         res = set_data(key, value)
         if res is None or res:
-            await cls.rerender(chat_id)
+            await cls.render(chat_id)
 
     @classmethod
     async def router(cls, chat_id: ChatId, i: int):
@@ -186,19 +202,30 @@ class MenuController(BaseController):
             route = session['current']['buttons'][i]
             session['parents'].append(session['current'])
             session['current'] = route
-            await cls.rerender(chat_id)
+            await cls.render(chat_id)
         except IndexError:
             return
 
     @classmethod
-    async def rerender(cls, chat_id: ChatId):
+    async def render(cls, chat_id: ChatId, new: bool = False):
         session = cls.__sessions[chat_id]
-        await session['msg'].edit_text(
-            session['current']['description'],
-            reply_markup=cls.get_reply_markup(
-                session['current']['options' if session['current'].get('type') == ButtonType.select else 'buttons'],
+        params = {
+            'text': session['current']['description'],
+            'reply_markup': cls.get_reply_markup(
+                session['current'].get(
+                    'options' if session['current'].get('type') == ButtonType.select else 'buttons') or [],
                 session['get'],
                 session['parents'][-1] if len(session['parents']) else None,
                 session['current']
             )
-        )
+        }
+        try:
+            if new:
+                raise MessageToEditNotFound
+            res = await session['msg'].edit_text(**params)
+            if is_error(res):
+                raise res
+        except (MessageToEditNotFound, AttributeError):
+            session['msg'] = await cls.dp.bot.send_message(chat_id, **params)
+        except MessageNotModified:
+            pass

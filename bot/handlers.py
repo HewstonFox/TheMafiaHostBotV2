@@ -82,6 +82,7 @@ async def stop_handler(msg: Message, session: Session, *_, **__):
 @with_session
 async def extend_handler(message: Message, session: Session, *_, **__):
     time, sign = parse_timer(message.text)
+    time = time or session.settings.values['time']['extend']
     await GameController.change_registration_time(session, time, sign)
 
 
@@ -90,6 +91,7 @@ async def extend_handler(message: Message, session: Session, *_, **__):
 @with_session
 async def reduce_handler(message: Message, session: Session, *_, **__):
     time, sign = parse_timer(message.text)
+    time = time or session.settings.values['time']['reduce']
     await GameController.change_registration_time(session, time, -sign)
 
 
@@ -107,8 +109,6 @@ async def leave_handler(message: Message, *_, **__):
 @clean_command
 @with_session
 async def settings_handler(msg: Message, session: Session, *_, **__):
-    if session.status not in (SessionStatus.settings, SessionStatus.pending):
-        return await MessageController.send_settings_unavailable_in_game(session.chat_id, session.t)
     await MenuController.show_menu(session, get_settings_menu_config(session.t), session.settings.get_property,
                                    session.update_settings)
 

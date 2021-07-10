@@ -39,7 +39,14 @@ class Settings:
     def set_property(self, key: str, value):
         try:
             key_list = key.split('.')
-            self.get_property('.'.join(key_list[:-1]))[key_list[-1]] = value
+            path = self.get_property('.'.join(key_list[:-1]))
+            prop = key_list[-1]
+            if len(key_list) > 1 and key_list[-2] == 'players':
+                if prop == 'min' and path['max'] < value:
+                    return False
+                if prop == 'max' and path['min'] > value:
+                    return False
+            path[prop] = value
             return True
         except KeyError:
             return False
@@ -57,6 +64,10 @@ class Settings:
     def validate(cls, values: dict, strict: bool = False):
         try:
             settings_schema.validate(values)
+            if values['players']['min'] > values['players']['max']:
+                raise SchemaError('Key \'players\' error:\n'
+                                  'Key \'min\' error:\n'
+                                  'players.min can`t be more than players.max')
             return True
         except SchemaError as e:
             if strict:

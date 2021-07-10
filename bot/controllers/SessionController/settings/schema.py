@@ -1,6 +1,8 @@
-from schema import Schema, Or
+from schema import Schema, Or, And
 
 from bot.localization import get_all_translations
+from bot.utils.schema import field_range
+from bot.controllers.SessionController.settings.constants import *
 
 settings_schema = Schema({
     'language': Or(*get_all_translations()),
@@ -12,17 +14,17 @@ settings_schema = Schema({
         'reduce': bool
     },
     'time': {
-        'registration': Or(int, float),
-        'extend': Or(int, float),
-        'reduce': Or(int, float),
-        'night': Or(int, float),
-        'day': Or(int, float),
-        'poll': Or(int, float),
-        'vote': Or(int, float),
+        'registration': And(Or(int, float), field_range(registration_min)),
+        'extend': And(Or(int, float), field_range(registration_change_time_min)),
+        'reduce': And(Or(int, float), field_range(registration_change_time_min)),
+        'night': And(Or(int, float), field_range(night_min)),
+        'day': And(Or(int, float), field_range(day_min)),
+        'poll': And(Or(int, float), field_range(poll_min)),
+        'vote': And(Or(int, float), field_range(vote_min)),
     },
     'players': {
-        'max': int,
-        'min': int
+        'max': And(int, field_range(min_players)),
+        'min': And(int, field_range(min_players)),
     },
     'game': {
         'start_at_night': bool,
@@ -40,23 +42,23 @@ settings_schema = Schema({
     },
     'roles': {
         'maf': {
-            'n': Or(int, float)
+            'n': And(Or(int, float), field_range(min_role_n))
         },
         'scd': {
             'enable': bool,
-            'n': Or(int, float)
+            'n': And(Or(int, float), field_range(min_role_n))
         },
         'whr': {
             'enable': bool,
-            'n': Or(int, float)
+            'n': And(Or(int, float), field_range(min_role_n))
         },
         'doc': {
             'enable': bool,
-            'n': Or(int, float)
+            'n': And(Or(int, float), field_range(min_role_n))
         },
         'shr': {
             'enable': bool,
-            'n': Or(int, float)
+            'n': And(Or(int, float), field_range(min_role_n))
         },
     }
 })

@@ -1,7 +1,7 @@
 from functools import wraps
 from typing import Callable, Union
 
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, ChatMemberStatus
 
 from bot.controllers.SessionController.Session import Session
 from bot.controllers.SessionController.SessionController import SessionController
@@ -45,6 +45,14 @@ def with_session(func: Callable[[Union[Message, CallbackQuery], Session, ...], a
             session.update()
 
         session.bot = msg.bot
+
+        command = msg.get_command(pure=True)
+        command_right = session.settings.values['command_rights'].get(command)
+        user = msg.from_user
+        if command_right and not ChatMemberStatus.is_chat_admin((await msg.chat.get_member(user.id)).status):
+            await msg.bot.send_message(session.chat_id, f'You ({user.get_mention()}) have no rights'
+                                                        f' for command <code>/{command}</code>')
+            return
 
         return await func(msg, session, *args, **kwargs)
 

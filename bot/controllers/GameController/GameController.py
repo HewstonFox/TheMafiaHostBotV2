@@ -42,7 +42,7 @@ class GameController(BaseController):
 
         session.players.subscribe(player_subscriber)
 
-        session.timer = time or 60 * 1
+        session.timer = time or session.settings.values['time']['registration']
 
         session.status = SessionStatus.registration
 
@@ -70,6 +70,10 @@ class GameController(BaseController):
         await MessageController.cleanup_messages(chat_id, to_clean_msg)
 
         if session.status == SessionStatus.registration:
+            if len(session.players) < session.settings.values['players']['min']:
+                await cls.dp.bot.send_message(chat_id, 'Not enough players to start')  # todo: add translation
+                SessionController.kill_session(chat_id)
+                return
             session.status = SessionStatus.game
 
     @classmethod
@@ -106,10 +110,9 @@ class GameController(BaseController):
                 await MessageController.send_nothing_to_reduce(chat_id, t)
             return
 
-        delta = time or 30  # todo replace "30" with settings registration extend/reduce time
-        session.timer += delta * sign
+        session.timer += time * sign
 
         if sign >= 0:
-            await MessageController.send_registration_extended(chat_id, t, delta, session.timer)
+            await MessageController.send_registration_extended(chat_id, t, time, session.timer)
         else:
-            await MessageController.send_registration_reduced(chat_id, t, delta, session.timer)
+            await MessageController.send_registration_reduced(chat_id, t, time, session.timer)

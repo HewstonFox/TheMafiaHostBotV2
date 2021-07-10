@@ -2,6 +2,22 @@ from bot.controllers.MenuController.types import ButtonType, MessageMenu, \
     MessageMenuButton as Btn, \
     MessageMenuButtonOption as Opt
 from bot.localization import Localization, get_all_translations
+from bot.controllers.SessionController.settings.constants import *
+
+
+def get_time_limits_by_key(key: str):
+    if key == 'registration':
+        return registration_min, None
+    if key in ('extend', 'reduce'):
+        return registration_change_time_min, None
+    if key == 'night':
+        return night_min, None
+    if key == 'day':
+        return day_min, None
+    if key == 'poll':
+        return poll_min, None
+    if key == 'vote':
+        return vote_min, None
 
 
 def command_route_button(t, command) -> Btn:
@@ -29,6 +45,7 @@ def command_route_button(t, command) -> Btn:
 
 
 def time_route_button(t, key):
+    _min, _max = get_time_limits_by_key(key)
     return Btn(
         type=ButtonType.route,
         name=getattr(t, key).name,
@@ -36,7 +53,9 @@ def time_route_button(t, key):
         buttons=[
             Btn(
                 type=ButtonType.int,
-                key=f'time.{key}'
+                key=f'time.{key}',
+                min=_min,
+                max=_max,
             )
         ]
     )
@@ -50,7 +69,8 @@ def players_route_button(t, key):
         buttons=[
             Btn(
                 type=ButtonType.int,
-                key=f'players.{key}'
+                key=f'players.{key}',
+                min=min_players,
             )
         ]
     )
@@ -86,6 +106,7 @@ def role_route_button(t, key):
         buttons=[
             Btn(
                 type=ButtonType.decimal,
+                min=min_role_n,
                 key=f'roles.{key}.n'
             ),
             Btn(
@@ -205,7 +226,8 @@ def get_settings_menu_config(t: Localization) -> MessageMenu:
                                 description=t.values.roles.values.maf.description,
                                 buttons=[Btn(
                                     type=ButtonType.decimal,
-                                    key='roles.maf.n'
+                                    key='roles.maf.n',
+                                    min=min_role_n,
                                 )]
                             )
                         ] + [role_route_button(t.values.roles, key) for key in ('scd', 'whr', 'doc', 'shr')]

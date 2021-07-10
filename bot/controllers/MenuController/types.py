@@ -1,4 +1,4 @@
-from typing import TypedDict, Any, List
+from typing import TypedDict, Any, List, Union
 
 
 class MessageMenuButtonOption(TypedDict):
@@ -14,6 +14,8 @@ class MessageMenuButton(_MessageMenuButtonBase, total=False):
     name: str
     description: str
     key: str
+    min: Union[int, float, None]
+    max: Union[int, float, None]
     options: List[MessageMenuButtonOption]
     buttons: List['MessageMenuButton']
 
