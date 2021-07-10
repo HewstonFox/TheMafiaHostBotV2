@@ -2,23 +2,26 @@ import asyncio
 
 from aiogram import Bot
 from aiogram.types import User, ChatMemberStatus
+from schema import SchemaError
 
+from bot.controllers.SessionController.settings.Settings import Settings
 from bot.controllers.SessionController.types import PlayersList, RolesList, KilledPlayersList, SessionStatus, \
     SessionRecord
 from bot.controllers.SessionController import collection
 from bot.models import MafiaBotError
 from bot.models.MafiaBotError import InvalidSessionStatusError
 from bot.types import ChatId, Proxy
-from bot.localization import Localization, get_translation
+from bot.localization import Localization, get_translation, get_default_translation_index
 
 
 class Session:
 
-    def __init__(self,
+    def __init__(self, *,
                  chat_id: ChatId,
+                 lang: str = None,
                  name: str = '',
                  status: str = SessionStatus.pending,
-                 lang: str = 'en',
+                 settings: dict = None,
                  **kwargs
                  ):
         if int(chat_id) > 0:
@@ -28,10 +31,19 @@ class Session:
         self.players: PlayersList = Proxy({})
         self.roles: RolesList = Proxy({})
         self.killed: KilledPlayersList = []
-        self.t: Localization = get_translation(lang)
+        _lang = lang or settings.get('language') or get_default_translation_index()
+        self.t: Localization = get_translation(_lang)
+
         self.__status: str = status
         if 'bot' in kwargs:
             self.bot = kwargs['bot']
+
+        try:
+            if not settings:
+                raise SchemaError
+            self.settings = Settings(config=settings)
+        except SchemaError:
+            self.settings = Settings(lang=_lang)
 
         self.timer: int = 0
 
@@ -68,10 +80,17 @@ class Session:
     def status(self, value):
         if value not in SessionStatus.__dict__.values():
             raise InvalidSessionStatusError
-        asyncio.create_task(self.update(status=value))
         self.__status = value
+        self.update()
         if value == SessionStatus.registration:
             asyncio.create_task(self.__watch_chat_members())
+
+    def update_settings(self, key: str, value):
+        res = self.settings.set_property(key, value)
+        if res and key == 'language':
+            self.t = get_translation(value)  # hot localization update
+        self.update()
+        return res
 
     @classmethod
     async def get_by_chat_id(cls, chat_id: ChatId):
@@ -80,22 +99,25 @@ class Session:
 
     @classmethod
     async def create(cls, **kwargs):
+
         record: SessionRecord = await collection.create_session_record(**kwargs)
         return Session(**record)
 
-    async def update(self, *_, **kwargs):
-        data = {}
-        if 'name' in kwargs:
-            data['name'] = kwargs['name']
-        if 'status' in kwargs:
-            data['status'] = kwargs['status']
-        if 'lang' in kwargs:
-            data['lang'] = kwargs['lang']
+    def apply_settings_preset(self, preset: str):
+        self.settings.apply_preset(preset)
+        self.update()
 
-        record = await collection.update_session_record(self.chat_id, data)
-        self.__status = record['status']
-        self.name = record['name']
-        self.t = get_translation(record['lang'])
+    def import_settings_from_file(self, file):
+        self.settings.apply_from_file(file)
+        self.update()
+
+    def update(self):
+        data = {
+            'name': self.name,
+            'status': self.status,
+            'settings': self.settings.values
+        }
+        asyncio.create_task(collection.update_session_record(self.chat_id, data))
 
     def __repr__(self):
         return str(self.__dict__)

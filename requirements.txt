@@ -1,4 +1,4 @@
-aiogram==2.14.1
+aiogram==2.14.2
 aiohttp==3.7.4.post0
 async-timeout==3.0.1
 attrs==21.2.0
@@ -21,3 +21,4 @@ soupsieve==2.2.1
 typing-extensions==3.10.0.0
 urllib3==1.26.6
 yarl==1.6.3
+schema==0.7.4
