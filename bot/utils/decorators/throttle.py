@@ -11,7 +11,11 @@ def throttle_message_handler(*args, **kwargs):
         @dp.message_handler(*args, **kwargs)
         async def _wrapper(msg: Message, *_args, **_kwargs):
             try:
-                await dp.throttle(''.join(kwargs['commands']), rate=3, chat_id=msg.chat.id)
+                if 'commands' in kwargs:
+                    throttle_key = ''.join(kwargs['commands'])
+                else:
+                    throttle_key = msg.text
+                await dp.throttle(throttle_key, rate=3, chat_id=msg.chat.id)
             except Throttled:
                 return
             else:
@@ -27,7 +31,8 @@ def throttle_callback_query_handler():
         @dp.callback_query_handler()
         async def _wrapper(query: CallbackQuery, *args, **kwargs):
             try:
-                await dp.throttle(query.data, rate=3, chat_id=query.message.chat.id, user_id=query.from_user.id)
+                data = query.data.split()
+                await dp.throttle(data[0] if data else '~', rate=.3, chat_id=query.message.chat.id, user_id=query.from_user.id)
             except Throttled:
                 return
             else:

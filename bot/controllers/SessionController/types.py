@@ -11,6 +11,7 @@ class SessionStatus:
     game = 'game'
     pending = 'pending'
     end = 'end'
+    settings = 'settings'
 
 
 class KilledPlayerData(TypedDict):
@@ -23,7 +24,7 @@ class SessionRecord(TypedDict):
     chat_id: ChatId
     name: str
     status: str
-    lang: str
+    settings: dict
     created_at: int
     updated_at: int
 

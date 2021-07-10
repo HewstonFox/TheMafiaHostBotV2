@@ -21,8 +21,12 @@ def parse_localizations():
 parse_localizations()
 
 
+def get_default_translation_index():
+    return 'en'
+
+
 def get_default_translation():
-    return __translations['en']
+    return __translations[get_default_translation_index()]
 
 
 def get_translation(locale: str):

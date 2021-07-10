@@ -1,7 +1,6 @@
-from typing import Union, Dict
+from typing import Union
 
-from aiogram import Dispatcher
-
+from bot.controllers import BaseController
 from bot.controllers.MessageController.MessageController import MessageController
 from bot.controllers.SessionController.Session import Session
 from bot.controllers.SessionController.types import SessionStatus
@@ -9,18 +8,14 @@ from bot.models.MafiaBotError import SessionAlreadyActiveError
 from bot.types import ChatId, Proxy
 
 
-class SessionController:
-    dp: Dispatcher
-
+class SessionController(BaseController):
     __sessions: Proxy = Proxy({})
-
-    __sessions.subscribe(print)
 
     @classmethod
     def create_session(cls, chat_id: ChatId) -> Union[Session, None]:
         if SessionController.is_active_session(chat_id):
             raise SessionAlreadyActiveError
-        cls.__sessions[chat_id] = Session(chat_id)
+        cls.__sessions[chat_id] = Session(chat_id=chat_id)
         return cls.get_session(chat_id)
 
     @classmethod
