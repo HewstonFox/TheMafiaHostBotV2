@@ -71,32 +71,45 @@ class MenuController(BaseController):
             if tp in (ButtonType.route, ButtonType.select):  # routing buttons
                 reply_markup.append([{'text': btn['name'], 'callback_data': f'menu route {i}'}])
             elif tp == ButtonType.int:
-                reply_markup.append([
-                    {'text': '-5', 'callback_data': f'menu mutate {i} -5'},
-                    {'text': '-1', 'callback_data': f'menu mutate {i} -1'},
-                    {'text': str(get_data(btn['key'])), 'callback_data': '_'},
-                    {'text': '+1', 'callback_data': f'menu mutate {i} +1'},
-                    {'text': '+5', 'callback_data': f'menu mutate {i} +5'},
+                reply_markup.extend([
+                    [{'text': str(get_data(btn['key'])), 'callback_data': '_'}],
+                    [
+                        {'text': '-5', 'callback_data': f'menu mutate {i} -5'},
+                        {'text': '+5', 'callback_data': f'menu mutate {i} +5'},
+                    ],
+                    [
+                        {'text': '-1', 'callback_data': f'menu mutate {i} -1'},
+                        {'text': '+1', 'callback_data': f'menu mutate {i} +1'},
+                    ]
                 ])
             elif tp == ButtonType.float:
-                reply_markup.append([
-                    {'text': '-1', 'callback_data': f'menu mutate {i} -1'},
-                    {'text': '-0.1', 'callback_data': f'menu mutate {i} -0.1'},
-                    {'text': str(get_data(btn['key'])), 'callback_data': '_'},
-                    {'text': '+0.1', 'callback_data': f'menu mutate {i} +0.1'},
-                    {'text': '+1', 'callback_data': f'menu mutate {i} +1'},
+                reply_markup.extend([
+                    [{'text': str(get_data(btn['key'])), 'callback_data': '_'}],
+                    [
+                        {'text': '-1', 'callback_data': f'menu mutate {i} -1'},
+                        {'text': '+1', 'callback_data': f'menu mutate {i} +1'},
+                    ],
+                    [
+                        {'text': '-0.1', 'callback_data': f'menu mutate {i} -0.1'},
+                        {'text': '+0.1', 'callback_data': f'menu mutate {i} +0.1'},
+                    ]
                 ])
             elif tp == ButtonType.decimal:
-                reply_markup.append([
-                    {'text': '-1', 'callback_data': f'menu mutate {i} -1'},
-                    {'text': '-0.1', 'callback_data': f'menu mutate {i} -0.1'},
-                    {'text': '-0.01', 'callback_data': f'menu mutate {i} -0.01'},
-                    {'text': str(get_data(btn['key'])), 'callback_data': '_'},
-                    {'text': '+0.01', 'callback_data': f'menu mutate {i} +0.01'},
-                    {'text': '+0.1', 'callback_data': f'menu mutate {i} +0.1'},
-                    {'text': '+1', 'callback_data': f'menu mutate {i} +1'},
+                reply_markup.extend([
+                    [{'text': str(get_data(btn['key'])), 'callback_data': '_'}],
+                    [
+                        {'text': '-1', 'callback_data': f'menu mutate {i} -1'},
+                        {'text': '+1', 'callback_data': f'menu mutate {i} +1'},
+                    ],
+                    [
+                        {'text': '-0.1', 'callback_data': f'menu mutate {i} -0.1'},
+                        {'text': '+0.1', 'callback_data': f'menu mutate {i} +0.1'},
+                    ],
+                    [
+                        {'text': '-0.01', 'callback_data': f'menu mutate {i} -0.01'},
+                        {'text': '+0.01', 'callback_data': f'menu mutate {i} +0.01'},
+                    ]
                 ])
-
             elif tp == ButtonType.toggle:
                 value = get_data(btn['key'])
                 display = tmp[0] if len(
@@ -188,7 +201,7 @@ class MenuController(BaseController):
                 _min = btn.get('min')
                 _max = btn.get('max')
                 delta = parser(meta[0])
-                value = current_value + delta
+                value = round(current_value + delta, 4)
                 if (_max and value > _max) or (_min and value < _min):
                     return
             else:
