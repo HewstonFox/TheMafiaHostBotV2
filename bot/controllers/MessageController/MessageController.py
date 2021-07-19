@@ -50,6 +50,10 @@ class MessageController(BaseController):
         return await cls.dp.bot.send_message(chat_id, t.group.registration.already_started)
 
     @classmethod
+    async def send_game_is_already_started(cls, chat_id: ChatId, t: Localization):
+        return await cls.dp.bot.send_message(chat_id, "*Game is already started")  # todo: add localization
+
+    @classmethod
     async def send_registration_reminder(cls, chat_id: ChatId, t: Localization, time: int, reply_id: ChatId):
         return await cls.dp.bot.send_message(
             chat_id, t.group.registration.reminder.format(time),
@@ -75,11 +79,15 @@ class MessageController(BaseController):
 
     @classmethod
     async def send_settings_unavailable_in_game(cls, chat_id: ChatId, t: Localization):
-        return await cls.dp.bot.send_message(chat_id, 'Settings unavailable in game')  # todo: add translation
+        return await cls.dp.bot.send_message(chat_id, '*Settings unavailable in game')  # todo: add translation
 
     @classmethod
     async def send_nothing_to_stop(cls, chat_id: ChatId, t: Localization):
         return await cls.dp.bot.send_message(chat_id, t.group.nothing_to_stop)
+
+    @classmethod
+    async def send_nothing_to_skip(cls, chat_id: ChatId, t: Localization):
+        return await cls.dp.bot.send_message(chat_id, "*Nothing to skip")  # todo: add localization
 
     @classmethod
     async def send_nothing_to_reduce(cls, chat_id: ChatId, t: Localization):
@@ -96,3 +104,4 @@ class MessageController(BaseController):
     @classmethod
     async def send_user_left_game(cls, chat_id: ChatId, session: Session):
         return await cls.dp.bot.send_message(chat_id, session.t.private.user_left.format(session.name))
+

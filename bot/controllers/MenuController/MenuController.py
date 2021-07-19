@@ -121,9 +121,9 @@ class MenuController(BaseController):
                 reply_markup.append([{'text': str_wrapper.format(btn['name']), 'callback_data': f'menu mutate {i}'}])
 
         if parent:
-            reply_markup.append([{'text': '🔙 Back', 'callback_data': f'menu back'}])  # todo: add translation
+            reply_markup.append([{'text': '*🔙 Back', 'callback_data': f'menu back'}])  # todo: add translation
         else:
-            reply_markup.append([{'text': '❌ Close', 'callback_data': f'menu close'}])  # todo: add translation
+            reply_markup.append([{'text': '*❌ Close', 'callback_data': f'menu close'}])  # todo: add translation
         return arr2keyword_markup(reply_markup)
 
     @classmethod
