@@ -66,6 +66,10 @@ class MessageController(BaseController):
         return await cls.dp.bot.send_message(chat_id, t.group.registration.force_stopped)
 
     @classmethod
+    async def send_game_force_stopped(cls, chat_id, t):
+        return await cls.dp.bot.send_message(chat_id, "*Game force stopped")  # todo: add localization
+
+    @classmethod
     async def send_registration_skipped(cls, chat_id: ChatId, t: Localization):
         return await cls.dp.bot.send_message(chat_id, t.group.registration.skipped)
 
@@ -104,4 +108,3 @@ class MessageController(BaseController):
     @classmethod
     async def send_user_left_game(cls, chat_id: ChatId, session: Session):
         return await cls.dp.bot.send_message(chat_id, session.t.private.user_left.format(session.name))
-
