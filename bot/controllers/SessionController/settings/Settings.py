@@ -56,7 +56,10 @@ class Settings:
 
     def apply_from_file(self, file: io.IOBase):
         with file as f:
-            values = json.load(f)
+            try:
+                values = json.load(f)
+            except json.decoder.JSONDecodeError:
+                raise SchemaError('Invalid json format')
             Settings.validate(values, True)
         self.values = values
 
