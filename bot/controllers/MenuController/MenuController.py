@@ -72,30 +72,31 @@ class MenuController(BaseController):
                 reply_markup.append([{'text': btn['name'], 'callback_data': f'menu route {i}'}])
             elif tp == ButtonType.int:
                 reply_markup.append([
-                    {'text': '➖ 5', 'callback_data': f'menu mutate {i} -5'},
-                    {'text': '➖ 1', 'callback_data': f'menu mutate {i} -1'},
+                    {'text': '-5', 'callback_data': f'menu mutate {i} -5'},
+                    {'text': '-1', 'callback_data': f'menu mutate {i} -1'},
                     {'text': str(get_data(btn['key'])), 'callback_data': '_'},
-                    {'text': '➕ 1', 'callback_data': f'menu mutate {i} +1'},
-                    {'text': '➕ 5', 'callback_data': f'menu mutate {i} +5'},
+                    {'text': '+1', 'callback_data': f'menu mutate {i} +1'},
+                    {'text': '+5', 'callback_data': f'menu mutate {i} +5'},
                 ])
             elif tp == ButtonType.float:
                 reply_markup.append([
-                    {'text': '➖ 1', 'callback_data': f'menu mutate {i} -1'},
-                    {'text': '➖ 0.1', 'callback_data': f'menu mutate {i} -0.1'},
+                    {'text': '-1', 'callback_data': f'menu mutate {i} -1'},
+                    {'text': '-0.1', 'callback_data': f'menu mutate {i} -0.1'},
                     {'text': str(get_data(btn['key'])), 'callback_data': '_'},
-                    {'text': '➕ 0.1', 'callback_data': f'menu mutate {i} +0.1'},
-                    {'text': '➕ 1', 'callback_data': f'menu mutate {i} +1'},
+                    {'text': '+0.1', 'callback_data': f'menu mutate {i} +0.1'},
+                    {'text': '+1', 'callback_data': f'menu mutate {i} +1'},
                 ])
             elif tp == ButtonType.decimal:
                 reply_markup.append([
-                    {'text': '➖ 1', 'callback_data': f'menu mutate {i} -1'},
-                    {'text': '➖ 0.1', 'callback_data': f'menu mutate {i} -0.1'},
-                    {'text': '➖ 0.01', 'callback_data': f'menu mutate {i} -0.01'},
+                    {'text': '-1', 'callback_data': f'menu mutate {i} -1'},
+                    {'text': '-0.1', 'callback_data': f'menu mutate {i} -0.1'},
+                    {'text': '-0.01', 'callback_data': f'menu mutate {i} -0.01'},
                     {'text': str(get_data(btn['key'])), 'callback_data': '_'},
-                    {'text': '➕ 0.01', 'callback_data': f'menu mutate {i} +0.01'},
-                    {'text': '➕ 0.1', 'callback_data': f'menu mutate {i} +0.1'},
-                    {'text': '➕ 1', 'callback_data': f'menu mutate {i} +1'},
+                    {'text': '+0.01', 'callback_data': f'menu mutate {i} +0.01'},
+                    {'text': '+0.1', 'callback_data': f'menu mutate {i} +0.1'},
+                    {'text': '+1', 'callback_data': f'menu mutate {i} +1'},
                 ])
+
             elif tp == ButtonType.toggle:
                 value = get_data(btn['key'])
                 display = tmp[0] if len(

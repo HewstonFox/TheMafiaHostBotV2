@@ -69,3 +69,47 @@ class SettingsPreset:
             'show_message_on_vote': 'hide',
         },
     }
+
+    classic = {
+        'time': {
+            'night': 60,
+            'day': 600,
+            'poll': 60,
+            'vote': 30,
+        },
+        'players': {
+            'max': 10,
+            'min': 10
+        },
+        'game': {
+            'start_at_night': True,
+            'mute_messages_from_dead': True,
+            'show_role_of_dead': False,
+            'show_killer': False,
+            'allow_mafia_chat': True,
+            'show_night_actions': False,
+            'show_private_night_actions': True,
+            'last_words': True,
+            'commissioner_can_kill': False,
+            'show_live_roles': 'hide',  # 'show', 'hide', 'partially'
+            'show_message_on_vote': 'show',  # 'show', 'hide', 'partially'
+        },
+        'roles': {
+            'maf': {
+                'n': 4.0
+            },
+            'shr': {
+                'enable': True,
+                'n': 8.5
+            },
+            'scd': {
+                'enable': False,
+            },
+            'whr': {
+                'enable': False,
+            },
+            'doc': {
+                'enable': False,
+            },
+        }
+    }
