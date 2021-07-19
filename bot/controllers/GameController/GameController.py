@@ -91,14 +91,21 @@ class GameController(BaseController):
         await MessageController.send_registration_force_stopped(chat_id, t)
 
     @classmethod
+    async def stop_game(cls, chat_id: ChatId, t: Localization):
+        SessionController.kill_session(chat_id)
+        await MessageController.send_game_force_stopped(chat_id, t)
+
+    @classmethod
     async def force_stop(cls, session: Session):
         t = session.t
         chat_id = session.chat_id
 
-        if session.status in (SessionStatus.pending, SessionStatus.settings, SessionStatus.end):
-            await MessageController.send_nothing_to_stop(chat_id, t)
+        if session.status == SessionStatus.game:
+            await GameController.stop_game(chat_id, t)
         elif session.status == SessionStatus.registration:
             await GameController.cancel_registration(chat_id, t)
+        else:
+            await MessageController.send_nothing_to_stop(chat_id, t)
 
     @classmethod
     async def force_start(cls, session: Session):
