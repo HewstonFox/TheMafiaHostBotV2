@@ -4,5 +4,5 @@ night_min = 60
 day_min = 60
 poll_min = 30
 vote_min = 10
-min_players = 4
+min_players = 0
 min_role_n = 4

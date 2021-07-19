@@ -1,3 +1,5 @@
+import asyncio
+import time
 from asyncio import sleep
 
 from aiogram.types import ChatActions
@@ -9,6 +11,8 @@ from bot.controllers.SessionController.Session import Session
 from bot.controllers.SessionController.SessionController import SessionController
 from bot.controllers.SessionController.types import SessionStatus
 from bot.models.MafiaBotError import SessionAlreadyActiveError
+from bot.models.Roles import Roles
+from bot.models.Roles.BaseRole import BaseRole
 from bot.types import ChatId
 from bot.localization import Localization
 from bot.utils.shared import is_error
@@ -49,7 +53,7 @@ class GameController(BaseController):
 
         session.status = SessionStatus.registration
 
-        while session.timer:
+        while session.timer > 0:
             if session.status != SessionStatus.registration:
                 break
             await sleep(1)
@@ -77,12 +81,23 @@ class GameController(BaseController):
                 await cls.dp.bot.send_message(chat_id, '*Not enough players to start')  # todo: add translation
                 SessionController.kill_session(chat_id)
                 return
-            session.status = SessionStatus.game
+            asyncio.create_task(GameController.start_game(session))
+
+    @classmethod
+    def attach_roles(cls, session: Session):
+        players = session.players.values()
+        settings = session.settings.values['roles']
+        print(Roles)
+
+    @classmethod
+    async def start_game(cls, session: Session):
+        session.status = SessionStatus.game
+        await cls.dp.loop.run_in_executor(None, GameController.attach_roles, session)
 
     @classmethod
     async def skip_registration(cls, chat_id: ChatId, t: Localization):
         session = SessionController.get_session(chat_id)
-        session.status = SessionStatus.game
+        session.timer = -1
         await MessageController.send_registration_skipped(chat_id, t)
 
     @classmethod
