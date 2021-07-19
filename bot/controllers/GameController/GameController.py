@@ -25,7 +25,10 @@ class GameController(BaseController):
         try:
             SessionController.push_session(session)
         except SessionAlreadyActiveError:
-            await MessageController.send_registration_is_already_started(chat_id, t)
+            if session.status == SessionStatus.registration:
+                await MessageController.send_registration_is_already_started(chat_id, t)
+            else:
+                await MessageController.send_game_is_already_started(chat_id, t)
             return
 
         to_clean_msg = []
@@ -71,7 +74,7 @@ class GameController(BaseController):
 
         if session.status == SessionStatus.registration:
             if len(session.players) < session.settings.values['players']['min']:
-                await cls.dp.bot.send_message(chat_id, 'Not enough players to start')  # todo: add translation
+                await cls.dp.bot.send_message(chat_id, '*Not enough players to start')  # todo: add translation
                 SessionController.kill_session(chat_id)
                 return
             session.status = SessionStatus.game
@@ -91,13 +94,21 @@ class GameController(BaseController):
     async def force_stop(cls, session: Session):
         t = session.t
         chat_id = session.chat_id
-        if not SessionController.is_active_session(session.chat_id):
+
+        if session.status in (SessionStatus.pending, SessionStatus.settings, SessionStatus.end):
             await MessageController.send_nothing_to_stop(chat_id, t)
+        elif session.status == SessionStatus.registration:
+            await GameController.cancel_registration(chat_id, t)
+
+    @classmethod
+    async def force_start(cls, session: Session):
+        t = session.t
+        chat_id = session.chat_id
+        if session.status != SessionStatus.registration:
+            await MessageController.send_nothing_to_skip(chat_id, t)
             return
 
-        _session = SessionController.get_session(session.chat_id)  # get latest status
-        if _session.status == SessionStatus.registration:
-            await GameController.cancel_registration(chat_id, t)
+        await GameController.skip_registration(chat_id, t)
 
     @classmethod
     async def change_registration_time(cls, session: Session, time: int, sign: int):

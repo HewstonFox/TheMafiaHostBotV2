@@ -57,7 +57,10 @@ async def private_help_handler(message: Message, t: Localization, *_, **__):
 @clean_command
 @with_session
 async def group_start_handler(message: Message, session: Session, *_, **__):
-    await message.bot.send_message(message.chat.id, 'U wrote start in group')
+    if session.status in (SessionStatus.registration, SessionStatus.end, SessionStatus.game):
+        await GameController.force_start(session)
+    else:
+        await message.bot.send_message(message.chat.id, 'U wrote start in group')
 
 
 @throttle_message_handler(commands=['game'], chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
@@ -128,7 +131,7 @@ async def settings_preset_handler(message: Message, session: Session, *_, **__):
         pass
     else:
         # todo: add "preset applied successfully" message in MessageController
-        await dp.bot.send_message(message.chat.id, f'Preset <code>{preset}</code> applied successfully')
+        await dp.bot.send_message(message.chat.id, f'*Preset <code>{preset}</code> applied successfully')
         pass
 
 
@@ -153,9 +156,9 @@ async def settings_export_handler(msg: Message, session: Session, *_, **__):
 async def settings_import_handler(message: Message, session: Session, *_, **__):
     try:
         session.import_settings_from_file(await (await message.document.get_file()).download(destination=io.BytesIO()))
-        await message.reply('Got it!')  # todo: add translation
+        await message.reply('*Got it!')  # todo: add translation
     except SchemaError as e:
-        await message.reply(f'Invalid format:\n<code>{e.code}</code>')  # todo: add translation
+        await message.reply(f'*Invalid format:\n<code>{e.code}</code>')  # todo: add translation
 
 
 @dp.message_handler(content_types=[ContentType.PINNED_MESSAGE])
