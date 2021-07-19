@@ -5,10 +5,6 @@ from aiogram.utils.exceptions import MessageToEditNotFound, MessageNotModified
 
 from bot.controllers import BaseController
 from bot.controllers.MenuController.types import MessageMenu, MessageMenuButton, ButtonType, MessageMenuButtonOption
-from bot.controllers.MessageController.MessageController import MessageController
-from bot.controllers.SessionController.Session import Session
-from bot.controllers.SessionController.SessionController import SessionController
-from bot.controllers.SessionController.types import SessionStatus
 from bot.types import Proxy, ChatId
 from bot.utils.message import arr2keyword_markup
 from bot.utils.shared import is_error
@@ -17,18 +13,14 @@ from bot.utils.shared import is_error
 class MenuController(BaseController):
     __sessions = Proxy({})
 
-    # todo: move to session controller
     @classmethod
     async def show_menu(
             cls,
-            session: Session,
+            chat_id: ChatId,
             config: MessageMenu,
             get_data: Callable[[str], Any],
             set_data: Callable[[str, Any], Union[bool, None]]
     ):
-        if session.status not in (SessionStatus.settings, SessionStatus.pending):
-            await MessageController.send_settings_unavailable_in_game(session.chat_id, session.t)
-            return
 
         session_data = {
             'msg': Message(),  # will be added after first render
@@ -38,24 +30,15 @@ class MenuController(BaseController):
             'set': set_data
         }
 
-        if SessionController.is_active_session(session.chat_id) and session.status == SessionStatus.settings:
-            menu_session = cls.__sessions.get(session.chat_id)
-            if not menu_session:
-                cls.__sessions[session.chat_id] = session_data
-                menu_session = session_data
+        if old_menu := cls.__sessions.get(chat_id):
             try:
-                await cls.dp.bot.unpin_chat_message(session.chat_id, menu_session['msg'].message_id)
+                await cls.dp.bot.delete_message(chat_id, old_menu['msg'].message_id)
             except:
                 pass
-            await cls.render(session.chat_id)
-            await cls.dp.bot.pin_chat_message(session.chat_id, cls.__sessions[session.chat_id]['msg'].message_id)
-            return
 
-        session.status = SessionStatus.settings
-        SessionController.push_session(session)
-        cls.__sessions[session.chat_id] = session_data
-        await cls.render(session.chat_id)
-        await cls.dp.bot.pin_chat_message(session.chat_id, session_data['msg'].message_id)
+        cls.__sessions[chat_id] = session_data
+        await cls.render(chat_id)
+        await cls.dp.bot.pin_chat_message(chat_id, session_data['msg'].message_id)
 
     @classmethod
     def get_reply_markup(
@@ -161,10 +144,6 @@ class MenuController(BaseController):
         if chat_id in cls.__sessions:
             session = cls.__sessions[chat_id]
             del cls.__sessions[chat_id]
-            try:
-                SessionController.kill_session(chat_id)
-            except KeyError:
-                pass
             await session['msg'].delete()
 
     @classmethod

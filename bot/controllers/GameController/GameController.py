@@ -1,5 +1,4 @@
 import asyncio
-import time
 from asyncio import sleep
 
 from aiogram.types import ChatActions
@@ -12,7 +11,6 @@ from bot.controllers.SessionController.SessionController import SessionControlle
 from bot.controllers.SessionController.types import SessionStatus
 from bot.models.MafiaBotError import SessionAlreadyActiveError
 from bot.models.Roles import Roles
-from bot.models.Roles.BaseRole import BaseRole
 from bot.types import ChatId
 from bot.localization import Localization
 from bot.utils.shared import is_error
@@ -21,7 +19,7 @@ from bot.utils.shared import is_error
 class GameController(BaseController):
 
     @classmethod
-    async def run_new_game(cls, session: Session, time: int = None):
+    async def run_new_game(cls, session: Session, timer: int = None):
         await cls.dp.bot.send_chat_action(session.chat_id, ChatActions.TYPING)
 
         t = session.t
@@ -38,18 +36,24 @@ class GameController(BaseController):
         to_clean_msg = []
 
         async def send_connect_message():
-            msg = await MessageController.send_registration_start(chat_id, t, session)
+            msg = await MessageController.send_registration_start(chat_id, t, ', '.join(
+                map(lambda x: x.get_mention(), session.players.values())))
             to_clean_msg.insert(0, msg.message_id)
             await cls.dp.bot.pin_chat_message(chat_id, msg.message_id, True)
 
         await send_connect_message()
 
         async def player_subscriber(players):
-            await MessageController.update_registration_start(chat_id, to_clean_msg[0], session)
+            await MessageController.update_registration_start(
+                chat_id,
+                to_clean_msg[0],
+                session.t,
+                ', '.join(map(lambda x: x.get_mention(), session.players.values()))
+            )
 
         session.players.subscribe(player_subscriber)
 
-        session.timer = time or session.settings.values['time']['registration']
+        session.timer = timer or session.settings.values['time']['registration']
 
         session.status = SessionStatus.registration
 
@@ -87,7 +91,6 @@ class GameController(BaseController):
     def attach_roles(cls, session: Session):
         players = session.players.values()
         settings = session.settings.values['roles']
-        print(Roles)
 
     @classmethod
     async def start_game(cls, session: Session):

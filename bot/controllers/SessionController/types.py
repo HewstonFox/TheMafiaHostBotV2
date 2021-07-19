@@ -10,8 +10,6 @@ class SessionStatus:
     registration = 'registration'
     game = 'game'
     pending = 'pending'
-    end = 'end'
-    settings = 'settings'
 
 
 class KilledPlayerData(TypedDict):

@@ -39,7 +39,7 @@ class CallbackQueryController(BaseController):
         try:
             if not await user_collection.check_if_user_record_exists(user_id):
                 raise UserNotExistsError
-            res = await MessageController.send_user_connected_to_game(user_id, session)
+            res = await MessageController.send_user_connected_to_game(user_id, session.t, session.name)
             raise_if_error(res)
         except (UserNotExistsError, Unauthorized):
             return await query.answer(url=f'https://t.me/{(await cls.dp.bot.me).username}?start={chat_id}')

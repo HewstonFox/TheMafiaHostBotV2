@@ -57,7 +57,7 @@ async def private_help_handler(message: Message, t: Localization, *_, **__):
 @clean_command
 @with_session
 async def group_start_handler(message: Message, session: Session, *_, **__):
-    if session.status in (SessionStatus.registration, SessionStatus.end, SessionStatus.game):
+    if session.status in (SessionStatus.registration, SessionStatus.game):
         await GameController.force_start(session)
     else:
         await message.bot.send_message(message.chat.id, 'U wrote start in group')
@@ -68,8 +68,7 @@ async def group_start_handler(message: Message, session: Session, *_, **__):
 @with_session
 async def game_handler(message: Message, session: Session, *_, **__):
     time, sign = parse_timer(message.text)
-    if session.status == SessionStatus.settings:
-        await MenuController.close(session.chat_id)
+    await MenuController.close(session.chat_id)
     await GameController.run_new_game(session, time)
 
 
@@ -112,8 +111,7 @@ async def leave_handler(message: Message, *_, **__):
 @clean_command
 @with_session
 async def settings_handler(msg: Message, session: Session, *_, **__):
-    await MenuController.show_menu(session, get_settings_menu_config(session.t), session.settings.get_property,
-                                   session.update_settings)
+    await session.show_settings_menu()
 
 
 @throttle_message_handler(
@@ -130,9 +128,7 @@ async def settings_preset_handler(message: Message, session: Session, *_, **__):
     except SchemaError:
         pass
     else:
-        # todo: add "preset applied successfully" message in MessageController
-        await dp.bot.send_message(message.chat.id, f'*Preset <code>{preset}</code> applied successfully')
-        pass
+        await MessageController.send_preset_apply_success(session.chat_id, session.t, preset)
 
 
 @throttle_message_handler(
