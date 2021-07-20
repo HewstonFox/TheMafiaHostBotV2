@@ -6,16 +6,20 @@ def read_once_bool_property(prop: str, effect: str):
 class Prop{prop.upper()}:
     def __init__(self):
         super(Prop{prop.upper()}, self).__init__()
-        self.__{prop} = False
+        self._{prop} = False
         
     @property
     def {prop}(self):
-        cache = self.__{prop}
-        self.__{prop} = False
+        cache = self._{prop}
+        self._{prop} = False
         return cache
     
+    @property
+    def {prop.upper()}(self):
+        return self._{prop}
+    
     def {effect}(self):
-        self.__{prop} = True
+        self._{prop} = True
     ''', globals(), globals())
 
     return globals()['Prop' + prop.upper()]
@@ -32,6 +36,17 @@ class KillEffect(read_once_bool_property('just_killed', 'kill')):
 
 
 CureEffect = read_once_bool_property('cured', 'cure')
-CheckEffect = read_once_bool_property('checked', 'check')
 BlockEffect = read_once_bool_property('blocked', 'block')
+
+
+class CheckEffect(read_once_bool_property('just_checked', 'check')):
+    def __init__(self):
+        super(CheckEffect, self).__init__()
+        self.checked = False
+
+    def check(self):
+        super(CheckEffect, self).check()
+        self.checked = True
+
+
 AcquitEffect = read_once_bool_property('acquitted', 'acquit')
