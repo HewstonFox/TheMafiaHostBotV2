@@ -230,7 +230,9 @@ def get_settings_menu_config(t: Localization) -> MessageMenu:
                                     min=min_role_n,
                                 )]
                             )
-                        ] + [role_route_button(t.values.roles, key) for key in ('scd', 'whr', 'doc', 'shr')]
+                        ] + [role_route_button(t.values.roles, key) for key in
+                             ('scd', 'whr', 'doc', 'shr')]
+                # todo: extend with 'lwr', 'lck', 'mnc', 'bum' after adding localization
             ),
         ]
     )

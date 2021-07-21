@@ -1,6 +1,8 @@
+import asyncio
 from collections.abc import Mapping
 from time import time
 import copy
+from typing import Awaitable, Callable, Any
 
 
 def get_current_time() -> int:
@@ -37,3 +39,8 @@ def dict_merge(*dicts: dict):
             target[k] = merge_dct[k]
 
     return target if args_len < 3 else dict_merge(target, *dicts[2:])
+
+
+async def async_timeout(timeout: int, func: Callable[[...], Awaitable[None]], *args, **kwargs):
+    await asyncio.sleep(timeout)
+    await func(*args, **kwargs)

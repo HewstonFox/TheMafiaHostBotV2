@@ -4,8 +4,11 @@ from aiogram import Bot
 from aiogram.types import User, ChatMemberStatus
 from schema import SchemaError
 
+from bot.controllers.MenuController.MenuController import MenuController
+from bot.controllers.MessageController.MessageController import MessageController
 from bot.controllers.SessionController.settings.Settings import Settings
-from bot.controllers.SessionController.types import PlayersList, RolesList, KilledPlayersList, SessionStatus, \
+from bot.controllers.SessionController.settings.settings_config import get_settings_menu_config
+from bot.controllers.SessionController.types import PlayersList, RolesList, SessionStatus, \
     SessionRecord
 from bot.controllers.SessionController import collection
 from bot.models import MafiaBotError
@@ -30,7 +33,6 @@ class Session:
         self.name = name
         self.players: PlayersList = Proxy({})
         self.roles: RolesList = Proxy({})
-        self.killed: KilledPlayersList = []
         _lang = lang or settings.get('language') or get_default_translation_index()
         self.t: Localization = get_translation(_lang)
 
@@ -54,8 +56,10 @@ class Session:
         return user_id in self.players
 
     def remove_player(self, user_id):
-        if self.status == SessionStatus.registration:
-            self.players.pop(user_id)
+        self.players.pop(user_id)
+        if self.status == SessionStatus.game:
+            self.roles[user_id].alive = False
+            #  todo: add player left game message
 
     def __del__(self):
         self.status = SessionStatus.pending
@@ -64,8 +68,7 @@ class Session:
         bot: Bot = self.bot
         if not bot:
             return
-        end_statuses = (SessionStatus.pending, SessionStatus.end)
-        while self.status not in end_statuses:
+        while self.status != SessionStatus.pending:
             for player_id in list(self.players):
                 if (await bot.get_chat_member(self.chat_id, player_id)).status in (
                         ChatMemberStatus.BANNED, ChatMemberStatus.LEFT, ChatMemberStatus.KICKED):
@@ -110,6 +113,16 @@ class Session:
     def import_settings_from_file(self, file):
         self.settings.apply_from_file(file)
         self.update()
+
+    async def show_settings_menu(self):
+        if self.status != SessionStatus.pending:
+            await MessageController.send_settings_unavailable_in_game(self.chat_id, self.t)
+            return
+        config = get_settings_menu_config(self.t)
+        getter = self.settings.get_property
+        setter = self.update_settings
+
+        await MenuController.show_menu(self.chat_id, config, getter, setter)
 
     def update(self):
         data = {

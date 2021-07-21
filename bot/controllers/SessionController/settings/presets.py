@@ -48,11 +48,27 @@ class SettingsPreset:
             },
             'doc': {
                 'enable': True,
-                'n': 8.0
+                'n': 13
             },
             'shr': {
                 'enable': True,
-                'n': 8.5
+                'n': 8
+            },
+            'lwr': {
+                'enable': True,
+                'n': 15
+            },
+            'lck': {
+                'enable': True,
+                'n': 15
+            },
+            'mnc': {
+                'enable': True,
+                'n': 15
+            },
+            'bum': {
+                'enable': True,
+                'n': 15
             },
         }
     }
@@ -110,6 +126,18 @@ class SettingsPreset:
             },
             'doc': {
                 'enable': False,
+            },
+            'lwr': {
+                'enable': False
+            },
+            'lck': {
+                'enable': False
+            },
+            'mnc': {
+                'enable': False
+            },
+            'bum': {
+                'enable': False
             },
         }
     }
