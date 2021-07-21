@@ -48,11 +48,27 @@ class SettingsPreset:
             },
             'doc': {
                 'enable': True,
-                'n': 8.0
+                'n': 13
             },
             'shr': {
                 'enable': True,
-                'n': 8.5
+                'n': 8
+            },
+            'lwr': {
+                'enable': True,
+                'n': 15
+            },
+            'lck': {
+                'enable': True,
+                'n': 15
+            },
+            'mnc': {
+                'enable': True,
+                'n': 15
+            },
+            'bum': {
+                'enable': True,
+                'n': 15
             },
         }
     }
@@ -68,4 +84,60 @@ class SettingsPreset:
             'show_live_roles': 'hide',
             'show_message_on_vote': 'hide',
         },
+    }
+
+    classic = {
+        'time': {
+            'night': 60,
+            'day': 600,
+            'poll': 60,
+            'vote': 30,
+        },
+        'players': {
+            'max': 10,
+            'min': 10
+        },
+        'game': {
+            'start_at_night': True,
+            'mute_messages_from_dead': True,
+            'show_role_of_dead': False,
+            'show_killer': False,
+            'allow_mafia_chat': True,
+            'show_night_actions': False,
+            'show_private_night_actions': True,
+            'last_words': True,
+            'commissioner_can_kill': False,
+            'show_live_roles': 'hide',  # 'show', 'hide', 'partially'
+            'show_message_on_vote': 'show',  # 'show', 'hide', 'partially'
+        },
+        'roles': {
+            'maf': {
+                'n': 4.0
+            },
+            'shr': {
+                'enable': True,
+                'n': 8.5
+            },
+            'scd': {
+                'enable': False,
+            },
+            'whr': {
+                'enable': False,
+            },
+            'doc': {
+                'enable': False,
+            },
+            'lwr': {
+                'enable': False
+            },
+            'lck': {
+                'enable': False
+            },
+            'mnc': {
+                'enable': False
+            },
+            'bum': {
+                'enable': False
+            },
+        }
     }

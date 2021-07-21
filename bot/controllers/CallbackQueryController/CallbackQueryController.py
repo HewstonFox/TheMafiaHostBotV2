@@ -30,7 +30,7 @@ class CallbackQueryController(BaseController):
             return await query.answer(t.callback_query.session.registration_already_ended)
 
         if len(session.players) == session.settings.values['players']['max']:
-            return await query.answer('Too many players')  # todo: add translation
+            return await query.answer('*Too many players')  # todo: add translation
 
         user_id = query.from_user.id
         if session.is_user_in(user_id):
@@ -39,7 +39,7 @@ class CallbackQueryController(BaseController):
         try:
             if not await user_collection.check_if_user_record_exists(user_id):
                 raise UserNotExistsError
-            res = await MessageController.send_user_connected_to_game(user_id, session)
+            res = await MessageController.send_user_connected_to_game(user_id, session.t, session.name)
             raise_if_error(res)
         except (UserNotExistsError, Unauthorized):
             return await query.answer(url=f'https://t.me/{(await cls.dp.bot.me).username}?start={chat_id}')
@@ -50,9 +50,10 @@ class CallbackQueryController(BaseController):
     @classmethod
     async def apply(cls, query: CallbackQuery, t: Localization):
         key = query.data.split()[0]
-        if key == 'menu' and \
-                ChatMemberStatus.is_chat_admin((await query.message.chat.get_member(query.from_user.id)).status):
-            return await MenuController.callback_handler(query)
+        if key == 'menu':
+            if query.message.chat.id == query.from_user.id or \
+                    ChatMemberStatus.is_chat_admin((await query.message.chat.get_member(query.from_user.id)).status):
+                return await MenuController.callback_handler(query)
         if key in cls.__dict__:
             return await getattr(cls, key)(query, query.message.chat.id, t)
         else:

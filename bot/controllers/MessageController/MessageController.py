@@ -1,9 +1,9 @@
+from os import path
 from typing import List
 
 from bot.controllers import BaseController
 from bot.controllers.MessageController import buttons
 from bot.types import ChatId
-from bot.controllers.SessionController.Session import Session
 from bot.localization import Localization
 
 
@@ -23,31 +23,30 @@ class MessageController(BaseController):
         return await cls.dp.bot.send_message(chat_id, t.private.more_description)
 
     @classmethod
-    async def send_registration_start(cls, chat_id: ChatId, t: Localization, session: Session = None):
-        if not session:
-            players = ''
-        else:
-            players = ', '.join(map(lambda x: x.get_mention(), session.players.values()))
+    async def send_registration_start(cls, chat_id: ChatId, t: Localization, players: str):
         return await cls.dp.bot.send_message(
             chat_id,
-            t.group.registration.start.format(len(session.players), players),
+            t.group.registration.start.format(len([x for x in players.split(', ') if x]), players),
             reply_markup=buttons.connect(t)
         )
 
     @classmethod
-    async def update_registration_start(cls, chat_id: ChatId, message_id: int, session: Session):
-        players = ', '.join(map(lambda x: x.get_mention(), session.players.values()))
+    async def update_registration_start(cls, chat_id: ChatId, message_id: int, t: Localization, players: str):
         res = await cls.dp.bot.edit_message_text(
-            text=session.t.group.registration.start.format(len(session.players), players),
+            text=t.group.registration.start.format((len([x for x in players.split(', ') if x])), players),
             chat_id=chat_id,
             message_id=message_id,
-            reply_markup=buttons.connect(session.t),
+            reply_markup=buttons.connect(t),
         )
         return res
 
     @classmethod
     async def send_registration_is_already_started(cls, chat_id: ChatId, t: Localization):
         return await cls.dp.bot.send_message(chat_id, t.group.registration.already_started)
+
+    @classmethod
+    async def send_game_is_already_started(cls, chat_id: ChatId, t: Localization):
+        return await cls.dp.bot.send_message(chat_id, "*Game is already started")  # todo: add localization
 
     @classmethod
     async def send_registration_reminder(cls, chat_id: ChatId, t: Localization, time: int, reply_id: ChatId):
@@ -60,6 +59,10 @@ class MessageController(BaseController):
     @classmethod
     async def send_registration_force_stopped(cls, chat_id: ChatId, t: Localization):
         return await cls.dp.bot.send_message(chat_id, t.group.registration.force_stopped)
+
+    @classmethod
+    async def send_game_force_stopped(cls, chat_id, t):
+        return await cls.dp.bot.send_message(chat_id, "*Game force stopped")  # todo: add localization
 
     @classmethod
     async def send_registration_skipped(cls, chat_id: ChatId, t: Localization):
@@ -75,11 +78,15 @@ class MessageController(BaseController):
 
     @classmethod
     async def send_settings_unavailable_in_game(cls, chat_id: ChatId, t: Localization):
-        return await cls.dp.bot.send_message(chat_id, 'Settings unavailable in game')  # todo: add translation
+        return await cls.dp.bot.send_message(chat_id, '*Settings unavailable in game')  # todo: add translation
 
     @classmethod
     async def send_nothing_to_stop(cls, chat_id: ChatId, t: Localization):
         return await cls.dp.bot.send_message(chat_id, t.group.nothing_to_stop)
+
+    @classmethod
+    async def send_nothing_to_skip(cls, chat_id: ChatId, t: Localization):
+        return await cls.dp.bot.send_message(chat_id, "*Nothing to skip")  # todo: add localization
 
     @classmethod
     async def send_nothing_to_reduce(cls, chat_id: ChatId, t: Localization):
@@ -90,9 +97,22 @@ class MessageController(BaseController):
         return await cls.dp.bot.send_message(chat_id, t.group.nothing_to_stop)
 
     @classmethod
-    async def send_user_connected_to_game(cls, chat_id: ChatId, session: Session):
-        return await cls.dp.bot.send_message(chat_id, session.t.private.user_connected.format(session.name))
+    async def send_user_connected_to_game(cls, chat_id: ChatId, t: Localization, session_name: str):
+        return await cls.dp.bot.send_message(chat_id, t.private.user_connected.format(session_name))
 
     @classmethod
-    async def send_user_left_game(cls, chat_id: ChatId, session: Session):
-        return await cls.dp.bot.send_message(chat_id, session.t.private.user_left.format(session.name))
+    async def send_user_left_game(cls, chat_id: ChatId, t: Localization, session_name: str):
+        return await cls.dp.bot.send_message(chat_id, t.private.user_left.format(session_name))
+
+    @classmethod
+    async def send_preset_apply_success(cls, chat_id: ChatId, t: Localization, preset: str):
+        await cls.dp.bot.send_message(chat_id, f'*Preset <code>{preset}</code> applied successfully')
+
+    @classmethod
+    async def sent_role_greeting(cls, chat_id: ChatId, t: Localization, shortcut: str):
+        #  todo add localization getting role by shortcut
+        try:
+            with open(path.join('assets', 'roles', f'{shortcut}.png'), 'rb') as f:
+                await cls.dp.bot.send_photo(chat_id, f, shortcut)
+        except FileNotFoundError:
+            await cls.dp.bot.send_message(chat_id, shortcut)

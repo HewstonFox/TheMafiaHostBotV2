@@ -1,3 +1,4 @@
+import asyncio
 import logging
 
 from aiogram import Dispatcher, Bot
@@ -11,6 +12,6 @@ logging.basicConfig(level=logging.INFO if env.MODE == 'production' else logging.
 
 bot: Bot = RetryBot(token=env.BOT_TOKEN, parse_mode='html')
 storage = MemoryStorage()
-dp = Dispatcher(bot, storage=storage)
+dp = Dispatcher(bot, storage=storage, loop=asyncio.get_event_loop())
 BaseController.dp = dp
 

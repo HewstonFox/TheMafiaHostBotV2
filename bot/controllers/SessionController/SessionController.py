@@ -31,10 +31,13 @@ class SessionController(BaseController):
 
     @classmethod
     def kill_session(cls, chat_id: ChatId):
-        session = cls.get_session(chat_id)
+        try:
+            session = cls.get_session(chat_id)
+        except KeyError:
+            return
         if session:
             del cls.__sessions[chat_id]
-        session.status = SessionStatus.end
+        session.status = SessionStatus.pending
         return session
 
     @classmethod
@@ -48,4 +51,4 @@ class SessionController(BaseController):
             return
 
         session.remove_player(user_id)
-        await MessageController.send_user_left_game(user_id, session)
+        await MessageController.send_user_left_game(user_id, session.t, session.name)

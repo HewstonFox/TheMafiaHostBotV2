@@ -3,7 +3,6 @@ import json
 import operator
 from functools import reduce
 
-from aiogram.types import InputFile
 from schema import SchemaError
 
 from bot.controllers.SessionController.settings.presets import SettingsPreset
@@ -13,16 +12,8 @@ from bot.utils.shared import dict_merge
 
 
 class Settings:
-    def __init__(self, *, lang: str = None, config: dict = None):
-        if not config:
-            self.values = dict_merge(SettingsPreset.default, {'language': lang or get_default_translation_index()})
-            return
-
-        if Settings.validate(config):
-            self.values = config
-            return
-
-        raise SchemaError
+    def __init__(self, *, lang: str = None, config: dict = {}):
+        self.values = dict_merge(SettingsPreset.default, {'language': lang or get_default_translation_index()}, config)
 
     def apply_preset(self, preset: str):
         if not hasattr(SettingsPreset, preset):
@@ -56,7 +47,10 @@ class Settings:
 
     def apply_from_file(self, file: io.IOBase):
         with file as f:
-            values = json.load(f)
+            try:
+                values = json.load(f)
+            except json.decoder.JSONDecodeError:
+                raise SchemaError('Invalid json format')
             Settings.validate(values, True)
         self.values = values
 

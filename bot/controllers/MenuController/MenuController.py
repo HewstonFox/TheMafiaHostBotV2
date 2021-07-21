@@ -5,11 +5,6 @@ from aiogram.utils.exceptions import MessageToEditNotFound, MessageNotModified
 
 from bot.controllers import BaseController
 from bot.controllers.MenuController.types import MessageMenu, MessageMenuButton, ButtonType, MessageMenuButtonOption
-from bot.controllers.MessageController.MessageController import MessageController
-from bot.controllers.SessionController.Session import Session
-from bot.controllers.SessionController.SessionController import SessionController
-from bot.controllers.SessionController.types import SessionStatus
-from bot.models.MafiaBotError import SessionAlreadyActiveError
 from bot.types import Proxy, ChatId
 from bot.utils.message import arr2keyword_markup
 from bot.utils.shared import is_error
@@ -18,18 +13,14 @@ from bot.utils.shared import is_error
 class MenuController(BaseController):
     __sessions = Proxy({})
 
-    # todo: move to session controller
     @classmethod
     async def show_menu(
             cls,
-            session: Session,
+            chat_id: ChatId,
             config: MessageMenu,
             get_data: Callable[[str], Any],
             set_data: Callable[[str, Any], Union[bool, None]]
     ):
-        if session.status not in (SessionStatus.settings, SessionStatus.pending):
-            await MessageController.send_settings_unavailable_in_game(session.chat_id, session.t)
-            return
 
         session_data = {
             'msg': Message(),  # will be added after first render
@@ -39,24 +30,15 @@ class MenuController(BaseController):
             'set': set_data
         }
 
-        if SessionController.is_active_session(session.chat_id) and session.status == SessionStatus.settings:
-            menu_session = cls.__sessions.get(session.chat_id)
-            if not menu_session:
-                cls.__sessions[session.chat_id] = session_data
-                menu_session = session_data
+        if old_menu := cls.__sessions.get(chat_id):
             try:
-                await cls.dp.bot.unpin_chat_message(session.chat_id, menu_session['msg'].message_id)
+                await cls.dp.bot.delete_message(chat_id, old_menu['msg'].message_id)
             except:
                 pass
-            await cls.render(session.chat_id)
-            await cls.dp.bot.pin_chat_message(session.chat_id, cls.__sessions[session.chat_id]['msg'].message_id)
-            return
 
-        session.status = SessionStatus.settings
-        SessionController.push_session(session)
-        cls.__sessions[session.chat_id] = session_data
-        await cls.render(session.chat_id)
-        await cls.dp.bot.pin_chat_message(session.chat_id, session_data['msg'].message_id)
+        cls.__sessions[chat_id] = session_data
+        await cls.render(chat_id)
+        await cls.dp.bot.pin_chat_message(chat_id, session_data['msg'].message_id)
 
     @classmethod
     def get_reply_markup(
@@ -72,45 +54,62 @@ class MenuController(BaseController):
             if tp in (ButtonType.route, ButtonType.select):  # routing buttons
                 reply_markup.append([{'text': btn['name'], 'callback_data': f'menu route {i}'}])
             elif tp == ButtonType.int:
-                reply_markup.append([
-                    {'text': '-5', 'callback_data': f'menu mutate {i} -5'},
-                    {'text': '-1', 'callback_data': f'menu mutate {i} -1'},
-                    {'text': str(get_data(btn['key'])), 'callback_data': '_'},
-                    {'text': '+1', 'callback_data': f'menu mutate {i} +1'},
-                    {'text': '+5', 'callback_data': f'menu mutate {i} +5'},
+                reply_markup.extend([
+                    [{'text': str(get_data(btn['key'])), 'callback_data': '_'}],
+                    [
+                        {'text': '-5', 'callback_data': f'menu mutate {i} -5'},
+                        {'text': '+5', 'callback_data': f'menu mutate {i} +5'},
+                    ],
+                    [
+                        {'text': '-1', 'callback_data': f'menu mutate {i} -1'},
+                        {'text': '+1', 'callback_data': f'menu mutate {i} +1'},
+                    ]
                 ])
             elif tp == ButtonType.float:
-                reply_markup.append([
-                    {'text': '-1', 'callback_data': f'menu mutate {i} -1'},
-                    {'text': '-0.1', 'callback_data': f'menu mutate {i} -0.1'},
-                    {'text': str(get_data(btn['key'])), 'callback_data': '_'},
-                    {'text': '+0.1', 'callback_data': f'menu mutate {i} +0.1'},
-                    {'text': '+1', 'callback_data': f'menu mutate {i} +1'},
+                reply_markup.extend([
+                    [{'text': str(get_data(btn['key'])), 'callback_data': '_'}],
+                    [
+                        {'text': '-1', 'callback_data': f'menu mutate {i} -1'},
+                        {'text': '+1', 'callback_data': f'menu mutate {i} +1'},
+                    ],
+                    [
+                        {'text': '-0.1', 'callback_data': f'menu mutate {i} -0.1'},
+                        {'text': '+0.1', 'callback_data': f'menu mutate {i} +0.1'},
+                    ]
                 ])
             elif tp == ButtonType.decimal:
-                reply_markup.append([
-                    {'text': '-1', 'callback_data': f'menu mutate {i} -1'},
-                    {'text': '-0.1', 'callback_data': f'menu mutate {i} -0.1'},
-                    {'text': '-0.01', 'callback_data': f'menu mutate {i} -0.01'},
-                    {'text': str(get_data(btn['key'])), 'callback_data': '_'},
-                    {'text': '+0.01', 'callback_data': f'menu mutate {i} +0.01'},
-                    {'text': '+0.1', 'callback_data': f'menu mutate {i} +0.1'},
-                    {'text': '+1', 'callback_data': f'menu mutate {i} +1'},
+                reply_markup.extend([
+                    [{'text': str(get_data(btn['key'])), 'callback_data': '_'}],
+                    [
+                        {'text': '-1', 'callback_data': f'menu mutate {i} -1'},
+                        {'text': '+1', 'callback_data': f'menu mutate {i} +1'},
+                    ],
+                    [
+                        {'text': '-0.1', 'callback_data': f'menu mutate {i} -0.1'},
+                        {'text': '+0.1', 'callback_data': f'menu mutate {i} +0.1'},
+                    ],
+                    [
+                        {'text': '-0.01', 'callback_data': f'menu mutate {i} -0.01'},
+                        {'text': '+0.01', 'callback_data': f'menu mutate {i} +0.01'},
+                    ]
                 ])
             elif tp == ButtonType.toggle:
                 value = get_data(btn['key'])
                 display = tmp[0] if len(
                     tmp := [opt['name'] for opt in btn['options'] if opt['value'] == value]) else value
-                reply_markup.append([{'text': str(display), 'callback_data': f'menu mutate {i}'}])
+                reply_markup.append([{'text': f'☛ {str(display)} ☚', 'callback_data': f'menu mutate {i}'}])
+            elif tp == ButtonType.endpoint:
+                reply_markup.append([{'text': btn['name'], 'callback_data': f'menu mutate {i}'}])
             else:  # option button and it has 'select' parent
                 value = get_data(current['key'])
                 str_wrapper = '☛ {}' if value == btn['value'] else '{}'
                 reply_markup.append([{'text': str_wrapper.format(btn['name']), 'callback_data': f'menu mutate {i}'}])
 
-        if parent:
-            reply_markup.append([{'text': '🔙 Back', 'callback_data': f'menu back'}])  # todo: add translation
-        else:
-            reply_markup.append([{'text': '❌ Close', 'callback_data': f'menu close'}])  # todo: add translation
+        if not current.get('disable_special_buttons'):
+            if parent:
+                reply_markup.append([{'text': '*🔙 Back', 'callback_data': f'menu back'}])  # todo: add translation
+            else:
+                reply_markup.append([{'text': '*❌ Close', 'callback_data': f'menu close'}])  # todo: add translation
         return arr2keyword_markup(reply_markup)
 
     @classmethod
@@ -129,23 +128,24 @@ class MenuController(BaseController):
             await cls.back(chat_id)
             return await query.answer()
 
-        i = int(keys[1])
-        if way == 'route':
-            await cls.router(chat_id, i)
-            return await query.answer()
-        if way == 'mutate':
-            await cls.mutator(chat_id, i, keys[2:])
-            return await query.answer()
+        try:
+            i = int(keys[1])
+            if way == 'route':
+                await cls.router(chat_id, i)
+                return await query.answer()
+            if way == 'mutate':
+                return await cls.mutator(chat_id, i, keys[2:], query)
+        except (KeyError, IndexError):
+            try:
+                await cls.render(chat_id)
+            except KeyError:
+                pass
 
     @classmethod
     async def close(cls, chat_id: ChatId):
         if chat_id in cls.__sessions:
             session = cls.__sessions[chat_id]
             del cls.__sessions[chat_id]
-            try:
-                SessionController.kill_session(chat_id)
-            except KeyError:
-                pass
             await session['msg'].delete()
 
     @classmethod
@@ -155,12 +155,12 @@ class MenuController(BaseController):
         await cls.render(chat_id)
 
     @classmethod
-    async def mutator(cls, chat_id: ChatId, i: int, meta: List[str]):
+    async def mutator(cls, chat_id: ChatId, i: int, meta: List[str], query: CallbackQuery):
         session = cls.__sessions[chat_id]
         current = session['current']
         set_data = session['set']
         get_data = session['get']
-        if current['type'] == ButtonType.select:
+        if current.get('type') == ButtonType.select:
             key = current['key']
             current_value = get_data(key)
             value = current['options'][i]['value']
@@ -168,7 +168,7 @@ class MenuController(BaseController):
             btn = current['buttons'][i]
             key = btn.get('key')
             if not key:
-                return
+                return await query.answer()
             tp = btn['type']
             current_value = get_data(key)
             if tp == ButtonType.toggle:
@@ -182,18 +182,30 @@ class MenuController(BaseController):
                 _min = btn.get('min')
                 _max = btn.get('max')
                 delta = parser(meta[0])
-                value = current_value + delta
+                value = round(current_value + delta, 4)
                 if (_max and value > _max) or (_min and value < _min):
-                    return
+                    return await query.answer()
+            elif tp == ButtonType.endpoint:
+                description = get_data(key)
+                res = set_data(key, None)
+                if res is None or res:
+                    await session['msg'].edit_text(description)
+                    cls.__sessions.pop(chat_id)
+                    return await query.answer()
+                else:
+                    return await query.answer(description)
+
             else:
-                return
+                return await query.answer()
 
         if value == current_value:
-            return
+            return await query.answer()
 
         res = set_data(key, value)
         if res is None or res:
             await cls.render(chat_id)
+
+        return await query.answer()
 
     @classmethod
     async def router(cls, chat_id: ChatId, i: int):
