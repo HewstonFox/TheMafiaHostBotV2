@@ -50,9 +50,10 @@ class CallbackQueryController(BaseController):
     @classmethod
     async def apply(cls, query: CallbackQuery, t: Localization):
         key = query.data.split()[0]
-        if key == 'menu' and \
-                ChatMemberStatus.is_chat_admin((await query.message.chat.get_member(query.from_user.id)).status):
-            return await MenuController.callback_handler(query)
+        if key == 'menu':
+            if query.message.chat.id == query.from_user.id or \
+                    ChatMemberStatus.is_chat_admin((await query.message.chat.get_member(query.from_user.id)).status):
+                return await MenuController.callback_handler(query)
         if key in cls.__dict__:
             return await getattr(cls, key)(query, query.message.chat.id, t)
         else:

@@ -8,5 +8,5 @@ class AcquitAction(BaseAction):
     def __init__(self, actor: 'BaseRole', target: 'BaseRole'):
         super().__init__(actor, target)
 
-    def apply(self):
+    async def apply(self):
         self.target.acquit()

@@ -1,8 +1,7 @@
-from typing import TypedDict, List, Dict, Union
+from typing import TypedDict, List, Union
 from aiogram.types import User
 from bson import ObjectId
 
-from bot.models.Roles.BaseRole import BaseRole
 from bot.types import ChatId, Proxy
 
 
@@ -10,11 +9,6 @@ class SessionStatus:
     registration = 'registration'
     game = 'game'
     pending = 'pending'
-
-
-class KilledPlayerData(TypedDict):
-    user: User
-    role: BaseRole
 
 
 class SessionRecord(TypedDict):
@@ -27,8 +21,6 @@ class SessionRecord(TypedDict):
     updated_at: int
 
 
-KilledPlayersList = List[KilledPlayerData]
-
 PlayersList = Proxy[Union[str, int], User]
 
-RolesList = Proxy[Union[str, int], BaseRole]
+RolesList = Proxy[Union[str, int], 'bot.models.Roles.BaseRole.BaseRole']

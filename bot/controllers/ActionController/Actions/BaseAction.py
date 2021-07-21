@@ -18,5 +18,5 @@ class BaseAction:
         self.order = self.__class__.order
 
     @is_blocked
-    def apply(self):
+    async def apply(self):
         raise NotImplementedError

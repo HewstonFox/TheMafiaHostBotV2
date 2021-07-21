@@ -11,7 +11,6 @@ from bot.controllers.GameController.GameController import GameController
 from bot.controllers.MenuController.MenuController import MenuController
 from bot.controllers.SessionController.Session import Session
 from bot.controllers.SessionController.SessionController import SessionController
-from bot.controllers.SessionController.settings.settings_config import get_settings_menu_config
 from bot.controllers.SessionController.types import SessionStatus
 from bot.controllers.UserController.UserController import UserController
 from bot.bot import dp

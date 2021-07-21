@@ -60,5 +60,21 @@ settings_schema = Schema({
             'enable': bool,
             'n': And(Or(int, float), field_range(min_role_n))
         },
+        'lwr': {
+            'enable': bool,
+            'n': And(Or(int, float), field_range(min_role_n))
+        },
+        'lck': {
+            'enable': bool,
+            'n': And(Or(int, float), field_range(min_role_n))
+        },
+        'mnc': {
+            'enable': bool,
+            'n': And(Or(int, float), field_range(min_role_n))
+        },
+        'bum': {
+            'enable': bool,
+            'n': And(Or(int, float), field_range(min_role_n))
+        },
     }
 })

@@ -8,5 +8,5 @@ class CheckAction(BaseAction):
     def __init__(self, actor: 'BaseRole', target: 'BaseRole'):
         super().__init__(actor, target)
 
-    def apply(self):
-        self.actor.answer(self.target, self)
+    async def apply(self):
+        await self.actor.answer(self.target, self)

@@ -12,4 +12,4 @@ class ActionController(BaseController):
         actions = sorted([player.action for player in players.values()], key=lambda x: x.order)
 
         for action in actions:
-            action.apply()
+            await action.apply()

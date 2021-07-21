@@ -1,3 +1,4 @@
+from os import path
 from typing import List
 
 from bot.controllers import BaseController
@@ -104,9 +105,14 @@ class MessageController(BaseController):
         return await cls.dp.bot.send_message(chat_id, t.private.user_left.format(session_name))
 
     @classmethod
-    async def send_preset_apply_success(cls, chat_id, t: Localization, preset: str):
+    async def send_preset_apply_success(cls, chat_id: ChatId, t: Localization, preset: str):
         await cls.dp.bot.send_message(chat_id, f'*Preset <code>{preset}</code> applied successfully')
 
     @classmethod
-    def sent_role_greeting(cls, t: Localization, shortcut: str):
-        pass
+    async def sent_role_greeting(cls, chat_id: ChatId, t: Localization, shortcut: str):
+        #  todo add localization getting role by shortcut
+        try:
+            with open(path.join('assets', 'roles', f'{shortcut}.png'), 'rb') as f:
+                await cls.dp.bot.send_photo(chat_id, f, shortcut)
+        except FileNotFoundError:
+            await cls.dp.bot.send_message(chat_id, shortcut)

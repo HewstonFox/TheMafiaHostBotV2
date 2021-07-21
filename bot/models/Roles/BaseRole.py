@@ -3,6 +3,7 @@ from typing import List, Optional, Dict
 from aiogram.types import User
 
 from bot.controllers.MessageController.MessageController import MessageController
+from bot.controllers.SessionController.Session import Session
 from bot.localization import get_translation
 from bot.controllers.ActionController.Actions.BaseAction import BaseAction
 from bot.models.Roles.RoleEffects import KillEffect, CureEffect, CheckEffect, BlockEffect, AcquitEffect
@@ -23,23 +24,24 @@ class BaseRole(
     AcquitEffect,
     metaclass=Meta,
 ):
-    shortcut: str = ''
+    shortcut: str = 'base'
 
-    def __init__(self, user: User, players: Dict[ChatId, 'BaseRole'], settings: dict):
+    def __init__(self, user: User, session: Session):
         self.action: Optional['BaseAction'] = None
         self.user = user
         self.shortcut = self.__class__.shortcut
         super(BaseRole, self).__init__()
         self.alive = True
-        self.settings = settings
-        self.players = players
+        self.settings = session.settings.values
+        self.players = session.roles
+        self.t = session.t
 
     def kill(self, by: str):
         super(BaseRole, self).kill(by)
         self.alive = False
 
     async def greet(self):
-        await MessageController.sent_role_greeting(get_translation(self.user.language_code), self.shortcut)
+        await MessageController.sent_role_greeting(self.user.id, self.t, self.shortcut)
 
     async def affect(self, other: ChatId):
         return
@@ -47,7 +49,7 @@ class BaseRole(
     async def answer(self, other: 'BaseRole', action: 'BaseAction'):
         return
 
-    async def send_action(self, other: List['BaseRole']):
+    async def send_action(self):
         return
 
     def __repr__(self):

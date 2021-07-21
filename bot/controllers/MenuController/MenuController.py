@@ -98,15 +98,18 @@ class MenuController(BaseController):
                 display = tmp[0] if len(
                     tmp := [opt['name'] for opt in btn['options'] if opt['value'] == value]) else value
                 reply_markup.append([{'text': f'☛ {str(display)} ☚', 'callback_data': f'menu mutate {i}'}])
+            elif tp == ButtonType.endpoint:
+                reply_markup.append([{'text': btn['name'], 'callback_data': f'menu mutate {i}'}])
             else:  # option button and it has 'select' parent
                 value = get_data(current['key'])
                 str_wrapper = '☛ {}' if value == btn['value'] else '{}'
                 reply_markup.append([{'text': str_wrapper.format(btn['name']), 'callback_data': f'menu mutate {i}'}])
 
-        if parent:
-            reply_markup.append([{'text': '*🔙 Back', 'callback_data': f'menu back'}])  # todo: add translation
-        else:
-            reply_markup.append([{'text': '*❌ Close', 'callback_data': f'menu close'}])  # todo: add translation
+        if not current.get('disable_special_buttons'):
+            if parent:
+                reply_markup.append([{'text': '*🔙 Back', 'callback_data': f'menu back'}])  # todo: add translation
+            else:
+                reply_markup.append([{'text': '*❌ Close', 'callback_data': f'menu close'}])  # todo: add translation
         return arr2keyword_markup(reply_markup)
 
     @classmethod
@@ -131,8 +134,7 @@ class MenuController(BaseController):
                 await cls.router(chat_id, i)
                 return await query.answer()
             if way == 'mutate':
-                await cls.mutator(chat_id, i, keys[2:])
-                return await query.answer()
+                return await cls.mutator(chat_id, i, keys[2:], query)
         except (KeyError, IndexError):
             try:
                 await cls.render(chat_id)
@@ -153,12 +155,12 @@ class MenuController(BaseController):
         await cls.render(chat_id)
 
     @classmethod
-    async def mutator(cls, chat_id: ChatId, i: int, meta: List[str]):
+    async def mutator(cls, chat_id: ChatId, i: int, meta: List[str], query: CallbackQuery):
         session = cls.__sessions[chat_id]
         current = session['current']
         set_data = session['set']
         get_data = session['get']
-        if current['type'] == ButtonType.select:
+        if current.get('type') == ButtonType.select:
             key = current['key']
             current_value = get_data(key)
             value = current['options'][i]['value']
@@ -166,7 +168,7 @@ class MenuController(BaseController):
             btn = current['buttons'][i]
             key = btn.get('key')
             if not key:
-                return
+                return await query.answer()
             tp = btn['type']
             current_value = get_data(key)
             if tp == ButtonType.toggle:
@@ -182,16 +184,28 @@ class MenuController(BaseController):
                 delta = parser(meta[0])
                 value = round(current_value + delta, 4)
                 if (_max and value > _max) or (_min and value < _min):
-                    return
+                    return await query.answer()
+            elif tp == ButtonType.endpoint:
+                description = get_data(key)
+                res = set_data(key, None)
+                if res is None or res:
+                    await session['msg'].edit_text(description)
+                    cls.__sessions.pop(chat_id)
+                    return await query.answer()
+                else:
+                    return await query.answer(description)
+
             else:
-                return
+                return await query.answer()
 
         if value == current_value:
-            return
+            return await query.answer()
 
         res = set_data(key, value)
         if res is None or res:
             await cls.render(chat_id)
+
+        return await query.answer()
 
     @classmethod
     async def router(cls, chat_id: ChatId, i: int):

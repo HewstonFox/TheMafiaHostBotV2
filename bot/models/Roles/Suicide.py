@@ -1,17 +1,15 @@
-from typing import List, Dict
-
 from aiogram.types import User
 
+from bot.localization.Localization import Session
 from bot.models.Roles.BaseRole import BaseRole
-from bot.types import ChatId
 
 
 class Suicide(BaseRole):
     shortcut = 'scd'
 
-    def __init__(self, user: User, players: Dict[ChatId, 'BaseRole'], settings: dict):
-        super().__init__(user, players, settings)
+    def __init__(self, user: User, session: Session):
+        super().__init__(user, session)
         self.won = False
 
-    def send_action(self, other: List['BaseRole']):
+    def send_action(self):
         raise NotImplementedError
