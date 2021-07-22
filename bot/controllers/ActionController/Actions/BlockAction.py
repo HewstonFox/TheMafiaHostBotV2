@@ -1,5 +1,4 @@
 from bot.controllers.ActionController.Actions.BaseAction import BaseAction, is_blocked
-from bot.models.Roles import BaseRole
 
 
 class BlockAction(BaseAction):
