@@ -22,5 +22,5 @@ class Doctor(BaseRole):
 
     async def send_action(self):
         await MenuController.show_menu(
-            **get_players_list_menu(self, lambda x: x.alive and (self.cure > 0 or x.user.id != self.user.id))
+            **get_players_list_menu(self, lambda x: x.alive and (self._self_cure > 0 or x.user.id != self.user.id))
         )
