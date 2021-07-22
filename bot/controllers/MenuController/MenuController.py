@@ -32,13 +32,13 @@ class MenuController(BaseController):
 
         if old_menu := cls.__sessions.get(chat_id):
             try:
-                await cls.dp.bot.delete_message(chat_id, old_menu['msg'].message_id)
+                await old_menu['msg'].delete()
             except:
                 pass
 
         cls.__sessions[chat_id] = session_data
         await cls.render(chat_id)
-        await cls.dp.bot.pin_chat_message(chat_id, session_data['msg'].message_id)
+        await session_data['msg'].pin()
 
     @classmethod
     def get_reply_markup(
@@ -190,6 +190,7 @@ class MenuController(BaseController):
                 res = set_data(key, None)
                 if res is None or res:
                     await session['msg'].edit_text(description)
+                    await session['msg'].unpin()
                     cls.__sessions.pop(chat_id)
                     return await query.answer()
                 else:
