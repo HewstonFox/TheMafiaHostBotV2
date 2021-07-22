@@ -29,7 +29,6 @@ class BaseRole(
     def __init__(self, user: User, session: Session):
         self.action: Optional['BaseAction'] = None
         self.user = user
-        self.shortcut = self.__class__.shortcut
         super(BaseRole, self).__init__()
         self.alive = True
         self.settings = session.settings.values

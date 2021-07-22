@@ -1,14 +1,9 @@
-from typing import List, Optional, Dict
-
-from aiogram.types import User
-
 from bot.controllers.ActionController.Actions.BaseAction import BaseAction
 from bot.controllers.ActionController.Actions.Spy import SpyAction
 from bot.controllers.MenuController.MenuController import MenuController
-from bot.controllers.MenuController.types import MessageMenu, MessageMenuButton, ButtonType
 from bot.models.Roles.BaseRole import BaseRole
 from bot.types import ChatId
-from bot.utils.roles import valid_player, get_players_list_menu
+from bot.utils.roles import get_players_list_menu
 
 
 class Bum(BaseRole):
