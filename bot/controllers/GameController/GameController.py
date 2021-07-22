@@ -124,7 +124,7 @@ class GameController(BaseController):
 
     @classmethod
     async def send_roles_actions(cls, session: Session):
-        await asyncio.wait([role.send_action() for role in session.roles.values()])
+        await asyncio.wait([role.send_action() for role in session.roles.values() if role.alive])
 
     @classmethod
     async def go_day(cls, session: Session):

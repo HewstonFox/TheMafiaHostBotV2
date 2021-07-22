@@ -1,9 +1,11 @@
 from aiogram.types import User
 
 from bot.controllers.ActionController.Actions.CureAction import CureAction
+from bot.controllers.MenuController.MenuController import MenuController
 from bot.localization.Localization import Session
 from bot.models.Roles.BaseRole import BaseRole
 from bot.types import ChatId
+from bot.utils.roles import get_players_list_menu
 
 
 class Doctor(BaseRole):
@@ -18,5 +20,7 @@ class Doctor(BaseRole):
             self._self_cure -= 1
         self.action = CureAction(self, self.players[other])
 
-    def send_action(self):
-        pass
+    async def send_action(self):
+        await MenuController.show_menu(
+            **get_players_list_menu(self, lambda x: x.alive and (self.cure > 0 or x.user.id != self.user.id))
+        )
