@@ -24,7 +24,7 @@ class Session:
                  lang: str = None,
                  name: str = '',
                  status: str = SessionStatus.pending,
-                 settings: dict = None,
+                 settings: dict = {},
                  **kwargs
                  ):
         if int(chat_id) > 0:
@@ -42,7 +42,7 @@ class Session:
 
         try:
             if not settings:
-                raise SchemaError
+                raise SchemaError("Settings not provided")
             self.settings = Settings(config=settings)
         except SchemaError:
             self.settings = Settings(lang=_lang)
