@@ -1,10 +1,9 @@
-from typing import List, Optional, Dict
+from typing import Optional
 
 from aiogram.types import User
 
 from bot.controllers.MessageController.MessageController import MessageController
 from bot.controllers.SessionController.Session import Session
-from bot.localization import get_translation
 from bot.controllers.ActionController.Actions.BaseAction import BaseAction
 from bot.models.Roles.RoleEffects import KillEffect, CureEffect, CheckEffect, BlockEffect, AcquitEffect
 from bot.types import ChatId

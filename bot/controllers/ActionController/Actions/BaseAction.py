@@ -1,29 +1,11 @@
 from bot.models.Roles import BaseRole
+from bot.utils.whore_tree import create_whore_tree
 
 
 def is_blocked(func):
     def wrapper(self: 'BaseAction'):
-
-        actor = self.actor
-        blockers: list['BaseAction'] = [player.action for player in actor.players.values() if player.action.is_blocker]
-
-        pipeline = [actor.user.id]
-
-        while found := [
-            blocker.actor.user.id for blocker in blockers
-            if blocker.target.user.id == pipeline[-1]
-        ]:
-            if pipeline[0] in found:
-                pipeline = []
-                break
-            pipeline.append(found)
-
-        pipeline_len = len(pipeline)
-        if pipeline_len and (pipeline_len == 1 or not (pipeline_len % 2)):
-            unblock = self.actor.blocked  # setting property to false while reading it
+        if not create_whore_tree(self, [player.action for player in self.actor.players.values()]).is_fucked():
             func(self)
-        else:
-            self.actor.block()
 
     return wrapper
 

@@ -36,7 +36,7 @@ def get_players_list_menu(role: BaseRole, should_display: Callable[[BaseRole], b
                 type=ButtonType.endpoint,
                 name=pl.user.full_name,
                 key=str(pl.user.id)
-            ) for pl in role.players if should_display(pl)]
+            ) for pl in role.players.values() if should_display(pl)]
         ),
         'get_data': get_description,
         'set_data': select_target
