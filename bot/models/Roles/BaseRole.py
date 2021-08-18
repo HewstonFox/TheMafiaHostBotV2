@@ -8,6 +8,7 @@ from bot.controllers.ActionController.Actions.BaseAction import BaseAction
 from bot.models.Roles.RoleEffects import KillEffect, CureEffect, CheckEffect, BlockEffect, AcquitEffect
 from bot.types import ChatId
 
+
 class Meta(type):
     def __repr__(cls):
         parents = [x.__name__ for x in cls.__bases__ if x != BaseRole]
