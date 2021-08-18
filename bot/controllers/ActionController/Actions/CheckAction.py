@@ -9,4 +9,5 @@ class CheckAction(BaseAction):
         super().__init__(actor, target)
 
     async def apply(self):
+        self.target.check()
         await self.actor.answer(self.target, self)

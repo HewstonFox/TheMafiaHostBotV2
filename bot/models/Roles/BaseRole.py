@@ -8,7 +8,6 @@ from bot.controllers.ActionController.Actions.BaseAction import BaseAction
 from bot.models.Roles.RoleEffects import KillEffect, CureEffect, CheckEffect, BlockEffect, AcquitEffect
 from bot.types import ChatId
 
-
 class Meta(type):
     def __repr__(cls):
         parents = [x.__name__ for x in cls.__bases__ if x != BaseRole]
@@ -41,13 +40,13 @@ class BaseRole(
     async def greet(self):
         await MessageController.sent_role_greeting(self.user.id, self.t, self.shortcut)
 
-    async def affect(self, other: ChatId):
+    async def affect(self, other: ChatId, key: Optional[str] = None):
         return
 
     async def answer(self, other: 'BaseRole', action: 'BaseAction'):
         return
 
-    async def send_action(self):
+    def send_action(self):
         return
 
     def __repr__(self):

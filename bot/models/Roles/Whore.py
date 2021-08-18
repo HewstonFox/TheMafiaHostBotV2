@@ -8,7 +8,7 @@ from bot.utils.roles import get_players_list_menu
 class Whore(BaseRole):
     shortcut = 'whr'
 
-    def affect(self, other: ChatId):
+    def affect(self, other: ChatId, key=None):
         self.action = BlockAction(self, self.players[other])
 
     async def send_action(self):

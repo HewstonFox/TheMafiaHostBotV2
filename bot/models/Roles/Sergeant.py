@@ -1,4 +1,4 @@
-from bot.models.Roles import BaseRole
+from bot.models.Roles.BaseRole import BaseRole
 
 
 class Sergeant(BaseRole):
