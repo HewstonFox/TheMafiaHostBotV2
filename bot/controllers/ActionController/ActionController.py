@@ -24,6 +24,7 @@ class ActionController(BaseController):
     def resole_votes(cls, _votes: list[VoteAction]) -> list[BaseAction]:
         votes = [vote for vote in _votes if vote.apply()]
         vote_types = [item for sub in VoteAction.__subclasses__() for item in sub.__subclasses__()]
+        #  creating of vote config with vote`s priority
         votes_config = {
             vote_type: cls.attach_role_priority(vote_type, [vote for vote in votes if isinstance(vote, vote_type)])
             for vote_type in vote_types
@@ -33,6 +34,7 @@ class ActionController(BaseController):
             actor = votes[max(votes.keys())][0].actor
             action = key.get_result_action()
             targets = {}
+            # Counting votes
             for factor, row_votes in votes.items():
                 for vote in row_votes:
                     if vote.target.user.id not in targets:
