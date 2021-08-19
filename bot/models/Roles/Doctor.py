@@ -15,7 +15,7 @@ class Doctor(BaseRole):
         super().__init__(user, session)
         self._self_cure = 1
 
-    def affect(self, other: ChatId):
+    def affect(self, other: ChatId, key=None):
         if other == self.user.id:
             self._self_cure -= 1
         self.action = CureAction(self, self.players[other])

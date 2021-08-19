@@ -10,6 +10,3 @@ class Suicide(BaseRole):
     def __init__(self, user: User, session: Session):
         super().__init__(user, session)
         self.won = False
-
-    def send_action(self):
-        raise NotImplementedError

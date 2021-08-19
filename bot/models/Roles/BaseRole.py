@@ -41,13 +41,13 @@ class BaseRole(
     async def greet(self):
         await MessageController.sent_role_greeting(self.user.id, self.t, self.shortcut)
 
-    async def affect(self, other: ChatId):
+    async def affect(self, other: ChatId, key: Optional[str] = None):
         return
 
     async def answer(self, other: 'BaseRole', action: 'BaseAction'):
         return
 
-    async def send_action(self):
+    def send_action(self):
         return
 
     def __repr__(self):

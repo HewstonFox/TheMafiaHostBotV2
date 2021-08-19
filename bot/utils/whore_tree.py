@@ -6,21 +6,20 @@ class WhoreTree:
         self.fucker = fucker
         self.fuckers: list['WhoreTree'] = []
 
-    def is_fucked(self, prev_fuckers: list['WhoreTree'] = []):
+    def is_fucked(self, prev_fuckers: list['WhoreTree'] = []) -> bool:
         if self in prev_fuckers:
-            return True
+            return not len(prev_fuckers) % 2
         return any([not fucker.is_fucked(prev_fuckers + [self]) for fucker in self.fuckers])
 
 
-def create_whore_tree(action, actions: list, checked: list[User] = []):
-    fucks = [act for act in actions if act.is_blocker]
+def create_whore_tree(action, actions: list, checked: list[WhoreTree] = []):
+    if len(fucker := [ch for ch in checked if ch.fucker == action.actor]):
+        return fucker[0]
 
     fucker = WhoreTree(action.actor)
-
-    if fucker.fucker not in checked:
-        fucker.fuckers = [
-            create_whore_tree(fuck, fucks, checked + [fucker.fucker])
-            for fuck in fucks if fuck.target == action.actor
-        ]
+    fucker.fuckers = [
+        create_whore_tree(fuck, actions, checked + [fucker])
+        for fuck in actions if fuck.target == action.actor and fuck.is_blocker
+    ]
 
     return fucker

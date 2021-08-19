@@ -1,6 +1,16 @@
 from typing import Type
 
-from bot.models.Roles import Civil, Don, Mafia, Commissioner, Doctor, Suicide, Whore, Bum, Lawyer, Lucky, Maniac
+from bot.models.Roles import \
+    Civil, \
+    Don, Mafia, \
+    Commissioner, Sergeant, \
+    Doctor, \
+    Suicide, \
+    Whore, \
+    Bum, \
+    Lawyer, \
+    Lucky, \
+    Maniac
 from bot.models.Roles.BaseRole import BaseRole
 
 Roles = BaseRole.__subclasses__()
