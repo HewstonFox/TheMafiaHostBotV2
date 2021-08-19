@@ -5,5 +5,18 @@
   "license": "MIT",
   "scripts": {
     "watcher": "@powershell -NoProfile -ExecutionPolicy Unrestricted -Command ./watcher.ps1; npx nodemon main.py"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      ".git/*",
+      ".idea/*",
+      "tests/*",
+      "assets/*",
+      ".gitignore",
+      "Procfile",
+      "README.md",
+      "requirements.txt",
+      "scratch.py"
+    ]
   }
 }
