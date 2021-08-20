@@ -1,5 +1,5 @@
 from bot.controllers.ActionController.Actions.BaseAction import BaseAction, is_blocked
-from bot.models.Roles.Civil import Civil
+from bot.models.Roles.constants import Team
 
 
 class KillAction(BaseAction):
@@ -12,4 +12,4 @@ class KillAction(BaseAction):
 
 class IncognitoKillAction(KillAction):
     async def apply(self):
-        self.target.kill(Civil.shortcut)
+        self.target.kill(Team.civ)

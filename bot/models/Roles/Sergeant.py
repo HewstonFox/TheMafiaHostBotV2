@@ -1,5 +1,8 @@
-from bot.models.Roles.BaseRole import BaseRole
+from bot.models.Roles.Incognito import Incognito
 
 
-class Sergeant(BaseRole):
+class Sergeant(Incognito):
     shortcut = 'shr'  # todo: rename to srg
+
+    async def send_action(self):
+        return

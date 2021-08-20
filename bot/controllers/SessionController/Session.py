@@ -35,7 +35,7 @@ class Session:
         self.roles: RolesList = Proxy({})
         _lang = lang or settings.get('language') or get_default_translation_index()
         self.t: Localization = get_translation(_lang)
-
+        self.handlers = []
         self.__status: str = status
         if 'bot' in kwargs:
             self.bot = kwargs['bot']

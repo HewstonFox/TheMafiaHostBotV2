@@ -1,11 +1,13 @@
+import asyncio
+
 from bot.controllers.ActionController.Actions.BaseAction import BaseAction
 from bot.controllers.ActionController.Actions.CheckAction import CheckAction
 from bot.controllers.ActionController.Actions.KillAction import KillAction
 from bot.controllers.MenuController.MenuController import MenuController
 from bot.controllers.MenuController.types import MessageMenu, MessageMenuButton, ButtonType
 from bot.models.Roles import BaseRole
-from bot.models.Roles.Civil import Civil
 from bot.models.Roles.Sergeant import Sergeant
+from bot.models.Roles.constants import Team
 from bot.types import ChatId
 from bot.utils.roles import get_description_factory, select_target_factory
 
@@ -24,9 +26,9 @@ class Commissioner(Sergeant):
                                          f'{self.shortcut} moved as {action}')  # todo: add translation
 
     async def answer(self, other: 'BaseRole', action: 'BaseAction'):
-        role = Civil.shortcut if other.ACQUITTED else other.shortcut
+        role = Team.civ if other.ACQUITTED else other.shortcut
         for sheriff in [shr for shr in self.players.values() if isinstance(shr, Sergeant)]:
-            self.user.bot.loop.create_task(self.user.bot.send_message(
+            asyncio.create_task(self.user.bot.send_message(
                 sheriff.user.id,
                 f'*{other.user.get_mention()} is {role}'  # todo: add translation
             ))

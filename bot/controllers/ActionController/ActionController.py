@@ -12,17 +12,20 @@ class ActionController(BaseController):
 
     @classmethod
     async def apply_actions(cls, players: Dict[ChatId, BaseRole]):
-        actions = sorted([player.action for player in players.values()], key=lambda x: x.order)
+        actions = sorted([player.action for player in players.values() if player.action], key=lambda x: x.order)
 
-        resolved_votes = cls.resole_votes([vote for vote in actions if isinstance(vote, VoteAction)])
+        resolved_votes = await cls.resole_votes([vote for vote in actions if isinstance(vote, VoteAction)])
         actions = [act for act in actions if not isinstance(act, VoteAction)] + resolved_votes
 
         for action in actions:
             await action.apply()
 
+        for player in players.values():
+            player.action = None
+
     @classmethod
-    def resole_votes(cls, _votes: list[VoteAction]) -> list[BaseAction]:
-        votes = [vote for vote in _votes if vote.apply()]
+    async def resole_votes(cls, _votes: list[VoteAction]) -> list[BaseAction]:
+        votes = [vote for vote in _votes]
         vote_types = [item for sub in VoteAction.__subclasses__() for item in sub.__subclasses__()]
         #  creating of vote config with vote`s priority
         votes_config = {
@@ -31,6 +34,8 @@ class ActionController(BaseController):
         }
         result_actions: list[BaseAction] = []
         for key, votes in votes_config.items():
+            if not len(votes.keys()):
+                continue
             actor = votes[max(votes.keys())][0].actor
             action = key.get_result_action()
             targets = {}
@@ -40,7 +45,8 @@ class ActionController(BaseController):
                     if vote.target.user.id not in targets:
                         targets[vote.target.user.id] = [0, vote.target]
                     targets[vote.target.user.id][0] += factor
-            result_actions.append(action(actor, max(targets.values(), key=lambda x: x[0])[1]))
+            if len(targets.values()):
+                result_actions.append(action(actor, max(targets.values(), key=lambda x: x[0])[1]))
         return result_actions
 
     @classmethod

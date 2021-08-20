@@ -1,8 +1,11 @@
 import asyncio
+import datetime
 from asyncio import sleep
+from pprint import pprint
 from random import shuffle
+from typing import Optional
 
-from aiogram.types import ChatActions, Message
+from aiogram.types import ChatActions, Message, ChatPermissions
 from aiogram.utils.exceptions import BadRequest
 
 from bot.controllers import BaseController
@@ -13,10 +16,16 @@ from bot.controllers.SessionController.SessionController import SessionControlle
 from bot.controllers.SessionController.types import SessionStatus
 from bot.localization import Localization
 from bot.models.MafiaBotError import SessionAlreadyActiveError
-from bot.models.Roles import Roles, get_cap
+from bot.models.Roles import Roles, get_cap, BaseRole
 from bot.models.Roles.Civil import Civil
+from bot.models.Roles.Commissioner import Commissioner
+from bot.models.Roles.Don import Don
 from bot.models.Roles.Mafia import Mafia
+from bot.models.Roles.Maniac import Maniac
+from bot.models.Roles.Incognito import Incognito
+from bot.models.Roles.constants import Team
 from bot.types import ChatId
+from bot.utils.game import get_result_config
 from bot.utils.message import attach_last_words
 from bot.utils.shared import is_error, async_timeout
 
@@ -127,8 +136,9 @@ class GameController(BaseController):
     @classmethod
     async def affect_roles(cls, session: Session):
         bot = cls.dp.bot
+
         #  todo: add translation to whole phrases and move to MessageController
-        for user_id, role in session.roles.items():
+        async def apply_effect(user_id, role):
             if role.cured:
                 await bot.send_message(user_id, "You was cured by doctor")
             if role.just_checked:
@@ -139,7 +149,7 @@ class GameController(BaseController):
                 await bot.send_message(user_id, "You was acquitted by lawyer")
             if role.just_killed:
                 global_text = f'{role.user.get_mention()} was killed.'
-                if session.settings['show_killer']:
+                if session.settings.values['game']['show_killer']:
                     global_text += f'Seems it was {role.killed_by}'
                 await bot.send_message(session.chat_id, global_text)
 
@@ -147,11 +157,56 @@ class GameController(BaseController):
                     await bot.send_message(session.chat_id, f'Last words of {role.user.get_mention()} was:')
                     await msg.copy_to(session.chat_id)
 
-                await attach_last_words(cls.dp, user_id, "You was killed, send your last words here", handler)
+                session.handlers.append(
+                    await attach_last_words(cls.dp, user_id, "You was killed, send your last words here", handler))
+
+                await bot.restrict_chat_member(
+                    session.chat_id,
+                    user_id,
+                    ChatPermissions(can_send_messages=False),
+                    datetime.datetime.now() + datetime.timedelta(days=1)
+                )
+
+        await asyncio.wait([apply_effect(*items) for items in session.roles.items()])
+
+    @classmethod
+    async def send_roles_vote(cls, session: Session):
+        players: list[Incognito] = list(session.roles.values())  # just for typehint
+        await asyncio.wait([player.send_vote() for player in players])
+
+    @classmethod
+    async def get_session_winner(cls, config: dict) -> Optional[str]:
+        alive: list[BaseRole] = config['alive']
+        if (alive_count := len(alive)) > 2:
+            mafia_count = len([mafia for mafia in alive if isinstance(mafia, Mafia)])
+            peace_count = alive_count - mafia_count
+            if mafia_count >= peace_count:
+                return Mafia.shortcut
+        else:
+            danger_roles = Mafia, Don, Maniac
+            a, b = alive
+            type_a = type(a)
+            type_b = type(b)
+            is_danger_a = type_a in danger_roles
+            is_danger_b = type_b in danger_roles
+            if a.team == b.team == Team.civ:
+                return a.team
+            elif is_danger_a != is_danger_b and Commissioner not in (type_a, type_b):
+                return a.team if is_danger_a else b.team
+            return Mafia.team if a.team == b.team == Team.maf else Team.BOTH
 
     @classmethod
     async def resolve_results(cls, session: Session):
-        pass
+        result_config = get_result_config(session)
+        pprint(result_config, depth=5)
+        winner = await cls.get_session_winner(result_config)
+        if not winner:
+            # todo: move to MessageController & add translation
+            await session.bot.send_message(session.chat_id, 'game continues')
+            return
+
+        await session.bot.send_message(session.chat_id, f'winner is {winner}')
+        cls.stop_game(session)
 
     @classmethod
     async def send_roles_actions(cls, session: Session):
@@ -163,12 +218,18 @@ class GameController(BaseController):
             lambda: ActionController.apply_actions(session.roles), \
             lambda: cls.affect_roles(session), \
             lambda: cls.resolve_results(session), \
-            lambda: asyncio.sleep(session.settings.values['time']['day']),
+            lambda: asyncio.sleep(session.settings.values['time']['day']), \
+            lambda: cls.send_roles_vote(session), \
+            lambda: asyncio.sleep(session.settings.values['time']['vote']), \
+            lambda: ActionController.apply_actions(session.roles), \
+            lambda: cls.resolve_results(session)
 
         for task in tasks:
             if session.status != SessionStatus.game:
                 return
             await task()
+
+        asyncio.create_task(cls.go_day(session))
 
     @classmethod
     async def go_night(cls, session: Session):
@@ -200,8 +261,16 @@ class GameController(BaseController):
         await MessageController.send_registration_skipped(chat_id, t)
 
     @classmethod
-    def stop_game(cls, chat_id: ChatId):
-        SessionController.kill_session(chat_id)
+    def stop_game(cls, session: Session):
+        for handler in session.handlers:
+            try:
+                cls.dp.message_handlers.unregister(handler)
+            except ValueError:
+                pass
+        for user_id in session.roles:
+            asyncio.create_task(
+                session.bot.restrict_chat_member(session.chat_id, user_id, ChatPermissions(can_send_messages=True)))
+        SessionController.kill_session(session.chat_id)
 
     @classmethod
     async def force_stop(cls, session: Session):
@@ -214,7 +283,7 @@ class GameController(BaseController):
             await MessageController.send_nothing_to_stop(chat_id, t)
             return
 
-        GameController.stop_game(chat_id)
+        GameController.stop_game(session)
 
         if session_status == SessionStatus.game:
             await MessageController.send_game_force_stopped(chat_id, t)

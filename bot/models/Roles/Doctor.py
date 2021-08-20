@@ -4,11 +4,12 @@ from bot.controllers.ActionController.Actions.CureAction import CureAction
 from bot.controllers.MenuController.MenuController import MenuController
 from bot.localization.Localization import Session
 from bot.models.Roles.BaseRole import BaseRole
+from bot.models.Roles.Incognito import Incognito
 from bot.types import ChatId
 from bot.utils.roles import get_players_list_menu
 
 
-class Doctor(BaseRole):
+class Doctor(Incognito):
     shortcut = 'doc'
 
     def __init__(self, user: User, session: Session):
