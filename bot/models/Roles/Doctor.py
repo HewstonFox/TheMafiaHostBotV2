@@ -19,6 +19,7 @@ class Doctor(BaseRole):
         if other == self.user.id:
             self._self_cure -= 1
         self.action = CureAction(self, self.players[other])
+        super(Doctor, self).affect(other, key)
 
     async def send_action(self):
         await MenuController.show_menu(

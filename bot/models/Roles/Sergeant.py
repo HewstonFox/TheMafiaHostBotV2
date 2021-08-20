@@ -2,4 +2,4 @@ from bot.models.Roles.BaseRole import BaseRole
 
 
 class Sergeant(BaseRole):
-    shortcut = 'srg'
+    shortcut = 'shr'  # todo: rename to srg

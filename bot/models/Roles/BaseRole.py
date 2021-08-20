@@ -2,9 +2,9 @@ from typing import Optional
 
 from aiogram.types import User
 
+from bot.controllers.ActionController.Actions.BaseAction import BaseAction
 from bot.controllers.MessageController.MessageController import MessageController
 from bot.controllers.SessionController.Session import Session
-from bot.controllers.ActionController.Actions.BaseAction import BaseAction
 from bot.models.Roles.RoleEffects import KillEffect, CureEffect, CheckEffect, BlockEffect, AcquitEffect
 from bot.types import ChatId
 
@@ -30,6 +30,7 @@ class BaseRole(
         self.user = user
         super(BaseRole, self).__init__()
         self.alive = True
+        self.session = session
         self.settings = session.settings.values
         self.players = session.roles
         self.t = session.t
@@ -42,7 +43,7 @@ class BaseRole(
         await MessageController.sent_role_greeting(self.user.id, self.t, self.shortcut)
 
     async def affect(self, other: ChatId, key: Optional[str] = None):
-        return
+        await self.session.bot.send_message(self.session.chat_id, f'{self.shortcut} moved')  # todo: add translation
 
     async def answer(self, other: 'BaseRole', action: 'BaseAction'):
         return

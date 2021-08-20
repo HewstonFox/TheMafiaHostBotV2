@@ -8,8 +8,9 @@ from bot.utils.roles import get_players_list_menu
 class Lawyer(BaseRole):
     shortcut = 'lwr'
 
-    def affect(self, other: ChatId, key=None):
+    async def affect(self, other: ChatId, key=None):
         self.action = AcquitAction(self, self.players[other])
+        await super(Lawyer, self).affect(other)
 
     async def send_action(self):
         await MenuController.show_menu(**get_players_list_menu(self, lambda x: x.alive and self.user.id != x.user.id))

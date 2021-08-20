@@ -8,8 +8,11 @@ from bot.utils.roles import get_players_list_menu
 class Mafia(BaseRole):
     shortcut = 'maf'
 
-    def affect(self, other: ChatId):
-        self.action = MafiaKillVoteAction(self, self.players[other])
+    async def affect(self, other: ChatId, key=None):
+        if key != 'don':
+            self.action = MafiaKillVoteAction(self, self.players[other])
+        if all([pl.action for pl in self.players.values() if isinstance(pl, Mafia)]):
+            await super(Mafia, self).affect(other)
 
     async def send_action(self):
         await MenuController.show_menu(**get_players_list_menu(
