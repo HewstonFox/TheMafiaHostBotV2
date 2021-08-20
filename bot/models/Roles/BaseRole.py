@@ -24,11 +24,13 @@ class BaseRole(
     metaclass=Meta,
 ):
     shortcut: str = 'base'
+    team: str = ''
 
     def __init__(self, user: User, session: Session):
         self.action: Optional['BaseAction'] = None
         self.user = user
         super(BaseRole, self).__init__()
+        self.won = True
         self.alive = True
         self.session = session
         self.settings = session.settings.values
@@ -38,6 +40,7 @@ class BaseRole(
     def kill(self, by: str):
         super(BaseRole, self).kill(by)
         self.alive = False
+        self.won = False
 
     async def greet(self):
         await MessageController.sent_role_greeting(self.user.id, self.t, self.shortcut)
@@ -51,7 +54,13 @@ class BaseRole(
     def send_action(self):
         return
 
+    def vote(self, other: ChatId):
+        raise NotImplementedError
+
+    async def send_vote(self):
+        raise NotImplementedError
+
     def __repr__(self):
         parents = [x.__name__ for x in self.__class__.__bases__ if type(x) != BaseRole]
         return f'<{self.__class__.shortcut or self.__class__.__name__}' \
-               f'{" (" + ", ".join(parents) + ")" if len(parents) else ""}>'
+               f'{" (" + ", ".join(parents) + ")" if len(parents) else ""} {self.user.full_name}>'

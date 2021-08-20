@@ -1,11 +1,11 @@
 from bot.controllers.ActionController.Actions.BlockAction import BlockAction
 from bot.controllers.MenuController.MenuController import MenuController
-from bot.models.Roles.BaseRole import BaseRole
+from bot.models.Roles.Incognito import Incognito
 from bot.types import ChatId
 from bot.utils.roles import get_players_list_menu
 
 
-class Whore(BaseRole):
+class Whore(Incognito):
     shortcut = 'whr'
 
     async def affect(self, other: ChatId, key=None):

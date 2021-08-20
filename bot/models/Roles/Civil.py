@@ -1,11 +1,18 @@
 from random import choice
+
 from aiohttp import ClientSession
+
 from bot.models.Roles.BaseRole import BaseRole
+from bot.models.Roles.Incognito import Incognito
+from bot.models.Roles.constants import Team
 from config import env
 
+__hack = BaseRole  # hack to avoid removing "unused" import which need for correct import sequence
 
-class Civil(BaseRole):
+
+class Civil(Incognito):
     shortcut = 'civ'
+    team = Team.civ
 
     async def send_action(self):
         async with ClientSession() as session:

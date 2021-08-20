@@ -18,11 +18,18 @@ def parse_timer(text: str) -> Tuple[Union[int, None], int]:
         return None, 1
 
 
-async def attach_last_words(dp: Dispatcher, user_id: ChatId, text: str, callback: Callable[[Message], Awaitable[None]]):
+async def attach_last_words(
+        dp: Dispatcher,
+        user_id: ChatId,
+        text: str,
+        callback: Callable[[Message], Awaitable[None]],
+):
     await dp.bot.send_message(user_id, text)
 
-    def handler(*args, **kwargs):
+    async def handler(msg, *args, **kwargs):
         dp.message_handlers.unregister(handler)
-        callback(*args, **kwargs)
+        await callback(msg)
 
     dp.register_message_handler(handler, chat_id=user_id)
+
+    return handler
