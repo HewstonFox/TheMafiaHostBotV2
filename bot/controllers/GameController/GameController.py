@@ -2,20 +2,22 @@ import asyncio
 from asyncio import sleep
 from random import shuffle
 
-from aiogram.types import ChatActions
+from aiogram.types import ChatActions, Message
 from aiogram.utils.exceptions import BadRequest
 
 from bot.controllers import BaseController
+from bot.controllers.ActionController.ActionController import ActionController
 from bot.controllers.MessageController.MessageController import MessageController
 from bot.controllers.SessionController.Session import Session
 from bot.controllers.SessionController.SessionController import SessionController
 from bot.controllers.SessionController.types import SessionStatus
+from bot.localization import Localization
 from bot.models.MafiaBotError import SessionAlreadyActiveError
 from bot.models.Roles import Roles, get_cap
 from bot.models.Roles.Civil import Civil
 from bot.models.Roles.Mafia import Mafia
 from bot.types import ChatId
-from bot.localization import Localization
+from bot.utils.message import attach_last_words
 from bot.utils.shared import is_error, async_timeout
 
 
@@ -123,12 +125,44 @@ class GameController(BaseController):
         await asyncio.wait([role.greet() for role in session.roles.values()])
 
     @classmethod
+    async def affect_roles(cls, session: Session):
+        bot = cls.dp.bot
+        #  todo: add translation to whole phrases and move to MessageController
+        for user_id, role in session.roles.items():
+            if role.cured:
+                await bot.send_message(user_id, "You was cured by doctor")
+            if role.just_checked:
+                await bot.send_message(user_id, "You was checked by commissioner")
+            if role.blocked:
+                await bot.send_message(user_id, "You was blocked by whore")
+            if role.acquitted:
+                await bot.send_message(user_id, "You was acquitted by lawyer")
+            if role.just_killed:
+                global_text = f'{role.user.get_mention()} was killed.'
+                if session.settings['show_killer']:
+                    global_text += f'Seems it was {role.killed_by}'
+                await bot.send_message(session.chat_id, global_text)
+
+                async def handler(msg: Message):
+                    await bot.send_message(session.chat_id, f'Last words of {role.user.get_mention()} was:')
+                    await msg.copy_to(session.chat_id)
+
+                await attach_last_words(cls.dp, user_id, "You was killed, send your last words here", handler)
+
+    @classmethod
+    async def resolve_results(cls, session: Session):
+        pass
+
+    @classmethod
     async def send_roles_actions(cls, session: Session):
         await asyncio.wait([role.send_action() for role in session.roles.values() if role.alive])
 
     @classmethod
     async def go_day(cls, session: Session):
         tasks = \
+            lambda: ActionController.apply_actions(session.roles), \
+            lambda: cls.affect_roles(session), \
+            lambda: cls.resolve_results(session), \
             lambda: asyncio.sleep(session.settings.values['time']['day']),
 
         for task in tasks:

@@ -1,3 +1,4 @@
+from asyncio import create_task
 from typing import Dict, Optional, Tuple, Callable
 
 from bot.controllers.MenuController.types import MessageMenu, MessageMenuButton, ButtonType
@@ -27,7 +28,7 @@ def select_target_factory(players: Dict[ChatId, BaseRole], role: BaseRole):
     def select_target(key, _):
         check_result = valid_player(players, key)
         if all(check_result):
-            role.affect(check_result[1].user.id, key)
+            create_task(role.affect(check_result[1].user.id, key))
             return True
         return False
 

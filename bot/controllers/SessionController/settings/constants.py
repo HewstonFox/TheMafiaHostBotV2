@@ -6,3 +6,13 @@ poll_min = 30
 vote_min = 10
 min_players = 4
 min_role_n = 4
+
+
+class DisplayType(object):
+    show = 'show'
+    hide = 'hide'
+    partially = 'partially'
+
+    @classmethod
+    def values(cls):
+        return cls.show, cls.partially, cls.hide

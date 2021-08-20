@@ -11,6 +11,7 @@ class Bum(BaseRole):
 
     def affect(self, other: ChatId, key=None):
         self.action = SpyAction(self, self.players[other])
+        super(Bum, self).affect(other, key)
 
     async def answer(self, other: 'BaseRole', action: 'BaseAction'):
         if other.action:

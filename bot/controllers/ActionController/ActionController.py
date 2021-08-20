@@ -1,9 +1,9 @@
 from typing import Dict, Type
 
 from bot.controllers import BaseController
+from bot.models.Roles import BaseRole
 from bot.controllers.ActionController.Actions.BaseAction import BaseAction
 from bot.controllers.ActionController.Actions.VoteAction import VoteAction
-from bot.models.Roles import BaseRole
 from bot.types import ChatId
 from bot.utils.shared import count_bases_depth
 

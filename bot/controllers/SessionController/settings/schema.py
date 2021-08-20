@@ -37,8 +37,8 @@ settings_schema = Schema({
         'show_private_night_actions': bool,
         'last_words': bool,
         'commissioner_can_kill': bool,
-        'show_live_roles': Or('show', 'partially', 'hide'),
-        'show_message_on_vote': Or('show', 'partially', 'hide'),
+        'show_live_roles': Or(*DisplayType.values()),
+        'show_message_on_vote': Or(*DisplayType.values()),
     },
     'roles': {
         'maf': {

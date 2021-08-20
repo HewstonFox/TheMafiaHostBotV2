@@ -11,14 +11,17 @@ from bot.utils.roles import get_description_factory, select_target_factory
 
 
 class Commissioner(Sergeant):
-    shortcut = 'shr'
+    shortcut = 'com'
 
     class __Actions:
         check = 'check'
         kill = 'kill'
 
-    def affect(self, other: ChatId, key=None):
-        self.action = (KillAction if key.startswith(self.__Actions.kill) else CheckAction)(self, self.players[other])
+    async def affect(self, other: ChatId, key=None):
+        action = self.__Actions.kill if key.startswith(self.__Actions.kill) else self.__Actions.check
+        self.action = (KillAction if action == self.__Actions.kill else CheckAction)(self, self.players[other])
+        await self.user.bot.send_message(self.session.chat_id,
+                                         f'{self.shortcut} moved as {action}')  # todo: add translation
 
     async def answer(self, other: 'BaseRole', action: 'BaseAction'):
         role = Civil.shortcut if other.ACQUITTED else other.shortcut
