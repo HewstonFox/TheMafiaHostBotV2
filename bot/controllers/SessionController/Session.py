@@ -15,6 +15,7 @@ from bot.models import MafiaBotError
 from bot.models.MafiaBotError import InvalidSessionStatusError
 from bot.types import ChatId, Proxy
 from bot.localization import Localization, get_translation, get_default_translation_index
+from bot.utils.restriction import restriction_with_prev_state, SEND_RESTRICTIONS
 
 
 class Session:
@@ -35,7 +36,8 @@ class Session:
         self.roles: RolesList = Proxy({})
         _lang = lang or settings.get('language') or get_default_translation_index()
         self.t: Localization = get_translation(_lang)
-
+        self.handlers = []
+        self.restrictions: dict[ChatId, dict] = {}
         self.__status: str = status
         if 'bot' in kwargs:
             self.bot = kwargs['bot']
@@ -63,6 +65,23 @@ class Session:
 
     def __del__(self):
         self.status = SessionStatus.pending
+        for chat_id, restriction in self.restrictions.values():
+            asyncio.create_task(restriction_with_prev_state(
+                self.bot,
+                self.chat_id,
+                chat_id,
+                restriction
+            ))
+
+    async def restrict_role(self, chat_id: ChatId):
+        if self.__status != SessionStatus.game or chat_id not in self.roles:
+            return
+        self.restrictions[chat_id] = await restriction_with_prev_state(
+            self.bot,
+            self.chat_id,
+            chat_id,
+            SEND_RESTRICTIONS
+        )
 
     async def __watch_chat_members(self):
         bot: Bot = self.bot
@@ -102,7 +121,6 @@ class Session:
 
     @classmethod
     async def create(cls, **kwargs):
-
         record: SessionRecord = await collection.create_session_record(**kwargs)
         return Session(**record)
 

@@ -1,5 +1,7 @@
 import io
 import traceback
+from asyncio import sleep
+from pprint import pprint
 
 from aiogram.dispatcher import filters
 from aiogram.dispatcher.filters import Command
@@ -20,6 +22,7 @@ from bot.localization import Localization
 from bot.utils.decorators.handlers import with_locale, clean_command, with_session
 from bot.utils.decorators.throttle import throttle_message_handler, throttle_callback_query_handler
 from bot.utils.message import parse_timer
+from bot.utils.restriction import restriction_with_prev_state, SEND_RESTRICTIONS
 from config import env
 
 
@@ -161,3 +164,32 @@ async def clear_pined_by_bot(message: Message):
     username = (await dp.bot.me).username
     if message.from_user.username == username:
         await message.delete()
+
+
+if env.MODE == 'development':
+    @dp.message_handler(commands=['session'], chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
+    @clean_command
+    @with_session
+    async def current_session(message: Message, session: Session, *_, **__):
+        pprint(session)
+
+
+    @dp.message_handler(commands=['permission'], chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
+    @clean_command
+    async def permissions(message: Message):
+        prev_restrictions = await restriction_with_prev_state(
+            message.bot,
+            message.chat.id,
+            message.from_user.id,
+            SEND_RESTRICTIONS
+        )
+        pprint(prev_restrictions)
+
+        await sleep(5)
+
+        await restriction_with_prev_state(
+            message.bot,
+            message.chat.id,
+            message.from_user.id,
+            prev_restrictions
+        )

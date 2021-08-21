@@ -2,7 +2,7 @@ import asyncio
 from collections.abc import Mapping
 from time import time
 import copy
-from typing import Awaitable, Callable, Any
+from typing import Awaitable, Callable, Any, Type
 
 
 def get_current_time() -> int:
@@ -44,3 +44,10 @@ def dict_merge(*dicts: dict):
 async def async_timeout(timeout: int, func: Callable[[...], Awaitable[None]], *args, **kwargs):
     await asyncio.sleep(timeout)
     await func(*args, **kwargs)
+
+
+def count_bases_depth(class_type: Type) -> int:
+    bases = class_type.__bases__
+    if not len(bases):
+        return 1
+    return 1 + max([count_bases_depth(sub) for sub in bases])

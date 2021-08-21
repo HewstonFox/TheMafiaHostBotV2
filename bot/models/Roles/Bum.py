@@ -2,15 +2,17 @@ from bot.controllers.ActionController.Actions.BaseAction import BaseAction
 from bot.controllers.ActionController.Actions.Spy import SpyAction
 from bot.controllers.MenuController.MenuController import MenuController
 from bot.models.Roles.BaseRole import BaseRole
+from bot.models.Roles.Incognito import Incognito
 from bot.types import ChatId
 from bot.utils.roles import get_players_list_menu
 
 
-class Bum(BaseRole):
+class Bum(Incognito):
     shortcut = 'bum'
 
     def affect(self, other: ChatId, key=None):
         self.action = SpyAction(self, self.players[other])
+        super(Bum, self).affect(other, key)
 
     async def answer(self, other: 'BaseRole', action: 'BaseAction'):
         if other.action:

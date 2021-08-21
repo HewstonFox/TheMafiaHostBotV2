@@ -47,3 +47,7 @@ class RetryBot(Bot):
     @soft_error
     async def delete_message(self, *args, **kwargs):
         return await super(RetryBot, self).delete_message(*args, **kwargs)
+
+    @message_retry
+    async def restrict_chat_member(self, *args, **kwargs):
+        return await super(RetryBot, self).restrict_chat_member(*args, **kwargs)

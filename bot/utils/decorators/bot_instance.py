@@ -5,7 +5,7 @@ from typing import Callable
 
 from aiogram import Bot
 from aiogram.utils.exceptions import Unauthorized, MessageToDeleteNotFound, MessageToReplyNotFound, RetryAfter, \
-    MessageNotModified, InvalidQueryID, MessageToEditNotFound
+    MessageNotModified, InvalidQueryID, MessageToEditNotFound, UserIsAnAdministratorOfTheChat, CantRestrictChatOwner
 
 from bot.utils.shared import raise_if_error
 from config import env
@@ -26,7 +26,9 @@ def message_retry(func: Callable) -> Callable:
                     MessageToReplyNotFound,
                     MessageNotModified,
                     MessageToEditNotFound,
-                    InvalidQueryID
+                    InvalidQueryID,
+                    UserIsAnAdministratorOfTheChat,
+                    CantRestrictChatOwner,
             ) as e:
                 return e
             except RetryAfter as e:
