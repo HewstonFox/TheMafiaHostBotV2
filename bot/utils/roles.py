@@ -1,5 +1,5 @@
 from asyncio import create_task
-from typing import Dict, Optional, Tuple, Callable
+from typing import Dict, Optional, Tuple, Callable, Awaitable
 import re
 
 from bot.controllers.MenuController.types import MessageMenu, MessageMenuButton, ButtonType
@@ -7,31 +7,36 @@ from bot.models.Roles.BaseRole import BaseRole
 from bot.types import ChatId
 
 
-def valid_player(players: Dict[ChatId, 'BaseRole'], chat_id: ChatId) -> Tuple[Optional[bool], Optional['BaseRole']]:
+def valid_player(
+        players: Dict[ChatId, 'BaseRole'],
+        chat_id: ChatId
+) -> Tuple[Optional[bool], Optional['BaseRole'], Optional[bool]]:
     id_type = type(chat_id)
     target: Optional['BaseRole'] = {id_type(k): v for k, v in players.items()}.get(chat_id)
     if not target:
-        return None, None
-    return target.alive, target
+        return False, None, False
+    return target.alive, target, target.session.is_night
 
 
-def get_description_factory(players: Dict[ChatId, 'BaseRole']):
+def get_description_factory(players: Dict[ChatId, 'BaseRole'], night_action=True):
     def get_description(key):
         chat_id = (re.findall(r'\d+', key) or [0])[0]
-        check_result = valid_player(players, chat_id)
-        if all(check_result):
-            return f'You chose {check_result[1].user.get_mention()}'  # todo: add translation
+        alive, target, is_night = valid_player(players, chat_id)
+        if alive and target and night_action == is_night:
+            return f'You chose {target.user.get_mention()}'  # todo: add translation
         return 'This player is not in game'  # todo: add translation
 
     return get_description
 
 
-def select_target_factory(players: Dict[ChatId, 'BaseRole'], role: 'BaseRole'):
+def select_target_factory(players: Dict[ChatId, 'BaseRole'], role: 'BaseRole', night_action=True, method='affect'):
     def select_target(key, _):
         chat_id = (re.findall(r'\d+', key) or [0])[0]
-        check_result = valid_player(players, chat_id)
-        if all(check_result):
-            create_task(role.affect(check_result[1].user.id, key))
+        alive, target, is_night = valid_player(players, chat_id)
+        if alive and target and night_action == is_night:
+            task = getattr(role, method)(target.user.id, key)
+            if isinstance(task, Awaitable):
+                create_task(task)
             return True
         return False
 

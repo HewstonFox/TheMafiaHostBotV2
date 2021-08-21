@@ -20,7 +20,7 @@ settings_schema = Schema({
         'night': And(Or(int, float), field_range(night_min)),
         'day': And(Or(int, float), field_range(day_min)),
         'poll': And(Or(int, float), field_range(poll_min)),
-        'vote': And(Or(int, float), field_range(vote_min)),
+        'vote': And(Or(int, float), field_range(vote_min)),  #
     },
     'players': {
         'max': And(int, field_range(min_players)),
@@ -28,11 +28,11 @@ settings_schema = Schema({
     },
     'game': {
         'start_at_night': bool,
-        'mute_messages_from_dead': bool,
+        'mute_messages_from_dead': bool,  #
         'show_role_of_dead': bool,
         'show_role_of_departed': bool,
         'show_killer': bool,
-        'allow_mafia_chat': bool,
+        'allow_mafia_chat': bool,  #
         'show_night_actions': bool,
         'show_private_night_actions': bool,
         'last_words': bool,

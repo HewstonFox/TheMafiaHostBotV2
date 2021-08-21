@@ -20,14 +20,15 @@ from bot.utils.restriction import restriction_with_prev_state, SEND_RESTRICTIONS
 
 class Session:
 
-    def __init__(self, *,
-                 chat_id: ChatId,
-                 lang: str = None,
-                 name: str = '',
-                 status: str = SessionStatus.pending,
-                 settings: dict = {},
-                 **kwargs
-                 ):
+    def __init__(
+            self, *,
+            chat_id: ChatId,
+            lang: str = None,
+            name: str = '',
+            status: str = SessionStatus.pending,
+            settings: dict = {},
+            **kwargs
+    ):
         if int(chat_id) > 0:
             raise MafiaBotError.InvalidSessionIdError
         self.chat_id: ChatId = chat_id
@@ -48,7 +49,8 @@ class Session:
             self.settings = Settings(config=settings)
         except SchemaError:
             self.settings = Settings(lang=_lang)
-
+        self.is_night = self.settings.values['game']['start_at_night']
+        self.day_count = 0
         self.timer: int = 0
 
     def add_player(self, user: User):
@@ -61,7 +63,12 @@ class Session:
         self.players.pop(user_id)
         if self.status == SessionStatus.game:
             self.roles[user_id].alive = False
-            #  todo: add player left game message
+            asyncio.create_task(MessageController.send_player_left_game(
+                self.chat_id,
+                self.t,
+                self.roles[user_id],
+                self.settings.values['game']['show_role_of_departed']
+            ))
 
     def __del__(self):
         self.status = SessionStatus.pending
@@ -106,6 +113,11 @@ class Session:
         self.update()
         if value == SessionStatus.registration:
             asyncio.create_task(self.__watch_chat_members())
+
+    def toggle(self):
+        self.is_night ^= True
+        if not self.is_night:
+            self.day_count += 1
 
     def update_settings(self, key: str, value):
         res = self.settings.set_property(key, value)

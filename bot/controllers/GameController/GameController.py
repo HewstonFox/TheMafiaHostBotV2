@@ -24,8 +24,8 @@ from bot.models.Roles.Mafia import Mafia
 from bot.models.Roles.Maniac import Maniac
 from bot.models.Roles.Incognito import Incognito
 from bot.models.Roles.constants import Team
-from bot.types import ChatId
-from bot.utils.game import get_result_config
+from bot.types import ChatId, ResultConfig
+from bot.utils.game import get_result_config, run_tasks, resolve_schedules
 from bot.utils.message import attach_last_words
 from bot.utils.shared import is_error, async_timeout
 
@@ -136,38 +136,68 @@ class GameController(BaseController):
         await asyncio.wait([role.greet() for role in session.roles.values()])
 
     @classmethod
-    async def affect_roles(cls, session: Session):
+    async def affect_roles(cls, session: Session, store: dict):
         bot = cls.dp.bot
+
+        async def dead_schedule(role: BaseRole):
+            #  todo: add translation
+            global_text = f'{role.user.get_mention()} was killed.\n'
+            if session.settings.values['game']['show_role_of_dead']:
+                global_text += f'They were {role.shortcut}\n'
+            if session.settings.values['game']['show_killer']:
+                global_text += f'Seems killer is {role.killed_by}'
+            await bot.send_message(session.chat_id, global_text)
+
+        async def post_results_schedule(role: BaseRole):
+            if session.status != SessionStatus.game:
+                return
+            if not session.settings.values['game']['last_words']:
+                if session.settings.values['game']['show_private_night_actions']:
+                    await bot.send_message(role.user.id, 'You were killed')
+                return
+
+            async def handler(msg: Message):
+                await bot.send_message(session.chat_id, f'Last words of {role.user.get_mention()} was:')
+                await msg.copy_to(session.chat_id)
+
+            session.handlers.append(await attach_last_words(
+                cls.dp,
+                role.user.id,
+                'You were killed, send your last words here',
+                handler
+            ))
 
         #  todo: add translation to whole phrases and move to MessageController
         async def apply_effect(user_id, role):
-            if role.cured:
-                await bot.send_message(user_id, "You was cured by doctor")
-            if role.just_checked:
-                await bot.send_message(user_id, "You was checked by commissioner")
-            if role.blocked:
-                await bot.send_message(user_id, "You was blocked by whore")
-            if role.acquitted:
-                await bot.send_message(user_id, "You was acquitted by lawyer")
+            if session.settings.values['game']['show_private_night_actions']:
+                if role.cured:
+                    await bot.send_message(user_id, "You was cured by doctor")
+                if role.just_checked:
+                    await bot.send_message(user_id, "You was checked by commissioner")
+                if role.blocked:
+                    await bot.send_message(user_id, "You was blocked by whore")
+                if role.acquitted:
+                    await bot.send_message(user_id, "You was acquitted by lawyer")
             if role.just_killed:
-                global_text = f'{role.user.get_mention()} was killed.'
-                if session.settings.values['game']['show_killer']:
-                    global_text += f'Seems it was {role.killed_by}'
-                await bot.send_message(session.chat_id, global_text)
-
-                async def handler(msg: Message):
-                    await bot.send_message(session.chat_id, f'Last words of {role.user.get_mention()} was:')
-                    await msg.copy_to(session.chat_id)
-
-                session.handlers.append(
-                    await attach_last_words(cls.dp, user_id, "You was killed, send your last words here", handler))
-
+                if role.killed_by != Team.civ:
+                    if 'just_dead' not in store:
+                        store['just_dead'] = []
+                    if 'schedule' not in store:
+                        store['schedule'] = []
+                    if 'post_schedule' not in store:
+                        store['post_schedule'] = []
+                    store['just_dead'].append(user_id)
+                    store['schedule'].append(lambda: dead_schedule(role))
+                    store['post_schedule'].append(lambda: post_results_schedule(role))
+                else:
+                    await bot.send_message(session.chat_id, f'{role.user.get_mention()} was lynched.')
                 await session.restrict_role(user_id)
 
         await asyncio.wait([apply_effect(*items) for items in session.roles.items()])
 
     @classmethod
     async def send_roles_vote(cls, session: Session):
+        await MessageController.send_vote(session.chat_id, session.t)
         players: list[Incognito] = list(session.roles.values())  # just for typehint
         await asyncio.wait([player.send_vote() for player in players if player.alive])
 
@@ -195,18 +225,24 @@ class GameController(BaseController):
             return Mafia.team if a.team == b.team == Team.maf else Team.BOTH
 
     @classmethod
-    async def resolve_results(cls, session: Session):
+    async def show_game_state(cls, session: Session, config: Optional[ResultConfig]):
+        if not config:
+            return
+        await MessageController.send_game_results(
+            session.chat_id,
+            session.t,
+            config,
+            session.settings.values['game']['show_live_roles']
+        )
+
+    @classmethod
+    async def resolve_results(cls, session: Session, store: dict):
         result_config = get_result_config(session)
         winner = await cls.get_session_winner(result_config)
         if not winner:
-            await MessageController.send_game_results(
-                session.chat_id,
-                session.t,
-                result_config,
-                session.settings.values['game']['show_live_roles']
-            )
+            store['config'] = result_config
             return
-
+        # todo: add translation and move to MessageController
         await session.bot.send_message(session.chat_id, f'winner is {winner}')
         cls.stop_game(session)
 
@@ -216,40 +252,56 @@ class GameController(BaseController):
 
     @classmethod
     async def go_day(cls, session: Session):
+        cross_pipeline_store = {}
         tasks = \
             lambda: ActionController.apply_actions(session.roles), \
-            lambda: cls.affect_roles(session), \
-            lambda: cls.resolve_results(session), \
+            lambda: cls.affect_roles(session, cross_pipeline_store), \
+            lambda: MessageController.send_day(
+                session.chat_id, session.t, session.day_count,
+                bool(cross_pipeline_store.get('just_dead'))
+            ), \
+            lambda: resolve_schedules(cross_pipeline_store.get('schedule')), \
+            lambda: cls.resolve_results(session, cross_pipeline_store), \
+            lambda: resolve_schedules(cross_pipeline_store.get('post_schedule')), \
+            lambda: cls.show_game_state(session, cross_pipeline_store.get('config')), \
             lambda: asyncio.sleep(session.settings.values['time']['day']), \
             lambda: cls.send_roles_vote(session), \
-            lambda: asyncio.sleep(session.settings.values['time']['vote']), \
-            lambda: ActionController.apply_actions(session.roles), \
-            lambda: cls.resolve_results(session)
+            lambda: asyncio.sleep(session.settings.values['time']['vote'])
 
-        for task in tasks:
-            if session.status != SessionStatus.game:
-                return
-            await task()
-
-        asyncio.create_task(cls.go_day(session))
+        await run_tasks(session, tasks)
+        session.toggle()
+        asyncio.create_task(cls.go_night(session))
 
     @classmethod
     async def go_night(cls, session: Session):
-        if session.status != SessionStatus.game:
-            return
-        asyncio.create_task(async_timeout(session.settings.values['time']['night'], cls.go_day, session))
-        for role in session.roles.values():
-            role.action = None
-        await cls.send_roles_actions(session)
+
+        async def schedule_day():
+            session.toggle()
+            await cls.go_day(session)
+
+        cross_pipeline_store = {}
+
+        tasks = \
+            lambda: ActionController.apply_actions(session.roles), \
+            lambda: cls.affect_roles(session, cross_pipeline_store), \
+            lambda: cls.resolve_results(session, cross_pipeline_store), \
+            lambda: MessageController.send_night(session.chat_id, session.t), \
+            lambda: cls.show_game_state(session, cross_pipeline_store.get('config')), \
+            lambda: cls.send_roles_actions(session)
+
+        asyncio.create_task(async_timeout(session.settings.values['time']['night'], schedule_day))
+
+        await run_tasks(session, tasks)
 
     @classmethod
     async def start_game(cls, session: Session):
         await cls.dp.loop.run_in_executor(None, GameController.attach_roles, session)
         session.status = SessionStatus.game
         await cls.greet_roles(session)
-        if session.settings.values['game']['start_at_night']:
+        if session.is_night:
             asyncio.create_task(cls.go_night(session))
         else:
+            session.day_count += 1
             asyncio.create_task(cls.go_day(session))
 
     @classmethod

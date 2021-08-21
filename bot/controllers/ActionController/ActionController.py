@@ -15,17 +15,19 @@ class ActionController(BaseController):
         actions = sorted([player.action for player in players.values() if player.action], key=lambda x: x.order)
 
         resolved_votes = await cls.resole_votes([vote for vote in actions if isinstance(vote, VoteAction)])
-        actions = [act for act in actions if not isinstance(act, VoteAction)] + resolved_votes
+        actions = [act for act in actions if not isinstance(act, VoteAction)]
 
         for action in actions:
             await action.apply()
+
+        actions += resolved_votes
 
         for player in players.values():
             player.action = None
 
     @classmethod
     async def resole_votes(cls, _votes: list[VoteAction]) -> list[BaseAction]:
-        votes = [vote for vote in _votes]
+        votes = [vote for vote in _votes if await vote.apply()]
         vote_types = [item for sub in VoteAction.__subclasses__() for item in sub.__subclasses__()]
         #  creating of vote config with vote`s priority
         votes_config = {
@@ -46,7 +48,10 @@ class ActionController(BaseController):
                         targets[vote.target.user.id] = [0, vote.target]
                     targets[vote.target.user.id][0] += factor
             if len(targets.values()):
-                result_actions.append(action(actor, max(targets.values(), key=lambda x: x[0])[1]))
+                max_votes = max(targets.values(), key=lambda x: x[0])
+                if len([vote for vote in targets.values() if vote[0] == max_votes[0]]) > 1:
+                    continue
+                result_actions.append(action(actor, max_votes[1]))
         return result_actions
 
     @classmethod
