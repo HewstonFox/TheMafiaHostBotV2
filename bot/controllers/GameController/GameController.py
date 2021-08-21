@@ -27,6 +27,7 @@ from bot.models.Roles.constants import Team
 from bot.types import ChatId, ResultConfig
 from bot.utils.game import get_result_config, run_tasks, resolve_schedules
 from bot.utils.message import attach_last_words
+from bot.utils.restriction import restriction_with_prev_state, SEND_RESTRICTIONS
 from bot.utils.shared import is_error, async_timeout
 
 
@@ -260,6 +261,7 @@ class GameController(BaseController):
                 session.chat_id, session.t, session.day_count,
                 bool(cross_pipeline_store.get('just_dead'))
             ), \
+            lambda: cls.night_restriction(session, False), \
             lambda: resolve_schedules(cross_pipeline_store.get('schedule')), \
             lambda: cls.resolve_results(session, cross_pipeline_store), \
             lambda: resolve_schedules(cross_pipeline_store.get('post_schedule')), \
@@ -271,6 +273,26 @@ class GameController(BaseController):
         await run_tasks(session, tasks)
         session.toggle()
         asyncio.create_task(cls.go_night(session))
+
+    @classmethod
+    async def night_restriction(cls, session: Session, restrict: bool = True):
+        roles = session.roles.values()
+        if restrict:
+            for role in roles:
+                session.restrictions[role.user.id] = await restriction_with_prev_state(
+                    cls.dp.bot,
+                    session.chat_id,
+                    role.user.id,
+                    SEND_RESTRICTIONS
+                )
+        else:
+            for role in roles:
+                await restriction_with_prev_state(
+                    cls.dp.bot,
+                    session.chat_id,
+                    role.user.id,
+                    session.restrictions.pop(role.user.id, {'can_send_messages': True})
+                )
 
     @classmethod
     async def go_night(cls, session: Session):
@@ -285,6 +307,7 @@ class GameController(BaseController):
             lambda: ActionController.apply_actions(session.roles), \
             lambda: cls.affect_roles(session, cross_pipeline_store), \
             lambda: cls.resolve_results(session, cross_pipeline_store), \
+            lambda: cls.night_restriction(session), \
             lambda: MessageController.send_night(session.chat_id, session.t), \
             lambda: cls.show_game_state(session, cross_pipeline_store.get('config')), \
             lambda: cls.send_roles_actions(session)
