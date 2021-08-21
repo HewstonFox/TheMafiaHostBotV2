@@ -3,7 +3,8 @@ from typing import List
 
 from bot.controllers import BaseController
 from bot.controllers.MessageController import buttons
-from bot.types import ChatId
+from bot.controllers.SessionController.settings.constants import DisplayType
+from bot.types import ChatId, ResultConfig
 from bot.localization import Localization
 
 
@@ -106,13 +107,30 @@ class MessageController(BaseController):
 
     @classmethod
     async def send_preset_apply_success(cls, chat_id: ChatId, t: Localization, preset: str):
-        await cls.dp.bot.send_message(chat_id, f'*Preset <code>{preset}</code> applied successfully')
+        return await cls.dp.bot.send_message(chat_id, f'*Preset <code>{preset}</code> applied successfully')
 
     @classmethod
-    async def sent_role_greeting(cls, chat_id: ChatId, t: Localization, shortcut: str):
+    async def send_role_greeting(cls, chat_id: ChatId, t: Localization, shortcut: str):
         #  todo add localization getting role by shortcut
         try:
             with open(path.join('assets', 'roles', f'{shortcut}.png'), 'rb') as f:
-                await cls.dp.bot.send_photo(chat_id, f, shortcut)
+                return await cls.dp.bot.send_photo(chat_id, f, shortcut)
         except FileNotFoundError:
-            await cls.dp.bot.send_message(chat_id, shortcut)
+            return await cls.dp.bot.send_message(chat_id, shortcut)
+
+    @classmethod
+    async def send_game_results(cls, chat_id: ChatId, t: Localization, config: ResultConfig, display_type):
+        #  todo: add translation
+        #  todo: add stickers for each role name
+        alive = '\n'.join([f'{role.index}. {role.user.get_mention()}' for role in config['alive']])
+        roles = '' if display_type == DisplayType.hide else \
+            'Somebody of them:\n' + '\n'.join(
+                [f'{k}: {v}' for k, v in config['alive_roles'].items()]
+                if display_type == DisplayType.show else [k for k in config['alive_roles']])
+        text = f'''
+Alive players:
+{alive}
+        
+{roles}
+        '''
+        return await cls.dp.bot.send_message(chat_id, text)
