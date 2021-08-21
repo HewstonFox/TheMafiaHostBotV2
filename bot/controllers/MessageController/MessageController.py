@@ -4,7 +4,7 @@ from typing import List
 from bot.controllers import BaseController
 from bot.controllers.MessageController import buttons
 from bot.controllers.SessionController.settings.constants import DisplayType
-from bot.types import ChatId, ResultConfig
+from bot.types import ChatId, ResultConfig, RoleMeta
 from bot.localization import Localization
 
 
@@ -134,3 +134,27 @@ Alive players:
 {roles}
         '''
         return await cls.dp.bot.send_message(chat_id, text)
+
+    @classmethod
+    async def send_day(cls, chat_id: ChatId, t: Localization, day_number: int, with_kills: bool = True):
+        with open(path.join('assets', 'states', f'day.png'), 'rb') as f:
+            #  todo: add translation
+            postfix = 'Somebody dead today' if with_kills else 'Nobody dead today'
+            return await cls.dp.bot.send_photo(chat_id, f, f'Day {day_number} started.\n{postfix}')
+
+    @classmethod
+    async def send_night(cls, chat_id: ChatId, t: Localization):
+        with open(path.join('assets', 'states', f'night.png'), 'rb') as f:
+            #  todo: add translation
+            return await cls.dp.bot.send_photo(chat_id, f, 'Night started', reply_markup=buttons.to_bot(t))
+
+    @classmethod
+    async def send_vote(cls, chat_id: ChatId, t: Localization):
+        # todo: add translation
+        return await cls.dp.bot.send_message(chat_id, 'Voting started', reply_markup=buttons.to_bot(t))
+
+    @classmethod
+    async def send_player_left_game(cls, chat_id: ChatId, t: Localization, role: RoleMeta, display_role: bool):
+        # todo: add translation
+        postfix = f'They were {role.shortcut}' if display_role else ''
+        return await cls.dp.bot.send_message(chat_id, f'Player {role.user.get_mention()} left the game. {postfix}')

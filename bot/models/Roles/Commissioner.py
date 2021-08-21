@@ -42,27 +42,27 @@ class Commissioner(Sergeant):
                 description='*Choose an action',
                 disable_special_buttons=True,
                 buttons=[
-                    MessageMenuButton(
-                        type=ButtonType.route,
-                        name='*Kill',
-                        description='*Choose a target',
-                        buttons=[MessageMenuButton(
-                            type=ButtonType.endpoint,
-                            name=pl.user.full_name,
-                            key=f'{self.__Actions.kill}:{pl.user.id}'
-                        ) for pl in players]
-                    ),
-                    MessageMenuButton(
-                        type=ButtonType.route,
-                        name='*Check',
-                        description='*Choose a target',
-                        buttons=[MessageMenuButton(
-                            type=ButtonType.endpoint,
-                            name=pl.user.full_name,
-                            key=f'{self.__Actions.check}:{pl.user.id}'
-                        ) for pl in players]
-                    ),
-                ]
+                            MessageMenuButton(
+                                type=ButtonType.route,
+                                name='*Kill',
+                                description='*Choose a target',
+                                buttons=[MessageMenuButton(
+                                    type=ButtonType.endpoint,
+                                    name=pl.user.full_name,
+                                    key=f'{self.__Actions.kill}:{pl.user.id}'
+                                ) for pl in players]
+                            ),
+                            MessageMenuButton(
+                                type=ButtonType.route,
+                                name='*Check',
+                                description='*Choose a target',
+                                buttons=[MessageMenuButton(
+                                    type=ButtonType.endpoint,
+                                    name=pl.user.full_name,
+                                    key=f'{self.__Actions.check}:{pl.user.id}'
+                                ) for pl in players]
+                            ),
+                        ][0 if self.settings['game']['commissioner_can_kill'] else 1:]
             ),
             get_description_factory(self.players),
             select_target_factory(self.players, self)

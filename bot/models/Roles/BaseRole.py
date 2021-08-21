@@ -47,7 +47,8 @@ class BaseRole(
         await MessageController.send_role_greeting(self.user.id, self.t, self.shortcut)
 
     async def affect(self, other: ChatId, key: Optional[str] = None):
-        await self.session.bot.send_message(self.session.chat_id, f'{self.shortcut} moved')  # todo: add translation
+        if self.session.settings.values['game']['show_night_actions']:
+            await self.session.bot.send_message(self.session.chat_id, f'{self.shortcut} moved')  # todo: add translation
 
     async def answer(self, other: 'BaseRole', action: 'BaseAction'):
         return
@@ -55,7 +56,7 @@ class BaseRole(
     def send_action(self):
         return
 
-    def vote(self, other: ChatId):
+    async def vote(self, other: ChatId, *args, **kwargs):
         raise NotImplementedError
 
     async def send_vote(self):

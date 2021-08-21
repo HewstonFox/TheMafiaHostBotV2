@@ -56,6 +56,7 @@ class RoleMeta:
     user: User
     won: bool
     alive: bool
+    shortcut: str
 
 
 class ResultConfig(TypedDict):

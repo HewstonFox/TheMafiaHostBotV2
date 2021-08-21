@@ -1,12 +1,14 @@
+from typing import Callable, Any, Awaitable
+
 from bot.models.Roles import BaseRole
 from bot.utils.whore_tree import create_whore_tree
 
 
-def is_blocked(func):
+def is_blocked(func: Callable[['BaseAction'], Awaitable[Any]]):
     async def wrapper(self: 'BaseAction'):
         if not create_whore_tree(self, [player.action for player in self.actor.players.values() if
                                         player.action]).is_fucked():
-            await func(self)
+            return await func(self)
 
     return wrapper
 
