@@ -1,7 +1,7 @@
 from typing import List, Tuple, Union, Callable, Awaitable
 
 from aiogram import Dispatcher
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, ContentType
 
 from bot.types import MarkupKeyboardDict, ChatId
 
@@ -30,6 +30,8 @@ async def attach_last_words(
         dp.message_handlers.unregister(handler)
         await callback(msg)
 
-    dp.register_message_handler(handler, chat_id=user_id)
+    dp.register_message_handler(handler, chat_id=user_id, content_types=[
+        ContentType.ANY
+    ])
 
     return handler

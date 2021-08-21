@@ -124,8 +124,10 @@ class GameController(BaseController):
 
         shuffle(roles)
 
+        index = 1
         for user, role in zip(players, roles):
-            session.roles[user.id] = role(user, session)
+            session.roles[user.id] = role(user, session, index)
+            index += 1
 
         print(session.roles)  # todo: remove
 
@@ -160,28 +162,25 @@ class GameController(BaseController):
                 session.handlers.append(
                     await attach_last_words(cls.dp, user_id, "You was killed, send your last words here", handler))
 
-                await bot.restrict_chat_member(
-                    session.chat_id,
-                    user_id,
-                    ChatPermissions(can_send_messages=False),
-                    datetime.datetime.now() + datetime.timedelta(days=1)
-                )
+                await session.restrict_role(user_id)
 
         await asyncio.wait([apply_effect(*items) for items in session.roles.items()])
 
     @classmethod
     async def send_roles_vote(cls, session: Session):
         players: list[Incognito] = list(session.roles.values())  # just for typehint
-        await asyncio.wait([player.send_vote() for player in players])
+        await asyncio.wait([player.send_vote() for player in players if player.alive])
 
     @classmethod
     async def get_session_winner(cls, config: dict) -> Optional[str]:
         alive: list[BaseRole] = config['alive']
         if (alive_count := len(alive)) > 2:
             mafia_count = len([mafia for mafia in alive if isinstance(mafia, Mafia)])
+            if not mafia_count:
+                return Team.civ
             peace_count = alive_count - mafia_count
             if mafia_count >= peace_count:
-                return Mafia.shortcut
+                return Team.maf
         else:
             danger_roles = Mafia, Don, Maniac
             a, b = alive
@@ -198,11 +197,14 @@ class GameController(BaseController):
     @classmethod
     async def resolve_results(cls, session: Session):
         result_config = get_result_config(session)
-        pprint(result_config, depth=5)
         winner = await cls.get_session_winner(result_config)
         if not winner:
-            # todo: move to MessageController & add translation
-            await session.bot.send_message(session.chat_id, 'game continues')
+            await MessageController.send_game_results(
+                session.chat_id,
+                session.t,
+                result_config,
+                session.settings.values['game']['show_live_roles']
+            )
             return
 
         await session.bot.send_message(session.chat_id, f'winner is {winner}')
@@ -267,9 +269,7 @@ class GameController(BaseController):
                 cls.dp.message_handlers.unregister(handler)
             except ValueError:
                 pass
-        for user_id in session.roles:
-            asyncio.create_task(
-                session.bot.restrict_chat_member(session.chat_id, user_id, ChatPermissions(can_send_messages=True)))
+
         SessionController.kill_session(session.chat_id)
 
     @classmethod

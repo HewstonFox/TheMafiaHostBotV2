@@ -26,7 +26,7 @@ class BaseRole(
     shortcut: str = 'base'
     team: str = ''
 
-    def __init__(self, user: User, session: Session):
+    def __init__(self, user: User, session: Session, index: int = 0):
         self.action: Optional['BaseAction'] = None
         self.user = user
         super(BaseRole, self).__init__()
@@ -36,6 +36,7 @@ class BaseRole(
         self.settings = session.settings.values
         self.players = session.roles
         self.t = session.t
+        self.index = index
 
     def kill(self, by: str):
         super(BaseRole, self).kill(by)
@@ -43,7 +44,7 @@ class BaseRole(
         self.won = False
 
     async def greet(self):
-        await MessageController.sent_role_greeting(self.user.id, self.t, self.shortcut)
+        await MessageController.send_role_greeting(self.user.id, self.t, self.shortcut)
 
     async def affect(self, other: ChatId, key: Optional[str] = None):
         await self.session.bot.send_message(self.session.chat_id, f'{self.shortcut} moved')  # todo: add translation
