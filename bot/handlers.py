@@ -4,7 +4,7 @@ from asyncio import sleep
 from pprint import pprint
 
 from aiogram.dispatcher import filters
-from aiogram.dispatcher.filters import Command
+from aiogram.dispatcher.filters import Command, FiltersFactory
 from aiogram.types import CallbackQuery, Message, ChatType, Update, ContentType, InputFile
 from aiogram.utils.exceptions import BadRequest
 from schema import SchemaError
@@ -21,6 +21,7 @@ from bot.controllers.MessageController.MessageController import MessageControlle
 from bot.localization import Localization
 from bot.utils.decorators.handlers import with_locale, clean_command, with_session
 from bot.utils.decorators.throttle import throttle_message_handler, throttle_callback_query_handler
+from bot.utils.filters import ForwardFromMe
 from bot.utils.message import parse_timer
 from bot.utils.restriction import restriction_with_prev_state, SEND_RESTRICTIONS
 from config import env
@@ -165,6 +166,13 @@ async def clear_pined_by_bot(message: Message):
     if message.from_user.username == username:
         await message.delete()
 
+if env.MODE != 'development':
+    @dp.message_handler(ForwardFromMe, chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
+    @with_session
+    async def forward_from_bot(msg: Message, session: Session, *_, **__):
+        if session.status == SessionStatus.game:
+            await msg.delete()
+
 
 if env.MODE == 'development':
     @dp.message_handler(commands=['session'], chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
@@ -176,7 +184,7 @@ if env.MODE == 'development':
 
     @dp.message_handler(commands=['permission'], chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
     @clean_command
-    async def permissions(message: Message):
+    async def permission(message: Message):
         prev_restrictions = await restriction_with_prev_state(
             message.bot,
             message.chat.id,

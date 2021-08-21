@@ -1,4 +1,5 @@
-from typing import Optional
+from typing import Optional, Union
+import datetime
 
 from aiogram import Bot
 from aiogram.types import ChatMemberStatus, ChatMember, ChatPermissions
@@ -26,13 +27,19 @@ async def restriction_with_prev_state(
         bot: Bot,
         chat_id: ChatId,
         user_id: ChatId,
-        restrictions: dict[str, bool]
+        restrictions: dict[str, bool],
+        until_date: Union[int, datetime.datetime, datetime.timedelta, None] = None
 ) -> Optional[dict[str, bool]]:
     member = await bot.get_chat_member(chat_id, user_id)
     prev_permissions = collect_permissions(member)
     if not prev_permissions:
         return
 
-    await bot.restrict_chat_member(chat_id, user_id, ChatPermissions(**{**prev_permissions, **restrictions}))
+    await bot.restrict_chat_member(
+        chat_id,
+        user_id,
+        ChatPermissions(**restrictions),
+        until_date
+    )
 
     return prev_permissions
