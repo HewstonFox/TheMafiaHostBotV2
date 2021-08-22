@@ -1,6 +1,7 @@
 import asyncio
+from typing import Optional
 
-from aiogram import Bot
+from aiogram import Bot, Dispatcher
 from aiogram.types import User, ChatMemberStatus
 from schema import SchemaError
 
@@ -52,6 +53,8 @@ class Session:
         self.is_night = self.settings.values['game']['start_at_night']
         self.day_count = 0
         self.timer: int = 0
+        self.mafia_chat_handler = None
+        self.dp: Optional[Dispatcher] = None
 
     def add_player(self, user: User):
         self.players[user.id] = user
@@ -72,16 +75,9 @@ class Session:
 
     def __del__(self):
         self.status = SessionStatus.pending
-        for chat_id, restriction in self.restrictions.values():
-            asyncio.create_task(restriction_with_prev_state(
-                self.bot,
-                self.chat_id,
-                chat_id,
-                restriction
-            ))
 
     async def restrict_role(self, chat_id: ChatId):
-        if self.__status != SessionStatus.game or chat_id not in self.roles:
+        if self.__status != SessionStatus.game or chat_id not in self.roles or chat_id in self.restrictions:
             return
         self.restrictions[chat_id] = await restriction_with_prev_state(
             self.bot,

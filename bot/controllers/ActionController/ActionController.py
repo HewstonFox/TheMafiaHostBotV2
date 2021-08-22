@@ -15,12 +15,10 @@ class ActionController(BaseController):
         actions = sorted([player.action for player in players.values() if player.action], key=lambda x: x.order)
 
         resolved_votes = await cls.resole_votes([vote for vote in actions if isinstance(vote, VoteAction)])
-        actions = [act for act in actions if not isinstance(act, VoteAction)]
+        actions = [act for act in actions if not isinstance(act, VoteAction)] + resolved_votes
 
         for action in actions:
             await action.apply()
-
-        actions += resolved_votes
 
         for player in players.values():
             player.action = None

@@ -1,4 +1,5 @@
 import asyncio
+from asyncio import ALL_COMPLETED
 from collections.abc import Mapping
 from time import time
 import copy
@@ -44,6 +45,12 @@ def dict_merge(*dicts: dict):
 async def async_timeout(timeout: int, func: Callable[[...], Awaitable[None]], *args, **kwargs):
     await asyncio.sleep(timeout)
     await func(*args, **kwargs)
+
+
+async def async_wait(fs, *, loop=None, timeout=None, return_when=ALL_COMPLETED):
+    if not fs:
+        return
+    return await asyncio.wait(fs, loop=loop, timeout=timeout, return_when=return_when)
 
 
 def count_bases_depth(class_type: Type) -> int:

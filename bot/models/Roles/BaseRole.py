@@ -1,10 +1,11 @@
-from typing import Optional
+from typing import Optional, Callable, Any, Awaitable
 
 from aiogram.types import User
 
 from bot.controllers.ActionController.Actions.BaseAction import BaseAction
 from bot.controllers.MessageController.MessageController import MessageController
 from bot.controllers.SessionController.Session import Session
+from bot.controllers.SessionController.types import SessionStatus
 from bot.models.Roles.RoleEffects import KillEffect, CureEffect, CheckEffect, BlockEffect, AcquitEffect
 from bot.types import ChatId
 
@@ -13,6 +14,15 @@ class Meta(type):
     def __repr__(cls):
         parents = [x.__name__ for x in cls.__bases__ if x != BaseRole]
         return f'<{cls.__name__}{" (" + ", ".join(parents) + ")" if len(parents) else ""}>'
+
+
+def is_active_session(fn: Callable[['BaseRole', Any], Awaitable[Any]]):
+    async def wrapper(self: 'BaseRole', *args, **kwargs):
+        if self.session.status != SessionStatus.game:
+            return
+        await fn(self, *args, **kwargs)
+
+    return wrapper
 
 
 class BaseRole(
@@ -49,6 +59,10 @@ class BaseRole(
     async def affect(self, other: ChatId, key: Optional[str] = None):
         if self.session.settings.values['game']['show_night_actions']:
             await self.session.bot.send_message(self.session.chat_id, f'{self.shortcut} moved')  # todo: add translation
+
+    async def send_promotion(self):
+        # maybe better to do just initial greet in place of this
+        await self.session.bot.send_message(self.user.id, f'You are {self.shortcut} from now')  # todo: add translation
 
     async def answer(self, other: 'BaseRole', action: 'BaseAction'):
         return

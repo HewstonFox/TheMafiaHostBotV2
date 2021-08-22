@@ -6,6 +6,7 @@ from bot.controllers.ActionController.Actions.KillAction import KillAction
 from bot.controllers.MenuController.MenuController import MenuController
 from bot.controllers.MenuController.types import MessageMenu, MessageMenuButton, ButtonType
 from bot.models.Roles import BaseRole
+from bot.models.Roles.BaseRole import is_active_session
 from bot.models.Roles.Sergeant import Sergeant
 from bot.models.Roles.constants import Team
 from bot.types import ChatId
@@ -19,6 +20,7 @@ class Commissioner(Sergeant):
         check = 'check'
         kill = 'kill'
 
+    @is_active_session
     async def affect(self, other: ChatId, key=None):
         action = self.__Actions.kill if key.startswith(self.__Actions.kill) else self.__Actions.check
         self.action = (KillAction if action == self.__Actions.kill else CheckAction)(self, self.players[other])
@@ -64,6 +66,6 @@ class Commissioner(Sergeant):
                             ),
                         ][0 if self.settings['game']['commissioner_can_kill'] else 1:]
             ),
-            get_description_factory(self.players),
+            get_description_factory(self.players, self),
             select_target_factory(self.players, self)
         )

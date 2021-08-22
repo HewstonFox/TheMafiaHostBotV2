@@ -18,13 +18,15 @@ def valid_player(
     return target.alive, target, target.session.is_night
 
 
-def get_description_factory(players: Dict[ChatId, 'BaseRole'], night_action=True):
+def get_description_factory(players: Dict[ChatId, 'BaseRole'], role: 'BaseRole', night_action=True):
     def get_description(key):
+        if not role.alive:
+            return 'You already died'
         chat_id = (re.findall(r'\d+', key) or [0])[0]
         alive, target, is_night = valid_player(players, chat_id)
         if alive and target and night_action == is_night:
             return f'You chose {target.user.get_mention()}'  # todo: add translation
-        return 'This player is not in game'  # todo: add translation
+        return 'It`s too late' if is_night else 'This player is not in game'  # todo: add translation
 
     return get_description
 
@@ -33,7 +35,9 @@ def select_target_factory(players: Dict[ChatId, 'BaseRole'], role: 'BaseRole', n
     def select_target(key, _):
         chat_id = (re.findall(r'\d+', key) or [0])[0]
         alive, target, is_night = valid_player(players, chat_id)
-        if alive and target and night_action == is_night:
+        if alive and target:
+            if night_action != is_night or not role.alive:
+                return True
             task = getattr(role, method)(target.user.id, key)
             if isinstance(task, Awaitable):
                 create_task(task)
@@ -67,6 +71,6 @@ def get_players_list_menu(role: 'BaseRole', should_display: Callable[['BaseRole'
             list(role.players.values()),
             should_display
         ),
-        'get_data': get_description_factory(role.players),
+        'get_data': get_description_factory(role.players, role),
         'set_data': select_target_factory(role.players, role)
     }

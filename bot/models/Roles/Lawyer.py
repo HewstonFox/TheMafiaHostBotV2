@@ -1,5 +1,6 @@
 from bot.controllers.ActionController.Actions.AcquitAction import AcquitAction
 from bot.controllers.MenuController.MenuController import MenuController
+from bot.models.Roles.BaseRole import is_active_session
 from bot.models.Roles.Incognito import Incognito
 from bot.models.Roles.constants import Team
 from bot.types import ChatId
@@ -10,6 +11,7 @@ class Lawyer(Incognito):
     shortcut = 'lwr'
     team = Team.maf
 
+    @is_active_session
     async def affect(self, other: ChatId, key=None):
         self.action = AcquitAction(self, self.players[other])
         await super(Lawyer, self).affect(other)
