@@ -29,6 +29,6 @@ class Incognito(BaseRole):
                 'Vote for the player',
                 list(self.players.values()),
             ),
-            get_description_factory(self.players, False),
+            get_description_factory(self.players, self, False),
             select_target_factory(self.players, self, False, 'vote')
         )

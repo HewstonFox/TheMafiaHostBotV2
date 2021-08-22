@@ -1,9 +1,10 @@
+import asyncio
 from typing import List, Tuple, Union, Callable, Awaitable
+from bot.bot import dp
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, ContentType, User
 
-from aiogram import Dispatcher
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, ContentType
-
-from bot.types import MarkupKeyboardDict, ChatId
+from bot.types import MarkupKeyboardDict, ChatId, RoleMeta
+from bot.utils.shared import async_wait
 
 
 def arr2keyword_markup(buttons: List[List[MarkupKeyboardDict]]):
@@ -19,7 +20,6 @@ def parse_timer(text: str) -> Tuple[Union[int, None], int]:
 
 
 async def attach_last_words(
-        dp: Dispatcher,
         user_id: ChatId,
         text: str,
         callback: Callable[[Message], Awaitable[None]],
@@ -30,8 +30,22 @@ async def attach_last_words(
         dp.message_handlers.unregister(handler)
         await callback(msg)
 
-    dp.register_message_handler(handler, chat_id=user_id, content_types=[
-        ContentType.ANY
-    ])
+    dp.register_message_handler(handler, chat_id=user_id, content_types=[ContentType.ANY])
+
+    return handler
+
+
+async def attach_mafia_chat(mafias: list[RoleMeta], spies: list[RoleMeta] = []):
+    mafia_dict = {maf.user.id: maf for maf in mafias}
+
+    async def handler(msg: Message):
+        user_id = msg.from_user.id
+        if user_id not in mafia_dict or not mafia_dict[user_id].alive:
+            return
+        await asyncio.wait([msg.forward(subscriber.user.id) for subscriber in mafias if subscriber.alive])
+        await async_wait([msg.copy_to(spy.user.id) for spy in spies if spy.alive])
+        await msg.delete()
+
+    dp.register_message_handler(handler, chat_id=[maf.user.id for maf in mafias], content_types=[ContentType.ANY])
 
     return handler

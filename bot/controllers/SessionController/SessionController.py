@@ -16,6 +16,7 @@ class SessionController(BaseController):
         if SessionController.is_active_session(chat_id):
             raise SessionAlreadyActiveError
         cls.__sessions[chat_id] = Session(chat_id=chat_id)
+        cls.__sessions[chat_id].dp = cls.dp
         return cls.get_session(chat_id)
 
     @classmethod
