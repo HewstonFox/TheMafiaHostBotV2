@@ -10,6 +10,8 @@ from aiogram.utils.exceptions import BadRequest
 
 from bot.controllers import BaseController
 from bot.controllers.ActionController.ActionController import ActionController
+from bot.controllers.ActionController.Actions.VoteAction import VoteAction, DayKillVoteAction, MafiaKillVoteAction
+from bot.controllers.ActionController.types import VoteFailReason
 from bot.controllers.MessageController.MessageController import MessageController
 from bot.controllers.SessionController.Session import Session
 from bot.controllers.SessionController.SessionController import SessionController
@@ -274,11 +276,16 @@ class GameController(BaseController):
                 await session.roles[role.user.id].send_promotion()
 
     @classmethod
+    async def apply_actions(cls, session: Session, store: dict):
+        store['vote_fails_reasons'] = await ActionController.apply_actions(session.roles)
+
+    @classmethod
     async def go_day(cls, session: Session):
         cross_pipeline_store = {}
         tasks = \
-            lambda: ActionController.apply_actions(session.roles), \
+            lambda: cls.apply_actions(session, cross_pipeline_store), \
             lambda: cls.affect_roles(session, cross_pipeline_store), \
+            lambda: cls.resolve_failure_votes(session, cross_pipeline_store['vote_fails_reasons']), \
             lambda: cls.night_restriction(session, False), \
             lambda: cls.resolve_results(session, cross_pipeline_store), \
             lambda: cls.send_game_phase(session, cross_pipeline_store), \
@@ -331,6 +338,19 @@ class GameController(BaseController):
             pass
 
     @classmethod
+    async def resolve_failure_votes(cls, session: Session, failure_votes: dict[VoteAction, Optional[VoteFailReason]]):
+        for vote_type, reason in failure_votes.items():
+            if not reason:
+                continue
+            if vote_type == DayKillVoteAction:
+                await MessageController.send_vote_failure_reason(session.chat_id, session.t, reason)
+            if vote_type == MafiaKillVoteAction:
+                for pl in session.roles.values():
+                    if pl is not Mafia:
+                        continue
+                    await MessageController.send_mafia_vote_failure_reason(pl.user.id, session.t, reason)
+
+    @classmethod
     async def go_night(cls, session: Session):
 
         async def schedule_day():
@@ -341,8 +361,9 @@ class GameController(BaseController):
         cross_pipeline_store = {}
 
         tasks = \
-            lambda: ActionController.apply_actions(session.roles), \
+            lambda: cls.apply_actions(session, cross_pipeline_store), \
             lambda: cls.affect_roles(session, cross_pipeline_store), \
+            lambda: cls.resolve_failure_votes(session, cross_pipeline_store['vote_fails_reasons']), \
             lambda: cls.resolve_results(session, cross_pipeline_store), \
             lambda: cls.apply_game_result(session, cross_pipeline_store.get('winner')), \
             lambda: cls.attach_mafia_chat(session), \

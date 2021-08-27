@@ -1,20 +1,24 @@
-from typing import Dict, Type
+from typing import Dict, Type, Optional
 
 from bot.controllers import BaseController
+from bot.controllers.ActionController.types import VoteFailReason
 from bot.models.Roles import BaseRole
 from bot.controllers.ActionController.Actions.BaseAction import BaseAction
 from bot.controllers.ActionController.Actions.VoteAction import VoteAction
 from bot.types import ChatId
 from bot.utils.shared import count_bases_depth
+from bot.controllers.ActionController.computed import vote_types
 
 
 class ActionController(BaseController):
 
     @classmethod
-    async def apply_actions(cls, players: Dict[ChatId, BaseRole]):
+    async def apply_actions(cls, players: Dict[ChatId, BaseRole]) -> dict[VoteAction, Optional[VoteFailReason]]:
         actions = sorted([player.action for player in players.values() if player.action], key=lambda x: x.order)
 
-        resolved_votes = await cls.resole_votes([vote for vote in actions if isinstance(vote, VoteAction)])
+        resolved_votes, vote_fails_reasons = await cls.resole_votes(
+            [vote for vote in actions if isinstance(vote, VoteAction)])
+
         actions = [act for act in actions if not isinstance(act, VoteAction)] + resolved_votes
 
         for action in actions:
@@ -23,23 +27,28 @@ class ActionController(BaseController):
         for player in players.values():
             player.action = None
 
+        return vote_fails_reasons
+
     @classmethod
-    async def resole_votes(cls, _votes: list[VoteAction]) -> list[BaseAction]:
+    async def resole_votes(cls, _votes: list[VoteAction]) \
+            -> tuple[list[BaseAction], dict[VoteAction, Optional[VoteFailReason]]]:
         votes = [vote for vote in _votes if await vote.apply()]
-        vote_types = [item for sub in VoteAction.__subclasses__() for item in sub.__subclasses__()]
-        #  creating of vote config with vote`s priority
+        fails_reasons = {vote_type: VoteFailReason.nothing for vote_type in vote_types}
+
         votes_config = {
             vote_type: cls.attach_role_priority(vote_type, [vote for vote in votes if isinstance(vote, vote_type)])
             for vote_type in vote_types
         }
+
         result_actions: list[BaseAction] = []
+
         for key, votes in votes_config.items():
             if not len(votes.keys()):
                 continue
             actor = votes[max(votes.keys())][0].actor
             action = key.get_result_action()
             targets = {}
-            # Counting votes
+
             for factor, row_votes in votes.items():
                 for vote in row_votes:
                     if vote.target.user.id not in targets:
@@ -48,9 +57,11 @@ class ActionController(BaseController):
             if len(targets.values()):
                 max_votes = max(targets.values(), key=lambda x: x[0])
                 if len([vote for vote in targets.values() if vote[0] == max_votes[0]]) > 1:
+                    fails_reasons[key] = VoteFailReason.both
                     continue
                 result_actions.append(action(actor, max_votes[1]))
-        return result_actions
+                fails_reasons[key] = None
+        return result_actions, fails_reasons
 
     @classmethod
     def attach_role_priority(cls, vote_type: Type[VoteAction], votes: list[VoteAction]) -> Dict[int, list[VoteAction]]:

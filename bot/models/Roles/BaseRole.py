@@ -7,7 +7,7 @@ from bot.controllers.MessageController.MessageController import MessageControlle
 from bot.controllers.SessionController.Session import Session
 from bot.controllers.SessionController.types import SessionStatus
 from bot.models.Roles.RoleEffects import KillEffect, CureEffect, CheckEffect, BlockEffect, AcquitEffect
-from bot.types import ChatId
+from bot.types import ChatId, RoleMeta
 
 
 class Meta(type):
@@ -26,6 +26,7 @@ def is_active_session(fn: Callable[['BaseRole', Any], Awaitable[Any]]):
 
 
 class BaseRole(
+    RoleMeta,
     KillEffect,
     CureEffect,
     CheckEffect,
