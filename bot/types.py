@@ -23,13 +23,16 @@ class Proxy(dict):
         super(Proxy, self).__init__(seq, **kwargs)
         self.__subscribers = []
 
-    def subscribe(self, *subscribers: Callable[[dict], any]):
+    def subscribe(self, *subscribers: Callable[['Proxy'], any]):
         self.__subscribers.extend(subscribers)
 
     def unsubscribe(self, *subscribers: Callable[[dict], any]):
         for subscriber in self.__subscribers[:]:
             if subscriber in subscribers:
                 self.__subscribers.remove(subscriber)
+
+    def unsubscribe_all(self):
+        self.__subscribers = []
 
     def __ping_subscribers(self):
         for subscriber in self.__subscribers:

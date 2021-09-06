@@ -1,4 +1,4 @@
-from typing import Dict, Type, Optional
+from typing import Dict, Type, Optional, Union
 
 from bot.controllers import BaseController
 from bot.controllers.ActionController.types import VoteFailReason
@@ -13,7 +13,7 @@ from bot.controllers.ActionController.computed import vote_types
 class ActionController(BaseController):
 
     @classmethod
-    async def apply_actions(cls, players: Dict[ChatId, BaseRole]) -> dict[VoteAction, Optional[VoteFailReason]]:
+    async def apply_actions(cls, players: Dict[ChatId, BaseRole]) -> dict[VoteAction, Union[VoteFailReason, BaseRole]]:
         actions = sorted([player.action for player in players.values() if player.action], key=lambda x: x.order)
 
         resolved_votes, vote_fails_reasons = await cls.resole_votes(
@@ -33,7 +33,7 @@ class ActionController(BaseController):
     async def resole_votes(cls, _votes: list[VoteAction]) \
             -> tuple[list[BaseAction], dict[VoteAction, Optional[VoteFailReason]]]:
         votes = [vote for vote in _votes if await vote.apply()]
-        fails_reasons = {vote_type: VoteFailReason.nothing for vote_type in vote_types}
+        vote_results = {vote_type: VoteFailReason.nothing for vote_type in vote_types}
 
         votes_config = {
             vote_type: cls.attach_role_priority(vote_type, [vote for vote in votes if isinstance(vote, vote_type)])
@@ -57,11 +57,11 @@ class ActionController(BaseController):
             if len(targets.values()):
                 max_votes = max(targets.values(), key=lambda x: x[0])
                 if len([vote for vote in targets.values() if vote[0] == max_votes[0]]) > 1:
-                    fails_reasons[key] = VoteFailReason.both
+                    vote_results[key] = VoteFailReason.both
                     continue
                 result_actions.append(action(actor, max_votes[1]))
-                fails_reasons[key] = None
-        return result_actions, fails_reasons
+                vote_results[key] = max_votes[1]
+        return result_actions, vote_results
 
     @classmethod
     def attach_role_priority(cls, vote_type: Type[VoteAction], votes: list[VoteAction]) -> Dict[int, list[VoteAction]]:

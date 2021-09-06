@@ -1,4 +1,5 @@
 import asyncio
+from itertools import islice
 from asyncio import ALL_COMPLETED
 from collections.abc import Mapping
 from time import time
@@ -58,3 +59,20 @@ def count_bases_depth(class_type: Type) -> int:
     if not len(bases):
         return 1
     return 1 + max([count_bases_depth(sub) for sub in bases])
+
+
+def chunks(lst, n: int):
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), n):
+        yield islice(lst, i, i + n)
+
+
+def flat_list(lst: Any) -> list:
+    result = []
+    if not isinstance(lst, list):
+        return [lst]
+
+    for item in list(lst):
+        result.extend(flat_list(item))
+
+    return result

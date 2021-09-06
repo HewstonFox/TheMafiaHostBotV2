@@ -11,6 +11,7 @@ from schema import SchemaError
 
 from bot.controllers.GameController.GameController import GameController
 from bot.controllers.MenuController.MenuController import MenuController
+from bot.controllers.ReactionCounterController.ReactionCounterController import ReactionCounterController
 from bot.controllers.SessionController.Session import Session
 from bot.controllers.SessionController.SessionController import SessionController
 from bot.controllers.SessionController.types import SessionStatus
@@ -166,13 +167,13 @@ async def clear_pined_by_bot(message: Message):
     if message.from_user.username == username:
         await message.delete()
 
+
 if env.MODE != 'development':
     @dp.message_handler(ForwardFromMe, chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
     @with_session
     async def forward_from_bot(msg: Message, session: Session, *_, **__):
         if session.status == SessionStatus.game:
             await msg.delete()
-
 
 if env.MODE == 'development':
     @dp.message_handler(commands=['session'], chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
@@ -201,3 +202,9 @@ if env.MODE == 'development':
             message.from_user.id,
             prev_restrictions
         )
+
+
+    @dp.message_handler(commands=['vote'], chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
+    @clean_command
+    async def send_agree(message: Message):
+        await ReactionCounterController.send_reaction_counter(message.chat.id, 'Lynch smbd', ['👍', '👎'])

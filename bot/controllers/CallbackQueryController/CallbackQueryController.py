@@ -4,6 +4,7 @@ from aiogram.utils.exceptions import Unauthorized
 from bot.controllers import BaseController
 from bot.controllers.MenuController.MenuController import MenuController
 from bot.controllers.MessageController.MessageController import MessageController
+from bot.controllers.ReactionCounterController.ReactionCounterController import ReactionCounterController
 from bot.controllers.SessionController.SessionController import SessionController
 from bot.controllers.SessionController.types import SessionStatus
 from bot.models.MafiaBotError import UserNotExistsError
@@ -54,6 +55,13 @@ class CallbackQueryController(BaseController):
             if query.message.chat.id == query.from_user.id or \
                     ChatMemberStatus.is_chat_admin((await query.message.chat.get_member(query.from_user.id)).status):
                 return await MenuController.callback_handler(query)
+        if key == 'vote':
+            if SessionController.is_active_session(query.message.chat.id):
+                session = SessionController.get_session(query.message.chat.id)
+                if session.status == SessionStatus.game and query.from_user.id not in map(
+                        lambda r: r.user.id if r.alive else None, session.roles.values()):
+                    return await query.answer('Not allowed')  # todo: add translation
+            return await ReactionCounterController.callback_handler(query)
         if key in cls.__dict__:
             return await getattr(cls, key)(query, query.message.chat.id, t)
         else:
