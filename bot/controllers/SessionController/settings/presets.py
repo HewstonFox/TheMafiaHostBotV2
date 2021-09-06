@@ -31,6 +31,7 @@ class SettingsPreset:
             'show_private_night_actions': True,
             'last_words': True,
             'commissioner_can_kill': True,
+            'lynching_confirmation': True,
             'show_live_roles': 'show',  # 'show', 'hide', 'partially'
             'show_message_on_vote': 'show',  # 'show', 'hide', 'partially'
         },

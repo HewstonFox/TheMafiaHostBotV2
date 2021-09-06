@@ -109,6 +109,7 @@
             "show_private_night_actions": "Показывать приватные ночные эффекты",
             "last_words": "Последние слова",
             "commissioner_can_kill": "Комисар может убивать",
+            "lynching_confirmation": "Запрашивать подтверждение на линчевание",
             "show_live_roles": "Показывать роли живых",
             "show_message_on_vote": "Показывать сообщение при голосовании"
           },
@@ -142,6 +143,22 @@
             "shr": {
               "description": "Настройки шерифа",
               "name": "Шериф"
+            },
+            "lwr": {
+              "description": "Настройки адвоката",
+              "name": "Адвокат"
+            },
+            "lck": {
+              "description": "Настройки везунчика",
+              "name": "Везунчик"
+            },
+            "mnc": {
+              "description": "Настройки маньяка",
+              "name": "Маньяк"
+            },
+            "bum": {
+              "description": "Настройки бомжа",
+              "name": "Бобж"
             }
           },
           "options": {

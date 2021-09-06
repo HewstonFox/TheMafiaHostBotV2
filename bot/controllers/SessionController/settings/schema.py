@@ -37,6 +37,7 @@ settings_schema = Schema({
         'show_private_night_actions': bool,
         'last_words': bool,
         'commissioner_can_kill': bool,
+        'lynching_confirmation': bool,
         'show_live_roles': Or(*DisplayType.values()),
         'show_message_on_vote': Or(*DisplayType.values()),
     },
