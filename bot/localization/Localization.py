@@ -103,6 +103,7 @@ class SettingsMenuGameValues(DataclassFromDict):
     show_private_night_actions: str = _()
     last_words: str = _()
     commissioner_can_kill: str = _()
+    lynching_confirmation: str = _()
     show_live_roles: str = _()
     show_message_on_vote: str = _()
 
@@ -130,6 +131,10 @@ class SettingsMenuRolesValues(DataclassFromDict):
     whr: SettingsMenuProperty = _()
     doc: SettingsMenuProperty = _()
     shr: SettingsMenuProperty = _()
+    lwr: SettingsMenuProperty = _()
+    lck: SettingsMenuProperty = _()
+    mnc: SettingsMenuProperty = _()
+    bum: SettingsMenuProperty = _()
 
 
 @dataclass

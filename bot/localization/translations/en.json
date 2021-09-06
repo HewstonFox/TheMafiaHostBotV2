@@ -2,7 +2,7 @@
   "language": "English",
   "private": {
     "start": "Hello, I'm the host of the <b>Mafia</b> game",
-    "help": "Help button writed",
+    "help": "Help button text",
     "more_description": "Description",
     "user_connected": "You connected to mafia game in {}",
     "user_left": "You left from mafia game in {}",
@@ -109,6 +109,7 @@
             "show_private_night_actions": "Show private night effects",
             "last_words": "Last words",
             "commissioner_can_kill": "The commissioner can kill",
+            "lynching_confirmation": "Request confirmation to lynch",
             "show_live_roles": "Show Live Roles",
             "show_message_on_vote": "Show message when voting"
           },
@@ -124,24 +125,40 @@
           "name": "Roles",
           "values": {
             "maf": {
-              "description": "Mafia settings",
+              "description": "Mafia`s settings",
               "name": "Mafia"
             },
             "scd": {
-              "description": "Suicide Settings",
+              "description": "Suicide`s Settings",
               "name": "Suicide"
             },
             "whr": {
-              "description": "Moth settings",
+              "description": "Moth`s settings",
               "name": "Moth"
             },
             "doc": {
-              "description": "Doctor settings",
+              "description": "Doctor`s settings",
               "name": "Doctor"
             },
             "shr": {
-              "description": "Sheriff's Settings",
+              "description": "Sheriff`s Settings",
               "name": "Sheriff"
+            },
+            "lwr": {
+              "description": "Lawyer`s Settings",
+              "name": "Lawyer"
+            },
+            "lck": {
+              "description": "Lucky`s Settings",
+              "name": "Lucky"
+            },
+            "mnc": {
+              "description": "Maniac`s Settings",
+              "name": "Maniac"
+            },
+            "bum": {
+              "description": "Bom`s Settings",
+              "name": "Bom"
             }
           },
           "options": {

@@ -166,7 +166,7 @@ def get_settings_menu_config(t: Localization) -> MessageMenu:
                 buttons=[game_toggle_button(t.values.game, key) for key in
                          ('start_at_night', 'mute_messages_from_dead', 'show_role_of_dead', 'show_role_of_departed',
                           'show_killer', 'allow_mafia_chat', 'show_night_actions', 'show_private_night_actions',
-                          'last_words', 'commissioner_can_kill')] + [
+                          'last_words', 'commissioner_can_kill', 'lynching_confirmation')] + [
                             Btn(
                                 type=ButtonType.route,
                                 name=t.values.game.values.show_live_roles,
@@ -231,8 +231,7 @@ def get_settings_menu_config(t: Localization) -> MessageMenu:
                                 )]
                             )
                         ] + [role_route_button(t.values.roles, key) for key in
-                             ('scd', 'whr', 'doc', 'shr')]
-                # todo: extend with 'lwr', 'lck', 'mnc', 'bum' after adding localization
+                             ('scd', 'whr', 'doc', 'shr', 'lwr', 'lck', 'mnc', 'bum')]
             ),
         ]
     )
