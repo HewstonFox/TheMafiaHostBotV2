@@ -3,14 +3,14 @@ from typing import Callable, Any, Union, List
 from aiogram.types import CallbackQuery, Message
 from aiogram.utils.exceptions import MessageToEditNotFound, MessageNotModified
 
-from bot.controllers import BaseController
+from bot.controllers import DispatcherProvider
 from bot.controllers.MenuController.types import MessageMenu, MessageMenuButton, ButtonType, MessageMenuButtonOption
 from bot.types import Proxy, ChatId
 from bot.utils.message import arr2keyword_markup
 from bot.utils.shared import is_error
 
 
-class MenuController(BaseController):
+class MenuController(DispatcherProvider):
     __sessions = Proxy({})
 
     @classmethod

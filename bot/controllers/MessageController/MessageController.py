@@ -1,7 +1,7 @@
 from os import path
 from typing import List
 
-from bot.controllers import BaseController
+from bot.controllers import DispatcherProvider
 from bot.controllers.ActionController.types import VoteFailReason
 from bot.controllers.MessageController import buttons
 from bot.controllers.SessionController.settings.constants import DisplayType
@@ -9,7 +9,7 @@ from bot.types import ChatId, ResultConfig, RoleMeta
 from bot.localization import Localization
 
 
-class MessageController(BaseController):
+class MessageController(DispatcherProvider):
 
     @classmethod
     async def cleanup_messages(cls, chat_id: ChatId, ids: List[ChatId]):
@@ -167,15 +167,15 @@ Alive players:
 
     @classmethod
     async def send_vote_failure_reason(cls, chat_id: ChatId, t: Localization, reason: VoteFailReason):
-        if reason is VoteFailReason.nothing:
+        if reason is VoteFailReason.no_votes:
             # todo: add localization
             return await cls.dp.bot.send_message(chat_id, 'Players did not nominate a candidate')
-        if reason is VoteFailReason.both:
+        if reason is VoteFailReason.too_much_candidates:
             # todo: add localization
             return await cls.dp.bot.send_message(chat_id, 'The opinion of the townspeople is divided')
 
     @classmethod
     async def send_mafia_vote_failure_reason(cls, chat_id: ChatId, t: Localization, reason: VoteFailReason):
-        if reason is VoteFailReason.both:
+        if reason is VoteFailReason.too_much_candidates:
             # todo: add localization
             return await cls.dp.bot.send_message(chat_id, 'The opinion of the mafias is divided')

@@ -1,6 +1,6 @@
 from typing import Union
 
-from bot.controllers import BaseController
+from bot.controllers import DispatcherProvider
 from bot.controllers.MessageController.MessageController import MessageController
 from bot.controllers.SessionController.Session import Session
 from bot.controllers.SessionController.types import SessionStatus
@@ -8,7 +8,7 @@ from bot.models.MafiaBotError import SessionAlreadyActiveError
 from bot.types import ChatId, Proxy
 
 
-class SessionController(BaseController):
+class SessionController(DispatcherProvider):
     __sessions: Proxy = Proxy({})
 
     @classmethod
