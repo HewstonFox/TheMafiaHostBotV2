@@ -1,5 +1,5 @@
 from aiogram import Dispatcher
 
 
-class BaseController:
+class DispatcherProvider:
     dp: Dispatcher

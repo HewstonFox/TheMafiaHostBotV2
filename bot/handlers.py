@@ -4,7 +4,7 @@ from asyncio import sleep
 from pprint import pprint
 
 from aiogram.dispatcher import filters
-from aiogram.dispatcher.filters import Command, FiltersFactory
+from aiogram.dispatcher.filters import Command
 from aiogram.types import CallbackQuery, Message, ChatType, Update, ContentType, InputFile
 from aiogram.utils.exceptions import BadRequest
 from schema import SchemaError
@@ -183,28 +183,11 @@ if env.MODE == 'development':
         pprint(session)
 
 
-    @dp.message_handler(commands=['permission'], chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
-    @clean_command
-    async def permission(message: Message):
-        prev_restrictions = await restriction_with_prev_state(
-            message.bot,
-            message.chat.id,
-            message.from_user.id,
-            SEND_RESTRICTIONS
-        )
-        pprint(prev_restrictions)
-
-        await sleep(5)
-
-        await restriction_with_prev_state(
-            message.bot,
-            message.chat.id,
-            message.from_user.id,
-            prev_restrictions
-        )
-
-
     @dp.message_handler(commands=['vote'], chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
     @clean_command
     async def send_agree(message: Message):
-        await ReactionCounterController.send_reaction_counter(message.chat.id, 'Lynch smbd', ['👍', '👎'])
+        vote_msg = await ReactionCounterController.send_reaction_counter(message.chat.id, 'Lynch somebody',
+                                                                         ['👍', '👎'], False, [301550065])
+        await sleep(10)
+        await ReactionCounterController.stop_reaction_counter(reaction_counter=vote_msg)
+        print(vote_msg.reactions)

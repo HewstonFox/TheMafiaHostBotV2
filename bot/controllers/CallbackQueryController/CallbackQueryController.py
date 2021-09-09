@@ -1,7 +1,7 @@
 from aiogram.types import CallbackQuery, ChatMemberStatus
 from aiogram.utils.exceptions import Unauthorized
 
-from bot.controllers import BaseController
+from bot.controllers import DispatcherProvider
 from bot.controllers.MenuController.MenuController import MenuController
 from bot.controllers.MessageController.MessageController import MessageController
 from bot.controllers.ReactionCounterController.ReactionCounterController import ReactionCounterController
@@ -14,7 +14,7 @@ from bot.controllers.UserController import collection as user_collection
 from bot.localization import Localization
 
 
-class CallbackQueryController(BaseController):
+class CallbackQueryController(DispatcherProvider):
 
     @classmethod
     async def more(cls, query: CallbackQuery, chat_id: ChatId, t: Localization):
