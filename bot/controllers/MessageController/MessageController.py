@@ -120,7 +120,7 @@ class MessageController(DispatcherProvider):
             return await cls.dp.bot.send_message(chat_id, shortcut)
 
     @classmethod
-    async def send_game_results(cls, chat_id: ChatId, t: Localization, config: ResultConfig, display_type):
+    async def send_phase_results(cls, chat_id: ChatId, t: Localization, config: ResultConfig, display_type):
         #  todo: add translation
         #  todo: add stickers for each role name
         alive = '\n'.join([f'{role.index}. {role.user.get_mention()}' for role in config['alive']])
@@ -179,3 +179,20 @@ Alive players:
         if reason is VoteFailReason.too_much_candidates:
             # todo: add localization
             return await cls.dp.bot.send_message(chat_id, 'The opinion of the mafias is divided')
+
+    @classmethod
+    async def send_game_results(cls, chat_id: ChatId, t: Localization, team: str, winners: str, losers: str):
+        # todo: add localization
+        text = f'''
+Game ended, winner is {team}
+Winners:
+{winners}
+
+Losers:
+{losers}
+        '''
+        try:
+            with open(path.join('assets', 'results', f'{team}.png'), 'rb') as f:
+                return await cls.dp.bot.send_photo(chat_id, f, text)
+        except FileNotFoundError:
+            return await cls.dp.bot.send_message(chat_id, text)

@@ -11,8 +11,8 @@ from bot.utils.roles import get_players_list_menu
 class Doctor(Incognito):
     shortcut = 'doc'
 
-    def __init__(self, user: User, session: Session):
-        super().__init__(user, session)
+    def __init__(self, user: User, session: Session, index: int = 0):
+        super().__init__(user, session, index)
         self._self_cure = 1
 
     async def affect(self, other: ChatId, key=None):

@@ -9,16 +9,16 @@ from bot.utils.message import arr2keyword_markup
 from bot.utils.shared import chunks
 
 
-def generate_rerender_subscriber(message: Message):
+def generate_rerender_subscriber(message: Message, text: str = None):
     def subscriber(reactions: Reactions):
-        asyncio.create_task(message.edit_text(message.text, reply_markup=create_reaction_keyboard(reactions)))
+        asyncio.create_task(message.edit_text(text or message.text, reply_markup=create_reaction_keyboard(reactions)))
 
     return subscriber
 
 
 def create_reaction_keyboard(reactions: Reactions):
     return arr2keyword_markup([[{
-        'text': f'{reaction[0]} - {len(reaction[1])}',
+        'text': f'{reaction[0]} ({len(reaction[1])})',
         'callback_data': f'vote {reaction[0]}'
     } for reaction in chunk] for chunk in chunks(reactions.items(), chunk_size)])
 
@@ -30,5 +30,5 @@ def find_reaction_member(reactions: Reactions, member: User) -> Optional[str]:
 
 
 def generate_reactions_result_text(text: str, reactions: Reactions):
-    return text + '\n\n' + '\n\n'.join(
-        map(lambda r: f'{r[0]} - {len(r[1])}', reactions.items()))
+    return text + '\n\n' + '\n'.join(
+        map(lambda r: f'{r[0]} ({len(r[1])})', reactions.items()))

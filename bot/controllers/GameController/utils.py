@@ -16,7 +16,7 @@ from bot.models.Roles.Mafia import Mafia
 from bot.models.Roles.Maniac import Maniac
 from bot.models.Roles.constants import Team
 from bot.types import ResultConfig
-from bot.utils.message import attach_last_words, attach_mafia_chat as amc
+from bot.utils.message import attach_mafia_chat as amc
 
 
 def attach_roles(session: Session):
@@ -25,9 +25,10 @@ def attach_roles(session: Session):
     roles = []
     players_count = len(players)
 
-    for role in [role for role in Roles if
-                 role != Civil and (
-                         settings[role.shortcut].get('enable') is None or settings[role.shortcut].get('enable'))]:
+    for role in [
+        role for role in Roles
+        if role != Civil and (settings[role.shortcut].get('enable') is None or settings[role.shortcut].get('enable'))
+    ]:
         _roles = [role] * int(players_count / settings[role.shortcut]['n'] + 0.5)
         if (cap := get_cap(role)) and len(_roles):
             _roles[0] = cap
@@ -126,7 +127,7 @@ async def resolve_schedules(tasks: Optional[Iterable[Callable[[], Any]]]):
 async def show_game_state(session: Session, config: Optional[ResultConfig]):
     if not config:
         return
-    await MessageController.send_game_results(
+    await MessageController.send_phase_results(
         session.chat_id,
         session.t,
         config,

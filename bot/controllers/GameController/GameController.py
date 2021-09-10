@@ -6,8 +6,6 @@ from aiogram.utils.exceptions import BadRequest
 
 from bot.controllers import DispatcherProvider
 from bot.controllers.ActionController.ActionController import ActionController
-from bot.controllers.ActionController.Actions.BaseAction import BaseAction
-from bot.controllers.ActionController.Actions.KillAction import IncognitoKillAction
 from bot.controllers.ActionController.Actions.VoteAction import VoteAction, DayKillVoteAction
 from bot.controllers.ActionController.types import VoteFailReason
 from bot.controllers.GameController.utils import attach_roles, greet_roles, send_roles_vote, resolve_results, \
@@ -21,7 +19,6 @@ from bot.controllers.SessionController.types import SessionStatus
 from bot.localization import Localization
 from bot.models.MafiaBotError import SessionAlreadyActiveError
 from bot.models.Roles import BaseRole
-from bot.models.Roles.Suicide import Suicide
 from bot.models.Roles.constants import Team
 from bot.types import ChatId
 from bot.utils.message import attach_last_words
@@ -109,9 +106,9 @@ class GameController(DispatcherProvider):
             #  todo: add translation
             global_text = f'{role.user.get_mention()} was killed.\n'
             if session.settings.values['game']['show_role_of_dead']:
-                global_text += f'They were {role.shortcut}\n'
+                global_text += f'They was {role.shortcut}\n'
             if session.settings.values['game']['show_killer']:
-                global_text += f'Seems killer is {role.killed_by}'
+                global_text += f'Seems killer was {role.killed_by}'
             await bot.send_message(session.chat_id, global_text)
 
         async def post_results_schedule(role: BaseRole):
@@ -154,7 +151,10 @@ class GameController(DispatcherProvider):
                     store['schedule'].append(lambda: dead_schedule(role))
                     store['post_schedule'].append(lambda: post_results_schedule(role))
                 else:
-                    await bot.send_message(session.chat_id, f'{role.user.get_mention()} was lynched.')
+                    text = f'{role.user.get_mention()} was lynched.'
+                    if session.settings.values['game']['show_role_of_dead']:
+                        text += f'\nThey was {role.shortcut}'
+                    await cls.dp.bot.send_message(session.chat_id, text)
                 if session.settings.values['game']['mute_messages_from_dead']:
                     await session.restrict_role(user_id)
 
@@ -178,23 +178,26 @@ class GameController(DispatcherProvider):
                 if role.team != winner:
                     losers += line
                 else:
-                    winner += line
+                    winners += line
 
-        # todo: add translation and move to MessageController
-        await session.bot.send_message(
-            session.chat_id, f'image is {winner}\nWinners:\n{winners}\nLosers:\n{losers}')
+        await MessageController.send_game_results(session.chat_id, session.t, winner, winners, losers)
         cls.stop_game(session)
 
     @classmethod
     async def resolve_day_lynching(cls, session: Session):
-        votes = [role.action for role in session.roles.values() if isinstance(role.action, VoteAction)]
+        votes = []
+        for role in session.roles.values():
+            if isinstance(role.action, VoteAction):
+                votes.append(role.action)
+            role.action = None
 
-        actions, comments = ActionController.resole_votes(votes)
+        actions, comments = await ActionController.resole_votes(votes)
         if not actions:
             reason: VoteFailReason = comments.get(DayKillVoteAction)
             await MessageController.send_vote_failure_reason(session.chat_id, session.t, reason)
+            return
 
-        action: IncognitoKillAction = actions[0]
+        action = actions[0]
 
         if session.settings.values['game']['lynching_confirmation']:
             vote_msg = await ReactionCounterController.send_reaction_counter(
@@ -211,11 +214,14 @@ class GameController(DispatcherProvider):
             if session.status != SessionStatus.game:
                 return
 
-            if vote_msg.reactions['👍'] == vote_msg.reactions['👎']:
+            yes_count = len(vote_msg.reactions['👍'])
+            no_count = len(vote_msg.reactions['👎'])
+
+            if yes_count == no_count:
                 # todo: add translation
                 await cls.dp.bot.send_message(session.chat_id, 'The opinions of the townspeople diverged')
                 return
-            if vote_msg.reactions['👍'] < vote_msg.reactions['👎']:
+            if yes_count < no_count:
                 # todo: add translation
                 await cls.dp.bot.send_message(
                     session.chat_id,
@@ -224,11 +230,6 @@ class GameController(DispatcherProvider):
                 return
 
         await action.apply()
-        # todo: add translation
-        text = f'{action.target.user.get_mention()} was lynched.'
-        if session.settings.values['game']['show_role_of_dead']:
-            text += f'\nThey was {action.target.shortcut}'
-        await cls.dp.bot.send_message(session.chat_id, text)
 
     @classmethod
     async def go_day(cls, session: Session):
