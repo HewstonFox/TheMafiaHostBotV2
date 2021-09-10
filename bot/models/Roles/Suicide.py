@@ -8,8 +8,8 @@ from bot.models.Roles.constants import Team
 class Suicide(Incognito):
     shortcut = 'scd'
 
-    def __init__(self, user: User, session: Session):
-        super().__init__(user, session)
+    def __init__(self, user: User, session: Session, index: int = 0):
+        super().__init__(user, session, index)
         self.won = False
 
     def kill(self, by):

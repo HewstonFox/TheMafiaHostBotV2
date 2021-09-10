@@ -33,7 +33,7 @@ class ReactionCounterMessage(DispatcherProvider):
             self.text,
             reply_markup=create_reaction_keyboard(self.reactions)
         )
-        self.reactions.subscribe(generate_rerender_subscriber(self.msg))
+        self.reactions.subscribe(generate_rerender_subscriber(self.msg, self.text))
 
     async def stop(self):
         if not self.msg:

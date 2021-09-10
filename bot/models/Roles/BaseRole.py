@@ -50,6 +50,8 @@ class BaseRole(
         self.index = index
 
     def kill(self, by: str):
+        if self.CURED:
+            return
         super(BaseRole, self).kill(by)
         self.alive = False
         self.won = False

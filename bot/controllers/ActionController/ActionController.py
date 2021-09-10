@@ -13,7 +13,7 @@ from bot.controllers.ActionController.computed import vote_types
 class ActionController(DispatcherProvider):
 
     @classmethod
-    async def apply_actions(cls, players: Dict[ChatId, BaseRole]) -> dict[VoteAction, Union[VoteFailReason, BaseRole]]:
+    async def apply_actions(cls, players: Dict[ChatId, BaseRole]) -> dict[Type[VoteAction], Union[VoteFailReason, BaseRole]]:
         actions = sorted([player.action for player in players.values() if player.action], key=lambda x: x.order)
 
         resolved_votes, vote_fails_reasons = await cls.resole_votes(
@@ -31,7 +31,7 @@ class ActionController(DispatcherProvider):
 
     @classmethod
     async def resole_votes(cls, _votes: list[VoteAction]) \
-            -> tuple[list[BaseAction], dict[VoteAction, Optional[VoteFailReason]]]:
+            -> tuple[list[BaseAction], dict[Type[VoteAction], Optional[VoteFailReason]]]:
         votes = [vote for vote in _votes if await vote.apply()]
         vote_results = {vote_type: VoteFailReason.no_votes for vote_type in vote_types}
 
