@@ -160,3 +160,10 @@ class Session:
 
     def __repr__(self):
         return str(self.__dict__)
+
+    def get_dump(self):
+        return {
+            **{k: v for k, v in self.__dict__.items() if
+               k not in ('t', 'bot', 'players', 'handlers', 'mafia_chat_handler', 'dp')},
+            'players': {idx: user.to_python() for idx, user in self.players.items()}
+        }

@@ -83,3 +83,7 @@ class BaseRole(
         parents = [x.__name__ for x in self.__class__.__bases__ if type(x) != BaseRole]
         return f'<{self.__class__.shortcut or self.__class__.__name__}' \
                f'{" (" + ", ".join(parents) + ")" if len(parents) else ""} {self.user.full_name}>'
+
+    def get_dump(self):
+        return {k: v.id if k == 'user' else v for k, v in self.__dict__.items() if
+                k not in ('t', 'session', 'settings', 'players')}

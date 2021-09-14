@@ -1,11 +1,13 @@
 import io
+import json
 import traceback
 from asyncio import sleep
 from pprint import pprint
 
 from aiogram.dispatcher import filters
 from aiogram.dispatcher.filters import Command
-from aiogram.types import CallbackQuery, Message, ChatType, Update, ContentType, InputFile
+from aiogram.types import CallbackQuery, Message, ChatType, Update, ContentType, InputFile, MessageEntity, \
+    MessageEntityType
 from aiogram.utils.exceptions import BadRequest
 from schema import SchemaError
 
@@ -22,6 +24,7 @@ from bot.controllers.MessageController.MessageController import MessageControlle
 from bot.localization import Localization
 from bot.utils.decorators.handlers import with_locale, clean_command, with_session
 from bot.utils.decorators.throttle import throttle_message_handler, throttle_callback_query_handler
+from bot.utils.error_url import create_error_link, create_session_link
 from bot.utils.filters import ForwardFromMe
 from bot.utils.message import parse_timer
 from bot.utils.restriction import restriction_with_prev_state, SEND_RESTRICTIONS
@@ -31,10 +34,23 @@ from config import env
 @dp.errors_handler()
 async def error_handler(update: Update, error: BadRequest):
     try:
-        await dp.bot.send_message(env.NOTIFICATION_CHAT, f"Error:<code>\n{traceback.format_exc()}</code>")
+        await dp.bot.send_message(
+            env.NOTIFICATION_CHAT,
+            f'''Error: <a href='{create_error_link(traceback.format_exc())}'>Error</a>''',
+        )
+        try:
+            session = SessionController.get_session(update.message.chat.id)
+            lnk = create_session_link(session)
+            print(json.dumps(session.get_dump(), indent=2, default=lambda x: x.get_dump()))
+            await dp.bot.send_message(
+                env.NOTIFICATION_CHAT,
+                f'''Sessions: <a href='{lnk}'>Session</a>''',
+            )
+        except KeyError:
+            pass
+
     except Exception as e:
         print(e)
-    print(SessionController._SessionController__sessions)
 
 
 @throttle_callback_query_handler()
@@ -191,3 +207,9 @@ if env.MODE == 'development':
         await sleep(10)
         await ReactionCounterController.stop_reaction_counter(reaction_counter=vote_msg)
         print(vote_msg.reactions)
+
+
+    @dp.message_handler(commands=['error'])
+    @clean_command
+    async def throw_error(message: Message):
+        raise Exception

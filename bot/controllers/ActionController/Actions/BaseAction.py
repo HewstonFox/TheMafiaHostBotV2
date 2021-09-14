@@ -24,3 +24,12 @@ class BaseAction:
     @is_blocked
     async def apply(self):
         raise NotImplementedError
+
+    def get_dump(self):
+        return {
+            'type': self.__class__.__name__,
+            'order': self.order,
+            'is_blocker': self.is_blocker,
+            'actor': self.actor.user.id,
+            'target': self.target.user.id,
+        }
