@@ -166,7 +166,7 @@ async def attach_mafia_chat(session: Session):
     if not session.settings.values['game']['allow_mafia_chat']:
         return
 
-    await amc([role for role in session.roles.values() if isinstance(role, Mafia)])
+    session.mafia_chat_handler = await amc([role for role in session.roles.values() if isinstance(role, Mafia)])
 
 
 async def resolve_failure_votes(session: Session, failure_votes: dict[VoteAction, Optional[VoteFailReason]]):
