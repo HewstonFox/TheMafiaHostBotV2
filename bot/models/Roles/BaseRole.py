@@ -70,7 +70,7 @@ class BaseRole(
     async def answer(self, other: 'BaseRole', action: 'BaseAction'):
         return
 
-    def send_action(self):
+    async def send_action(self):
         return
 
     async def vote(self, other: ChatId, *args, **kwargs):

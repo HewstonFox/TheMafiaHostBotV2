@@ -7,6 +7,7 @@ from bot.models.Roles.constants import Team
 
 class Suicide(Incognito):
     shortcut = 'scd'
+    team = Team.scd
 
     def __init__(self, user: User, session: Session, index: int = 0):
         super().__init__(user, session, index)

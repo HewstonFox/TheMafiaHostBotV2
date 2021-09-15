@@ -10,7 +10,7 @@ from bot.controllers.ActionController.Actions.VoteAction import VoteAction, DayK
 from bot.controllers.ActionController.types import VoteFailReason
 from bot.controllers.GameController.utils import attach_roles, greet_roles, send_roles_vote, resolve_results, \
     resolve_schedules, run_tasks, show_game_state, send_game_phase, send_roles_actions, promote_roles_if_need, \
-    apply_actions, attach_mafia_chat, resolve_failure_votes
+    apply_actions, attach_mafia_chat, resolve_failure_votes, get_session_winner
 from bot.controllers.MessageController.MessageController import MessageController
 from bot.controllers.ReactionCounterController.ReactionCounterController import ReactionCounterController
 from bot.controllers.SessionController.Session import Session
@@ -86,6 +86,14 @@ class GameController(DispatcherProvider):
                 to_clean_msg.append(m.message_id)
 
         session.players.unsubscribe(player_subscriber)
+
+        async def in_game_disconnection_subscriber(players):
+            roles = session.roles
+            result = get_session_winner([r for r in roles.values() if r.alive])
+            if result:
+                await cls.apply_game_result(session, result)
+
+        session.players.subscribe(in_game_disconnection_subscriber)
 
         await cls.dp.bot.unpin_chat_message(chat_id, to_clean_msg[0])
         await MessageController.cleanup_messages(chat_id, to_clean_msg)
@@ -332,6 +340,7 @@ class GameController(DispatcherProvider):
     @classmethod
     def stop_game(cls, session: Session):
         SessionController.kill_session(session.chat_id)
+        session.players.unsubscribe_all()
         for chat_id, restriction in session.restrictions.items():
             asyncio.create_task(restriction_with_prev_state(
                 cls.dp.bot,

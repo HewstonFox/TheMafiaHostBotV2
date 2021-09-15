@@ -1,6 +1,6 @@
 import asyncio
 from random import shuffle
-from typing import Optional, Iterable, Callable, Any, Awaitable
+from typing import Optional, Iterable, Callable, Any, Awaitable, Union
 
 from bot.controllers.ActionController.ActionController import ActionController
 from bot.controllers.ActionController.Actions.VoteAction import DayKillVoteAction, MafiaKillVoteAction, VoteAction
@@ -15,7 +15,7 @@ from bot.models.Roles.Don import Don
 from bot.models.Roles.Mafia import Mafia
 from bot.models.Roles.Maniac import Maniac
 from bot.models.Roles.constants import Team
-from bot.types import ResultConfig
+from bot.types import ResultConfig, RoleMeta
 from bot.utils.message import attach_mafia_chat as amc
 
 
@@ -59,8 +59,7 @@ async def send_roles_vote(session: Session):
     await asyncio.wait([player.send_vote() for player in players if player.alive])
 
 
-async def get_session_winner(config: dict) -> Optional[str]:
-    alive: list[BaseRole] = config['alive']
+def get_session_winner(alive: list[Union[BaseRole, RoleMeta]]) -> Optional[str]:
     if (alive_count := len(alive)) > 2:
         mafia_count = len([mafia for mafia in alive if isinstance(mafia, Mafia)])
         if not mafia_count:
@@ -101,7 +100,7 @@ def get_result_config(session: Session) -> ResultConfig:
 
 async def resolve_results(session: Session, store: dict):
     result_config = get_result_config(session)
-    winner = await get_session_winner(result_config)
+    winner = get_session_winner(result_config['alive'])
     store['config'] = result_config
     store['winner'] = winner
 
@@ -110,6 +109,8 @@ async def run_tasks(session: Session, tasks: Iterable[Callable[[], Any]]):
     for task in tasks:
         if session.status != SessionStatus.game:
             return
+        if not task:
+            continue
         tmp = task()
         if isinstance(tmp, Awaitable):
             await tmp

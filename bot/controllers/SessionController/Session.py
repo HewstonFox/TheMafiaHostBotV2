@@ -66,6 +66,7 @@ class Session:
         self.players.pop(user_id)
         if self.status == SessionStatus.game:
             self.roles[user_id].alive = False
+            self.roles[user_id].won = False
             asyncio.create_task(MessageController.send_player_left_game(
                 self.chat_id,
                 self.t,
