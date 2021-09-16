@@ -20,7 +20,7 @@ class Bum(Incognito):
             a = other.user
             b = other.action.target.user
         elif actors := [player.action.actor for player in self.players.values()
-                        if player.action and player.action.target == other]:
+                        if player.action and player.action.target == other and player.user != self.user]:
             a = actors[0].user
             b = other.user
         else:

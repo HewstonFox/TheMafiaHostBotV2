@@ -231,7 +231,7 @@ def get_settings_menu_config(t: Localization) -> MessageMenu:
                                 )]
                             )
                         ] + [role_route_button(t.values.roles, key) for key in
-                             ('shr', 'doc', 'whr', 'scd', 'mnc', 'lwr', 'lck', 'bum')]
+                             ('srg', 'doc', 'whr', 'scd', 'mnc', 'lwr', 'lck', 'bum')]
             ),
         ]
     )

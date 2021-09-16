@@ -57,7 +57,7 @@ settings_schema = Schema({
             'enable': bool,
             'n': And(Or(int, float), field_range(min_role_n))
         },
-        'shr': {
+        'srg': {
             'enable': bool,
             'n': And(Or(int, float), field_range(min_role_n))
         },

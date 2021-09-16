@@ -51,7 +51,7 @@ class SettingsPreset:
                 'enable': True,
                 'n': 13
             },
-            'shr': {
+            'srg': {
                 'enable': True,
                 'n': 8
             },
@@ -115,7 +115,7 @@ class SettingsPreset:
             'maf': {
                 'n': 4.0
             },
-            'shr': {
+            'srg': {
                 'enable': True,
                 'n': 8.5
             },

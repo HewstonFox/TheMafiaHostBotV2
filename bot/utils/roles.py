@@ -21,12 +21,12 @@ def valid_player(
 def get_description_factory(players: Dict[ChatId, 'BaseRole'], role: 'BaseRole', night_action=True):
     def get_description(key):
         if not role.alive:
-            return 'You already died'
+            return role.t.callback_query.player.already_dead
         chat_id = (re.findall(r'\d+', key) or [0])[0]
         alive, target, is_night = valid_player(players, chat_id)
         if alive and target and night_action == is_night:
-            return f'You chose {target.user.get_mention()}'  # todo: add translation
-        return 'It`s too late' if is_night else 'This player is not in game'  # todo: add translation
+            return role.t.callback_query.player.choose_target.format(target.user.get_mention())
+        return role.t.callback_query.player.not_allowed
 
     return get_description
 
@@ -53,7 +53,7 @@ def players_list_menu_factory(
         should_display: Callable[['BaseRole'], bool] = lambda x: x.alive
 ):
     return MessageMenu(
-        description=description,  # todo: add translation
+        description=description,
         disable_special_buttons=True,
         buttons=[MessageMenuButton(
             type=ButtonType.endpoint,
@@ -72,5 +72,6 @@ def get_players_list_menu(role: 'BaseRole', should_display: Callable[['BaseRole'
             should_display
         ),
         'get_data': get_description_factory(role.players, role),
-        'set_data': select_target_factory(role.players, role)
+        'set_data': select_target_factory(role.players, role),
+        't': role.t
     }

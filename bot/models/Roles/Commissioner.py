@@ -29,7 +29,7 @@ class Commissioner(Sergeant):
 
     async def answer(self, other: 'BaseRole', action: 'BaseAction'):
         role = Team.civ if other.ACQUITTED else other.shortcut
-        for sheriff in [shr for shr in self.players.values() if isinstance(shr, Sergeant)]:
+        for sheriff in [srg for srg in self.players.values() if isinstance(srg, Sergeant)]:
             asyncio.create_task(self.user.bot.send_message(
                 sheriff.user.id,
                 f'*{other.user.get_mention()} is {role}'  # todo: add translation
@@ -67,5 +67,6 @@ class Commissioner(Sergeant):
                         ][0 if self.settings['game']['commissioner_can_kill'] else 1:]
             ),
             get_description_factory(self.players, self),
-            select_target_factory(self.players, self)
+            select_target_factory(self.players, self),
+            self.t
         )

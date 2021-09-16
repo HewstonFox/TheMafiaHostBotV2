@@ -1,6 +1,6 @@
 from aiogram.types import User
 
-from bot.localization.Localization import Session
+from bot.controllers.SessionController.Session import Session
 from bot.models.Roles.Incognito import Incognito
 from bot.models.Roles.constants import Team
 

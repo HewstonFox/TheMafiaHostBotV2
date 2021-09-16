@@ -31,7 +31,7 @@ class CallbackQueryController(DispatcherProvider):
             return await query.answer(t.callback_query.session.registration_already_ended)
 
         if len(session.players) == session.settings.values['players']['max']:
-            return await query.answer('*Too many players')  # todo: add translation
+            return await query.answer(t.callback_query.session.too_many_players)
 
         user_id = query.from_user.id
         if session.is_user_in(user_id):
@@ -60,7 +60,7 @@ class CallbackQueryController(DispatcherProvider):
                 session = SessionController.get_session(query.message.chat.id)
                 if session.status == SessionStatus.game and query.from_user.id not in map(
                         lambda r: r.user.id if r.alive else None, session.roles.values()):
-                    return await query.answer('Not allowed')  # todo: add translation
+                    return await query.answer(t.callback_query.player.not_allowed)
             return await ReactionCounterController.callback_handler(query)
         if key in cls.__dict__:
             return await getattr(cls, key)(query, query.message.chat.id, t)

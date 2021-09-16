@@ -2,7 +2,7 @@ from aiogram.types import User
 
 from bot.controllers.ActionController.Actions.CureAction import CureAction
 from bot.controllers.MenuController.MenuController import MenuController
-from bot.localization.Localization import Session
+from bot.controllers.SessionController.Session import Session
 from bot.models.Roles.Incognito import Incognito
 from bot.types import ChatId
 from bot.utils.roles import get_players_list_menu

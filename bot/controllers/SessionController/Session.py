@@ -149,7 +149,7 @@ class Session:
         getter = self.settings.get_property
         setter = self.update_settings
 
-        await MenuController.show_menu(self.chat_id, config, getter, setter)
+        await MenuController.show_menu(self.chat_id, config, getter, setter, self.t)
 
     def update(self):
         data = {

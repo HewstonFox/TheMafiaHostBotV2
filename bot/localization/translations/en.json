@@ -14,15 +14,32 @@
     "registration": {
       "start": "Registration for <b>Mafia</b> game started!\nParticipants ({}):\n\n{}\n\nPress <code>Connect</code> to connect to the game",
       "already_started": "Bot is already started registration!",
+      "nothing_to_skip": "Nothing to skip.",
       "reminder": "Time left {} seconds",
       "force_stopped": "Registration canceled",
       "skipped": "The game was launched ahead of schedule",
       "reduced": "Registration time reduced by {0} seconds \n({1} seconds left)",
       "extended": "Registration time extended by {0} seconds \n({1} seconds left)"
     },
+    "game": {
+      "already_started": "Game is already started",
+      "force_stopped": "Game force stopped",
+      "settings_unavailable": "Settings unavailable in game",
+      "day_good": "Day {} started.\nNobody dead today!",
+      "day_bad": "Day {} started.\nBut not everyone woke up!",
+      "night": "Night started, but somebody not going to stay in bed",
+      "voting": "Day lynching started. It`s time to hang villains!",
+      "player_left_game": "Player {} left the game.",
+      "player_left_game_extended": "Player {} left the game!\nSeams they was {}.",
+      "vote_actor_chose_victim": "Player {} want to hang {}.",
+      "no_candidate": "Seems like no one wants to hang anyone!",
+      "too_much_candidates": "The opinions of the residents differed.",
+      "endgame": "Game ended! Winner is {}!\n\nWinners:\n{}\n\nLosers:\n"
+    },
     "nothing_to_stop": "Nothing to stop",
     "nothing_to_reduce": "Nothing to reduce",
     "nothing_to_extend": "Nothing to extend",
+    "preset_applied": "Preset <code>{}</code> applied successfully.",
     "button": {
       "connect": "Connect"
     },
@@ -140,7 +157,7 @@
               "description": "Doctor`s settings",
               "name": "Doctor"
             },
-            "shr": {
+            "srg": {
               "description": "Sheriff`s Settings",
               "name": "Sheriff"
             },
@@ -172,11 +189,15 @@
   "callback_query": {
     "session": {
       "is_not_active": "Session is not active",
-      "registration_already_ended": "Session already start"
+      "registration_already_ended": "Session already started",
+      "too_many_players": "Too many players"
     },
     "player": {
       "already_join": "You are already in session",
-      "joined": "You Successfully connected"
+      "joined": "You Successfully connected",
+      "not_allowed": "Not allowed",
+      "choose_target": "You chose {}",
+      "already_dead": "You already dead"
     }
   },
   "commands": {
@@ -194,5 +215,10 @@
       "settings": "Open bot settings",
       "stop": "Stop a game/registration"
     }
+  },
+  "strings": {
+    "somebody_of_them": "Somebody of them",
+    "back": "Back",
+    "close": "Close"
   }
 }

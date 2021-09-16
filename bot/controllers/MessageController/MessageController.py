@@ -48,7 +48,7 @@ class MessageController(DispatcherProvider):
 
     @classmethod
     async def send_game_is_already_started(cls, chat_id: ChatId, t: Localization):
-        return await cls.dp.bot.send_message(chat_id, "*Game is already started")  # todo: add localization
+        return await cls.dp.bot.send_message(chat_id, t.group.game.already_started)
 
     @classmethod
     async def send_registration_reminder(cls, chat_id: ChatId, t: Localization, time: int, reply_id: ChatId):
@@ -63,8 +63,8 @@ class MessageController(DispatcherProvider):
         return await cls.dp.bot.send_message(chat_id, t.group.registration.force_stopped)
 
     @classmethod
-    async def send_game_force_stopped(cls, chat_id, t):
-        return await cls.dp.bot.send_message(chat_id, "*Game force stopped")  # todo: add localization
+    async def send_game_force_stopped(cls, chat_id, t: Localization):
+        return await cls.dp.bot.send_message(chat_id, t.group.game.force_stopped)
 
     @classmethod
     async def send_registration_skipped(cls, chat_id: ChatId, t: Localization):
@@ -80,7 +80,7 @@ class MessageController(DispatcherProvider):
 
     @classmethod
     async def send_settings_unavailable_in_game(cls, chat_id: ChatId, t: Localization):
-        return await cls.dp.bot.send_message(chat_id, '*Settings unavailable in game')  # todo: add translation
+        return await cls.dp.bot.send_message(chat_id, t.group.game.settings_unavailable)
 
     @classmethod
     async def send_nothing_to_stop(cls, chat_id: ChatId, t: Localization):
@@ -88,7 +88,7 @@ class MessageController(DispatcherProvider):
 
     @classmethod
     async def send_nothing_to_skip(cls, chat_id: ChatId, t: Localization):
-        return await cls.dp.bot.send_message(chat_id, "*Nothing to skip")  # todo: add localization
+        return await cls.dp.bot.send_message(chat_id, t.group.registration.nothing_to_skip)
 
     @classmethod
     async def send_nothing_to_reduce(cls, chat_id: ChatId, t: Localization):
@@ -108,7 +108,7 @@ class MessageController(DispatcherProvider):
 
     @classmethod
     async def send_preset_apply_success(cls, chat_id: ChatId, t: Localization, preset: str):
-        return await cls.dp.bot.send_message(chat_id, f'*Preset <code>{preset}</code> applied successfully')
+        return await cls.dp.bot.send_message(chat_id, t.group.preset_applied.format(preset))
 
     @classmethod
     async def send_role_greeting(cls, chat_id: ChatId, t: Localization, shortcut: str):
@@ -121,11 +121,10 @@ class MessageController(DispatcherProvider):
 
     @classmethod
     async def send_phase_results(cls, chat_id: ChatId, t: Localization, config: ResultConfig, display_type):
-        #  todo: add translation
         #  todo: add stickers for each role name
         alive = '\n'.join([f'{role.index}. {role.user.get_mention()}' for role in config['alive']])
         roles = '' if display_type == DisplayType.hide else \
-            'Somebody of them:\n' + '\n'.join(
+            f'{t.strings.somebody_of_them}\n' + '\n'.join(
                 [f'{k}: {v}' for k, v in config['alive_roles'].items()]
                 if display_type == DisplayType.show else [k for k in config['alive_roles']])
         text = f'''
@@ -139,40 +138,33 @@ Alive players:
     @classmethod
     async def send_day(cls, chat_id: ChatId, t: Localization, day_number: int, with_kills: bool = True):
         with open(path.join('assets', 'states', f'day.png'), 'rb') as f:
-            #  todo: add translation
-            postfix = 'Somebody dead today' if with_kills else 'Nobody dead today'
-            return await cls.dp.bot.send_photo(chat_id, f, f'Day {day_number} started.\n{postfix}')
+            text = t.group.game.day_bad if with_kills else t.group.game.day_good
+            return await cls.dp.bot.send_photo(chat_id, f, text.format(day_number))
 
     @classmethod
     async def send_night(cls, chat_id: ChatId, t: Localization):
         with open(path.join('assets', 'states', f'night.png'), 'rb') as f:
-            #  todo: add translation
-            return await cls.dp.bot.send_photo(chat_id, f, 'Night started', reply_markup=buttons.to_bot(t))
+            return await cls.dp.bot.send_photo(chat_id, f, t.group.game.night, reply_markup=buttons.to_bot(t))
 
     @classmethod
     async def send_vote(cls, chat_id: ChatId, t: Localization):
-        # todo: add translation
-        return await cls.dp.bot.send_message(chat_id, 'Voting started', reply_markup=buttons.to_bot(t))
+        return await cls.dp.bot.send_message(chat_id, t.group.game.voting, reply_markup=buttons.to_bot(t))
 
     @classmethod
     async def send_player_left_game(cls, chat_id: ChatId, t: Localization, role: RoleMeta, display_role: bool):
-        # todo: add translation
-        postfix = f'They were {role.shortcut}' if display_role else ''
-        return await cls.dp.bot.send_message(chat_id, f'Player {role.user.get_mention()} left the game. {postfix}')
+        text = t.group.game.player_left_game_extended if display_role else t.group.game.player_left_game
+        return await cls.dp.bot.send_message(chat_id, text.format(role.user.get_mention(), role.shortcut))
 
     @classmethod
     async def send_actor_chose_victim(cls, chat_id: ChatId, t: Localization, actor: str, victim: str):
-        # todo: add localization
-        return await cls.dp.bot.send_message(chat_id, f'{actor} chose {victim}')
+        return await cls.dp.bot.send_message(chat_id, t.group.game.vote_actor_chose_victim.format(actor, victim))
 
     @classmethod
     async def send_vote_failure_reason(cls, chat_id: ChatId, t: Localization, reason: VoteFailReason):
         if reason is VoteFailReason.no_votes:
-            # todo: add localization
-            return await cls.dp.bot.send_message(chat_id, 'Players did not nominate a candidate')
+            return await cls.dp.bot.send_message(chat_id, t.group.game.no_candidate)
         if reason is VoteFailReason.too_much_candidates:
-            # todo: add localization
-            return await cls.dp.bot.send_message(chat_id, 'The opinion of the townspeople is divided')
+            return await cls.dp.bot.send_message(chat_id, t.group.game.too_much_candidates)
 
     @classmethod
     async def send_mafia_vote_failure_reason(cls, chat_id: ChatId, t: Localization, reason: VoteFailReason):
@@ -182,15 +174,7 @@ Alive players:
 
     @classmethod
     async def send_game_results(cls, chat_id: ChatId, t: Localization, team: str, winners: str, losers: str):
-        # todo: add localization
-        text = f'''
-Game ended, winner is {team}
-Winners:
-{winners}
-
-Losers:
-{losers}
-        '''
+        text = t.group.game.endgame.format(team, winners, losers)
         try:
             with open(path.join('assets', 'results', f'{team}.png'), 'rb') as f:
                 return await cls.dp.bot.send_photo(chat_id, f, text)
