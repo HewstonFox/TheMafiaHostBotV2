@@ -6,6 +6,7 @@ from bot.localization.Schema.CallbackQuery import LCallbackQuery
 from bot.localization.Schema.Commands import LCommands
 from bot.localization.Schema.Group import LGroup
 from bot.localization.Schema.Private import LPrivate
+from bot.localization.Schema.Roles import LRoles
 from bot.localization.Schema.Strings import LStrings
 
 
@@ -18,3 +19,4 @@ class Localization(DataclassFromDict):
     callback_query: LCallbackQuery = field_from_dict()
     commands: LCommands = field_from_dict()
     strings: LStrings = field_from_dict()
+    roles: LRoles = field_from_dict()

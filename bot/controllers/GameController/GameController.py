@@ -19,6 +19,10 @@ from bot.controllers.SessionController.types import SessionStatus
 from bot.localization import Localization
 from bot.models.MafiaBotError import SessionAlreadyActiveError
 from bot.models.Roles import BaseRole
+from bot.models.Roles.Commissioner import Commissioner
+from bot.models.Roles.Doctor import Doctor
+from bot.models.Roles.Lawyer import Lawyer
+from bot.models.Roles.Whore import Whore
 from bot.models.Roles.constants import Team
 from bot.types import ChatId
 from bot.utils.message import attach_last_words
@@ -109,6 +113,7 @@ class GameController(DispatcherProvider):
     @classmethod
     async def affect_roles(cls, session: Session, store: dict):
         bot = cls.dp.bot
+        t = session.t
 
         async def dead_schedule(role: BaseRole):
             #  todo: add translation
@@ -123,30 +128,32 @@ class GameController(DispatcherProvider):
             if session.status != SessionStatus.game:
                 return
             if not session.settings.values['game']['last_words']:
+                #  todo: add translation
                 await bot.send_message(role.user.id, 'You were killed')
                 return
 
             async def handler(msg: Message):
+                #  todo: add translation
                 await bot.send_message(session.chat_id, f'Last words of {role.user.get_mention()} was:')
                 await msg.copy_to(session.chat_id)
 
             session.handlers.append(await attach_last_words(
                 role.user.id,
+                #  todo: add translation
                 'You were killed, send your last words here',
                 handler
             ))
 
-        #  todo: add translation to whole phrases and move to MessageController
         async def apply_effect(user_id, role):
             if session.settings.values['game']['show_private_night_actions']:
                 if role.cured:
-                    await bot.send_message(user_id, "You were cured by doctor")
+                    await MessageController.send_role_affect(user_id, t, Doctor.shortcut)
                 if role.just_checked:
-                    await bot.send_message(user_id, "You were checked by commissioner")
+                    await MessageController.send_role_affect(user_id, t, Commissioner.shortcut)
                 if role.blocked:
-                    await bot.send_message(user_id, "You were blocked by whore")
+                    await MessageController.send_role_affect(user_id, t, Whore.shortcut)
                 if role.acquitted:
-                    await bot.send_message(user_id, "You were acquitted by lawyer")
+                    await MessageController.send_role_affect(user_id, t, Lawyer.shortcut)
             if role.just_killed:
                 if role.killed_by != Team.civ:
                     if 'just_dead' not in store:

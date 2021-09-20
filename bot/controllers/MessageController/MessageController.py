@@ -112,10 +112,9 @@ class MessageController(DispatcherProvider):
 
     @classmethod
     async def send_role_greeting(cls, chat_id: ChatId, t: Localization, shortcut: str):
-        #  todo add localization getting role by shortcut
         try:
             with open(path.join('assets', 'roles', f'{shortcut}.png'), 'rb') as f:
-                return await cls.dp.bot.send_photo(chat_id, f, shortcut)
+                return await cls.dp.bot.send_photo(chat_id, f, getattr(t.roles, shortcut).greeting)
         except FileNotFoundError:
             return await cls.dp.bot.send_message(chat_id, shortcut)
 
@@ -125,8 +124,8 @@ class MessageController(DispatcherProvider):
         alive = '\n'.join([f'{role.index}. {role.user.get_mention()}' for role in config['alive']])
         roles = '' if display_type == DisplayType.hide else \
             f'{t.strings.somebody_of_them}\n' + '\n'.join(
-                [f'{k}: {v}' for k, v in config['alive_roles'].items()]
-                if display_type == DisplayType.show else [k for k in config['alive_roles']])
+                [f'{getattr(t.roles, k).name}: {v}' for k, v in config['alive_roles'].items()]
+                if display_type == DisplayType.show else [getattr(t.roles, k).name for k in config['alive_roles']])
         text = f'''
 Alive players:
 {alive}
@@ -169,8 +168,7 @@ Alive players:
     @classmethod
     async def send_mafia_vote_failure_reason(cls, chat_id: ChatId, t: Localization, reason: VoteFailReason):
         if reason is VoteFailReason.too_much_candidates:
-            # todo: add localization
-            return await cls.dp.bot.send_message(chat_id, 'The opinion of the mafias is divided')
+            return await cls.dp.bot.send_message(chat_id, t.roles.chore.mafia_opinion_divided)
 
     @classmethod
     async def send_game_results(cls, chat_id: ChatId, t: Localization, team: str, winners: str, losers: str):
@@ -180,3 +178,15 @@ Alive players:
                 return await cls.dp.bot.send_photo(chat_id, f, text)
         except FileNotFoundError:
             return await cls.dp.bot.send_message(chat_id, text)
+
+    @classmethod
+    async def send_role_global_effect(cls, chat_id: ChatId, t: Localization, shortcut: str):
+        return await cls.dp.bot.send_message(chat_id, getattr(t.roles, shortcut).global_effect)
+
+    @classmethod
+    async def send_role_promotion(cls, chat_id: ChatId, t: Localization, shortcut: str):
+        return await cls.dp.bot.send_message(chat_id, getattr(t.roles.chore.promotion, shortcut))
+
+    @classmethod
+    async def send_role_affect(cls, chat_id: ChatId, t: Localization, shortcut: str):
+        return await cls.dp.bot.send_message(chat_id, getattr(t.roles, shortcut).affect)

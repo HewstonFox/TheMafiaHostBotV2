@@ -24,28 +24,33 @@ class Commissioner(Sergeant):
     async def affect(self, other: ChatId, key=None):
         action = self.__Actions.kill if key.startswith(self.__Actions.kill) else self.__Actions.check
         self.action = (KillAction if action == self.__Actions.kill else CheckAction)(self, self.players[other])
-        await self.user.bot.send_message(self.session.chat_id,
-                                         f'{self.shortcut} moved as {action}')  # todo: add translation
+        if action == self.__Actions.check:
+            await super(Commissioner, self).affect(other, key)
+        else:
+            await self.user.bot.send_message(self.session.chat_id, self.t.roles.chore.com.global_effect_kill)
 
     async def answer(self, other: 'BaseRole', action: 'BaseAction'):
         role = Team.civ if other.ACQUITTED else other.shortcut
         for sheriff in [srg for srg in self.players.values() if isinstance(srg, Sergeant)]:
             asyncio.create_task(self.user.bot.send_message(
                 sheriff.user.id,
-                f'*{other.user.get_mention()} is {role}'  # todo: add translation
+                self.t.roles.chore.com.check_result.format(
+                    other.user.get_mention(),
+                    getattr(self.t.roles, role).name
+                )
             ))
 
     async def send_action(self):
-        #  todo add translation for whole menu
         players = [pl for pl in self.players.values() if pl.alive and pl.user.id != self.user.id]
         await MenuController.show_menu(
             self.user.id,
             MessageMenu(
-                description='*Choose an action',
+                description=self.t.roles.com.effect,
                 disable_special_buttons=True,
                 buttons=[
                             MessageMenuButton(
                                 type=ButtonType.route,
+                                # todo: add translation
                                 name='*Kill',
                                 description='*Choose a target',
                                 buttons=[MessageMenuButton(
@@ -56,6 +61,7 @@ class Commissioner(Sergeant):
                             ),
                             MessageMenuButton(
                                 type=ButtonType.route,
+                                # todo: add translation
                                 name='*Check',
                                 description='*Choose a target',
                                 buttons=[MessageMenuButton(

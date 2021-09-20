@@ -150,8 +150,8 @@
               "name": "Suicide"
             },
             "whr": {
-              "description": "Moth`s settings",
-              "name": "Moth"
+              "description": "Call girl`s settings",
+              "name": "Call girl"
             },
             "doc": {
               "description": "Doctor`s settings",
@@ -220,5 +220,107 @@
     "somebody_of_them": "Somebody of them",
     "back": "Back",
     "close": "Close"
+  },
+  "roles": {
+    "civ": {
+      "name": "Civilian",
+      "greeting": "You are civilian today...",
+      "effect": "",
+      "global_effect": "",
+      "affect": ""
+    },
+    "bum": {
+      "name": "Bum",
+      "greeting": "You are bum today...",
+      "effect": "Choose somebody to spy tonight.",
+      "global_effect": "Bum bought a new bottle of bear...",
+      "affect": ""
+    },
+    "com": {
+      "name": "Commissioner",
+      "greeting": "You are Commissioner today...",
+      "effect": "Choose somebody to check or kill.",
+      "global_effect": "Commissioner went to look for villains...",
+      "affect": "You was checked by commissioner"
+    },
+    "doc": {
+      "name": "Doctor",
+      "greeting": "You are Doctor today...",
+      "effect": "Choose somebody to heal.",
+      "global_effect": "Doctor came out on duty...",
+      "affect": "You was healed by doctor"
+    },
+    "don": {
+      "name": "Don",
+      "greeting": "You are Don today...",
+      "effect": "Choose somebody to kill.",
+      "global_effect": "",
+      "affect": ""
+    },
+    "lwr": {
+      "name": "Lawyer",
+      "greeting": "You are Lawyer today...",
+      "effect": "Choose somebody to acquit.",
+      "global_effect": "Lawyer went to forge documents...",
+      "affect": "You was acquit by lawyer"
+    },
+    "lck": {
+      "name": "Lucky",
+      "greeting": "You are Lucky today...",
+      "effect": "",
+      "global_effect": "",
+      "affect": ""
+    },
+    "maf": {
+      "name": "Mafia",
+      "greeting": "You are Mafia today...",
+      "effect": "Choose somebody to kill.",
+      "global_effect": "Mafia found a victim...",
+      "affect": ""
+    },
+    "mnc": {
+      "name": "Maniac",
+      "greeting": "You are Maniac today...",
+      "effect": "Choose somebody to kill.",
+      "global_effect": "Maniac went to kill...",
+      "affect": ""
+    },
+    "srg": {
+      "name": "Sergeant",
+      "greeting": "You are Sergeant today...",
+      "effect": "",
+      "global_effect": "",
+      "affect": ""
+    },
+    "scd": {
+      "name": "Suicide",
+      "greeting": "You are Suicide today...",
+      "effect": "",
+      "global_effect": "",
+      "affect": ""
+    },
+    "whr": {
+      "name": "Call girl",
+      "greeting": "You are Call girl today...",
+      "effect": "Choose who you will come to tonight.",
+      "global_effect": "Call girl found Somon Tofak...",
+      "affect": "You spent your night with call girl"
+    },
+    "chore": {
+      "mafia_opinion_divided": "The opinion of the mafias is divided",
+      "promotion": {
+        "don": "You are a new Don from now",
+        "com": "You are a new Commissioner now"
+      },
+      "bum": {
+        "actor_visited_target": "You saw how {} visited {} tonight.",
+        "nothing_interesting": "Nothing interesting happened with {} tonight.",
+        "was_together": "You saw how {} and {} were together tonight."
+      },
+      "com": {
+        "check_result": "{} turned out to be {}.",
+        "global_effect_kill": "Commissioner loaded his revolver..."
+      }
+    }
   }
 }

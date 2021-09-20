@@ -61,11 +61,10 @@ class BaseRole(
 
     async def affect(self, other: ChatId, key: Optional[str] = None):
         if self.session.settings.values['game']['show_night_actions']:
-            await self.session.bot.send_message(self.session.chat_id, f'{self.shortcut} moved')  # todo: add translation
+            await MessageController.send_role_global_effect(self.session.chat_id, self.t, self.shortcut)
 
     async def send_promotion(self):
-        # maybe better to do just initial greet in place of this
-        await self.session.bot.send_message(self.user.id, f'You are {self.shortcut} from now')  # todo: add translation
+        await MessageController.send_role_promotion(self.session.chat_id, self.t, self.shortcut)
 
     async def answer(self, other: 'BaseRole', action: 'BaseAction'):
         return

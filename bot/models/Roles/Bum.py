@@ -1,3 +1,5 @@
+from random import shuffle
+
 from bot.controllers.ActionController.Actions.BaseAction import BaseAction
 from bot.controllers.ActionController.Actions.Spy import SpyAction
 from bot.controllers.MenuController.MenuController import MenuController
@@ -21,15 +23,16 @@ class Bum(Incognito):
             b = other.action.target.user
         elif actors := [player.action.actor for player in self.players.values()
                         if player.action and player.action.target == other and player.user != self.user]:
+            shuffle(actors)
             a = actors[0].user
             b = other.user
         else:
             a = b = None
 
         if a and b:
-            message = f"{a.get_mention()} visited {b.get_mention()}"  # todo add translation
+            message = self.t.roles.chore.bum.actor_visited_target.format(a.get_mention(), b.get_mention())
         else:
-            message = f"Nothing interesting happened with {other.user.get_mention()}"  # todo add translation
+            message = self.t.roles.chore.bum.nothing_interesting.format(other.user.get_mention())
         await self.user.bot.send_message(self.user.id, message)
 
     async def send_action(self):
