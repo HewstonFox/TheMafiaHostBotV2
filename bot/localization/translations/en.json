@@ -15,6 +15,7 @@
       "start": "Registration for <b>Mafia</b> game started!\nParticipants ({}):\n\n{}\n\nPress <code>Connect</code> to connect to the game",
       "already_started": "Bot is already started registration!",
       "nothing_to_skip": "Nothing to skip.",
+      "not_enough_players": "Not enough players to start.",
       "reminder": "Time left {} seconds",
       "force_stopped": "Registration canceled",
       "skipped": "The game was launched ahead of schedule",
@@ -29,12 +30,15 @@
       "day_bad": "Day {} started.\nBut not everyone woke up!",
       "night": "Night started, but somebody not going to stay in bed",
       "voting": "Day lynching started. It`s time to hang villains!",
+      "polling": "Are you sure you want to lynch {}?",
+      "last_words": "Last words of {} was:",
       "player_left_game": "Player {} left the game.",
       "player_left_game_extended": "Player {} left the game!\nSeams they was {}.",
       "vote_actor_chose_victim": "Player {} want to hang {}.",
       "no_candidate": "Seems like no one wants to hang anyone!",
       "too_much_candidates": "The opinions of the residents differed.",
-      "endgame": "Game ended! Winner is {}!\n\nWinners:\n{}\n\nLosers:\n"
+      "mind_changed": "The townspeople changed their minds to hang {}.",
+      "endgame": "Game ended! Winner is {}!\n\nWinners:\n{}\n\nLosers:\n{}"
     },
     "nothing_to_stop": "Nothing to stop",
     "nothing_to_reduce": "Nothing to reduce",
@@ -43,7 +47,8 @@
     "settings_apply_success": "Got it!",
     "settings_apply_failure": "Invalid format:\n<code>{}</code>",
     "button": {
-      "connect": "Connect"
+      "connect": "Connect",
+      "go_to_bot": "Go to bot"
     },
     "settings_menu": {
       "description": "Settings",
@@ -221,7 +226,11 @@
   "strings": {
     "somebody_of_them": "Somebody of them",
     "back": "Back",
-    "close": "Close"
+    "close": "Close",
+    "no": "No",
+    "was": "was",
+    "kill": "Kill",
+    "check": "Check"
   },
   "roles": {
     "civ": {
@@ -256,7 +265,7 @@
       "name": "Don",
       "greeting": "You are Don today...",
       "effect": "Choose somebody to kill.",
-      "global_effect": "",
+      "global_effect": "Mafia found a victim...",
       "affect": ""
     },
     "lwr": {
@@ -321,7 +330,9 @@
       },
       "com": {
         "check_result": "{} turned out to be {}.",
-        "global_effect_kill": "Commissioner loaded his revolver..."
+        "global_effect_kill": "Commissioner loaded his revolver...",
+        "kill_effect": "Who you want to kill?",
+        "check_effect": "Who you want to check?"
       }
     }
   }

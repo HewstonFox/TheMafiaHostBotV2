@@ -50,9 +50,8 @@ class Commissioner(Sergeant):
                 buttons=[
                             MessageMenuButton(
                                 type=ButtonType.route,
-                                # todo: add translation
-                                name='*Kill',
-                                description='*Choose a target',
+                                name=self.t.strings.kill,
+                                description=self.t.roles.chore.com.kill_effect,
                                 buttons=[MessageMenuButton(
                                     type=ButtonType.endpoint,
                                     name=pl.user.full_name,
@@ -61,9 +60,8 @@ class Commissioner(Sergeant):
                             ),
                             MessageMenuButton(
                                 type=ButtonType.route,
-                                # todo: add translation
-                                name='*Check',
-                                description='*Choose a target',
+                                name=self.t.strings.check,
+                                description=self.t.roles.chore.com.check_effect,
                                 buttons=[MessageMenuButton(
                                     type=ButtonType.endpoint,
                                     name=pl.user.full_name,

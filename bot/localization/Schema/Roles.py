@@ -29,6 +29,8 @@ class LBum(DataclassFromDict):
 class LCom(DataclassFromDict):
     check_result: str = field_from_dict()
     global_effect_kill: str = field_from_dict()
+    kill_effect: str = field_from_dict()
+    check_effect: str = field_from_dict()
 
 
 @dataclass

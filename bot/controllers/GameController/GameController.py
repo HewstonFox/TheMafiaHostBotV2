@@ -86,7 +86,7 @@ class GameController(DispatcherProvider):
                     await send_connect_message()
 
             if 0 < session.timer <= 5:
-                m = await cls.dp.bot.send_message(chat_id, str(session.timer))  # todo add final countdown
+                m = await cls.dp.bot.send_message(chat_id, str(session.timer))
                 to_clean_msg.append(m.message_id)
 
         session.players.unsubscribe(player_subscriber)
@@ -104,8 +104,7 @@ class GameController(DispatcherProvider):
 
         if session.status == SessionStatus.registration:
             if len(session.players) < session.settings.values['players']['min']:
-                await cls.dp.bot.send_message(chat_id, '*Not enough players to start')
-                # todo: move to MessageController add translation
+                await MessageController.send_not_enough_players(chat_id, session.t)
                 SessionController.kill_session(chat_id)
                 return
             asyncio.create_task(GameController.start_game(session))
@@ -133,8 +132,7 @@ class GameController(DispatcherProvider):
                 return
 
             async def handler(msg: Message):
-                #  todo: add translation
-                await bot.send_message(session.chat_id, f'Last words of {role.user.get_mention()} was:')
+                await bot.send_message(session.chat_id, role.t.group.game.last_words.format(role.user.get_mention()))
                 await msg.copy_to(session.chat_id)
 
             session.handlers.append(await attach_last_words(
@@ -183,7 +181,9 @@ class GameController(DispatcherProvider):
         winners = ''
         losers = ''
         for role in session.roles.values():
-            line = f'{role.user.get_mention()} is {role.shortcut}\n'
+            line = f'{role.user.get_mention()} ' \
+                   f'{session.t.strings.was} ' \
+                   f'{getattr(session.t.roles, role.shortcut).name}\n'
             if not role.alive:
                 if role.won:
                     winners += line
@@ -217,7 +217,7 @@ class GameController(DispatcherProvider):
         if session.settings.values['game']['lynching_confirmation']:
             vote_msg = await ReactionCounterController.send_reaction_counter(
                 session.chat_id,
-                f'Are you sure you want to lynch {action.target.user.get_mention()}?',  # todo: add localization
+                session.t.group.game.polling.format(action.target.user.get_mention()),
                 ['👍', '👎'],
                 False,
                 [role.user.id for role in session.roles.values() if role.alive],
@@ -233,15 +233,10 @@ class GameController(DispatcherProvider):
             no_count = len(vote_msg.reactions['👎'])
 
             if yes_count == no_count:
-                # todo: add translation
-                await cls.dp.bot.send_message(session.chat_id, 'The opinions of the townspeople diverged')
+                await MessageController.send_too_much_candidates(session.chat_id, session.t)
                 return
             if yes_count < no_count:
-                # todo: add translation
-                await cls.dp.bot.send_message(
-                    session.chat_id,
-                    f'The townspeople changed their minds to hang {action.target.user.get_mention()}'
-                )
+                await MessageController.send_mind_changed(session.chat_id, session.t, action.target.user.get_mention())
                 return
 
         await action.apply()
@@ -338,8 +333,7 @@ class GameController(DispatcherProvider):
     async def skip_registration(cls, chat_id: ChatId, t: Localization):
         session = SessionController.get_session(chat_id)
         if len(session.players) < session.settings.values['players']['min']:
-            await cls.dp.bot.send_message(chat_id, '*Not enough players to start')
-            # todo: move to MessageController add translation
+            await MessageController.send_not_enough_players(chat_id, t)
             return
         session.timer = -1
         await MessageController.send_registration_skipped(chat_id, t)

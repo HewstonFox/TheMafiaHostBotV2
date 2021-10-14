@@ -12,5 +12,5 @@ def connect(t):
 
 
 def to_bot(t):
-    # todo: add translation
-    return arr2keyword_markup([[{'text': 'Go to bot', 'url': f'https://t.me/{getattr(bot, "_me").username}'}]])
+    return arr2keyword_markup(
+        [[{'text': t.group.button.go_to_bot, 'url': f'https://t.me/{getattr(bot, "_me").username}'}]])

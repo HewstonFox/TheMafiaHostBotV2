@@ -87,6 +87,18 @@ class MessageController(DispatcherProvider):
         return await cls.dp.bot.send_message(chat_id, t.group.nothing_to_stop)
 
     @classmethod
+    async def send_not_enough_players(cls, chat_id: ChatId, t: Localization):
+        return await cls.dp.bot.send_message(chat_id, t.group.registration.not_enough_players)
+
+    @classmethod
+    async def send_too_much_candidates(cls, chat_id: ChatId, t: Localization):
+        return await cls.dp.bot.send_message(chat_id, t.group.game.too_much_candidates)
+
+    @classmethod
+    async def send_mind_changed(cls, chat_id: ChatId, t: Localization, victim: str):
+        return await cls.dp.bot.send_message(chat_id, t.group.game.mind_changed.format(victim))
+
+    @classmethod
     async def send_nothing_to_skip(cls, chat_id: ChatId, t: Localization):
         return await cls.dp.bot.send_message(chat_id, t.group.registration.nothing_to_skip)
 
@@ -172,7 +184,7 @@ Alive players:
 
     @classmethod
     async def send_game_results(cls, chat_id: ChatId, t: Localization, team: str, winners: str, losers: str):
-        text = t.group.game.endgame.format(team, winners, losers)
+        text = t.group.game.endgame.format(*list(map(lambda x: x if x else t.strings.no, (team, winners, losers))))
         try:
             with open(path.join('assets', 'results', f'{team}.png'), 'rb') as f:
                 return await cls.dp.bot.send_photo(chat_id, f, text)

@@ -8,6 +8,7 @@ _ = field_from_dict
 @dataclass
 class LGroupButton(DataclassFromDict):
     connect: str = field_from_dict()
+    go_to_bot: str = field_from_dict()
 
 
 @dataclass
@@ -147,6 +148,7 @@ class LRegistration(DataclassFromDict):
     start: str = _()
     already_started: str = _()
     nothing_to_skip: str = _()
+    not_enough_players: str = _()
     reminder: str = _()
     force_stopped: str = _()
     skipped: str = _()
@@ -163,11 +165,14 @@ class LGame(DataclassFromDict):  #
     day_bad: str = _()
     night: str = _()
     voting: str = _()
+    polling: str = _()
+    last_words: str = _()
     player_left_game: str = _()
     player_left_game_extended: str = _()
     vote_actor_chose_victim: str = _()
     no_candidate: str = _()
     too_much_candidates: str = _()
+    mind_changed: str = _()
     endgame: str = _()
 
 

@@ -67,7 +67,7 @@ def get_players_list_menu(role: 'BaseRole', should_display: Callable[['BaseRole'
     return {
         'chat_id': role.user.id,
         'config': players_list_menu_factory(
-            f'{role.shortcut} effect',  # todo: add translation,
+            getattr(role.t.roles, role.shortcut).effect,
             list(role.players.values()),
             should_display
         ),
