@@ -172,9 +172,9 @@ async def settings_export_handler(msg: Message, session: Session, *_, **__):
 async def settings_import_handler(message: Message, session: Session, *_, **__):
     try:
         session.import_settings_from_file(await (await message.document.get_file()).download(destination=io.BytesIO()))
-        await message.reply('*Got it!')  # todo: add translation
+        await message.reply(session.t.group.settings_apply_success)
     except SchemaError as e:
-        await message.reply(f'*Invalid format:\n<code>{e.code}</code>')  # todo: add translation
+        await message.reply(session.t.group.settings_apply_failure.format(e.code))
 
 
 @dp.message_handler(content_types=[ContentType.PINNED_MESSAGE])

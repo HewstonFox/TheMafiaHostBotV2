@@ -179,5 +179,7 @@ class LGroup(DataclassFromDict):
     nothing_to_reduce: str = _()
     nothing_to_extend: str = _()
     preset_applied: str = _()
+    settings_apply_success: str = _()
+    settings_apply_failure: str = _()
     button: LGroupButton = _()
     settings_menu: LSettingsMenu = _()

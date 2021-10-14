@@ -40,6 +40,8 @@
     "nothing_to_reduce": "Nothing to reduce",
     "nothing_to_extend": "Nothing to extend",
     "preset_applied": "Preset <code>{}</code> applied successfully.",
+    "settings_apply_success": "Got it!",
+    "settings_apply_failure": "Invalid format:\n<code>{}</code>",
     "button": {
       "connect": "Connect"
     },
