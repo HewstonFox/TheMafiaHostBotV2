@@ -115,20 +115,18 @@ class GameController(DispatcherProvider):
         t = session.t
 
         async def dead_schedule(role: BaseRole):
-            #  todo: add translation
-            global_text = f'{role.user.get_mention()} was killed.\n'
+            global_text = role.t.group.game.kill.prefix.format(role.user.get_mention())
             if session.settings.values['game']['show_role_of_dead']:
-                global_text += f'They was {role.shortcut}\n'
+                global_text += role.t.group.game.kill.target.format(getattr(role.t.roles, role.shortcut).name)
             if session.settings.values['game']['show_killer']:
-                global_text += f'Seems killer was {role.killed_by}'
+                global_text += role.t.group.game.kill.killer.format(getattr(role.t.roles, role.killed_by).name)
             await bot.send_message(session.chat_id, global_text)
 
         async def post_results_schedule(role: BaseRole):
             if session.status != SessionStatus.game:
                 return
             if not session.settings.values['game']['last_words']:
-                #  todo: add translation
-                await bot.send_message(role.user.id, 'You were killed')
+                await bot.send_message(role.user.id, role.t.private.kill)
                 return
 
             async def handler(msg: Message):
@@ -137,8 +135,7 @@ class GameController(DispatcherProvider):
 
             session.handlers.append(await attach_last_words(
                 role.user.id,
-                #  todo: add translation
-                'You were killed, send your last words here',
+                role.t.private.kill_with_words,
                 handler
             ))
 
@@ -278,9 +275,9 @@ class GameController(DispatcherProvider):
             lambda: cls.affect_roles(session, cross_pipeline_store), \
             lambda: resolve_results(session, cross_pipeline_store), \
             lambda: cls.apply_game_result(session, cross_pipeline_store.get('winner')), \
+            lambda: promote_roles_if_need(session.roles), \
             lambda: attach_mafia_chat(session), \
             lambda: cls.night_restriction(session), \
-            lambda: promote_roles_if_need(session), \
             lambda: MessageController.send_night(session.chat_id, session.t), \
             lambda: show_game_state(session, cross_pipeline_store.get('config')), \
             lambda: send_roles_actions(session)
@@ -342,6 +339,7 @@ class GameController(DispatcherProvider):
     def stop_game(cls, session: Session):
         SessionController.kill_session(session.chat_id)
         session.players.unsubscribe_all()
+        session.roles.unsubscribe_all()
         for chat_id, restriction in session.restrictions.items():
             asyncio.create_task(restriction_with_prev_state(
                 cls.dp.bot,

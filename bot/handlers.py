@@ -1,19 +1,16 @@
 import io
 import json
 import traceback
-from asyncio import sleep
 from pprint import pprint
 
 from aiogram.dispatcher import filters
 from aiogram.dispatcher.filters import Command
-from aiogram.types import CallbackQuery, Message, ChatType, Update, ContentType, InputFile, MessageEntity, \
-    MessageEntityType
+from aiogram.types import CallbackQuery, Message, ChatType, Update, ContentType, InputFile
 from aiogram.utils.exceptions import BadRequest
 from schema import SchemaError
 
 from bot.controllers.GameController.GameController import GameController
 from bot.controllers.MenuController.MenuController import MenuController
-from bot.controllers.ReactionCounterController.ReactionCounterController import ReactionCounterController
 from bot.controllers.SessionController.Session import Session
 from bot.controllers.SessionController.SessionController import SessionController
 from bot.controllers.SessionController.types import SessionStatus
@@ -27,7 +24,6 @@ from bot.utils.decorators.throttle import throttle_message_handler, throttle_cal
 from bot.utils.error_url import create_error_link, create_session_link
 from bot.utils.filters import ForwardFromMe
 from bot.utils.message import parse_timer
-from bot.utils.restriction import restriction_with_prev_state, SEND_RESTRICTIONS
 from config import env
 
 
@@ -196,17 +192,8 @@ if env.MODE == 'development':
     @clean_command
     @with_session
     async def current_session(message: Message, session: Session, *_, **__):
+        await dp.bot.send_message(session.chat_id, (getattr(session.t.roles.chore.promotion, 'don')))
         pprint(session)
-
-
-    @dp.message_handler(commands=['vote'], chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
-    @clean_command
-    async def send_agree(message: Message):
-        vote_msg = await ReactionCounterController.send_reaction_counter(message.chat.id, 'Lynch somebody',
-                                                                         ['👍', '👎'], False, [301550065])
-        await sleep(10)
-        await ReactionCounterController.stop_reaction_counter(reaction_counter=vote_msg)
-        print(vote_msg.reactions)
 
 
     @dp.message_handler(commands=['error'])

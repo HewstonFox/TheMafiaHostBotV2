@@ -6,6 +6,8 @@
     "more_description": "Description",
     "user_connected": "You connected to mafia game in {}",
     "user_left": "You left from mafia game in {}",
+    "kill": "You were killed.",
+    "kill_with_words": "You were killed, send your last words here",
     "button": {
       "more": "More"
     }
@@ -28,6 +30,7 @@
       "settings_unavailable": "Settings unavailable in game",
       "day_good": "Day {} started.\nNobody dead today!",
       "day_bad": "Day {} started.\nBut not everyone woke up!",
+      "results": "Alive players:\n{}\n\n{}",
       "night": "Night started, but somebody not going to stay in bed",
       "voting": "Day lynching started. It`s time to hang villains!",
       "polling": "Are you sure you want to lynch {}?",
@@ -35,10 +38,17 @@
       "player_left_game": "Player {} left the game.",
       "player_left_game_extended": "Player {} left the game!\nSeams they was {}.",
       "vote_actor_chose_victim": "Player {} want to hang {}.",
+      "vote_actor_only": "Player {} chose somebody to hang.",
+      "vite_effect": "Choose player to hang.",
       "no_candidate": "Seems like no one wants to hang anyone!",
       "too_much_candidates": "The opinions of the residents differed.",
       "mind_changed": "The townspeople changed their minds to hang {}.",
-      "endgame": "Game ended! Winner is {}!\n\nWinners:\n{}\n\nLosers:\n{}"
+      "endgame": "Game ended! Winner is {}!\n\nWinners:\n{}\n\nLosers:\n{}",
+      "kill": {
+        "prefix": "{} was killed.\n",
+        "target": "They were {}.\n",
+        "killer": "Seems killer was {}.\n"
+      }
     },
     "nothing_to_stop": "Nothing to stop",
     "nothing_to_reduce": "Nothing to reduce",

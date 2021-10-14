@@ -3,11 +3,11 @@ from random import shuffle
 from typing import Optional, Iterable, Callable, Any, Awaitable, Union
 
 from bot.controllers.ActionController.ActionController import ActionController
-from bot.controllers.ActionController.Actions.VoteAction import DayKillVoteAction, MafiaKillVoteAction, VoteAction
+from bot.controllers.ActionController.Actions.VoteAction import MafiaKillVoteAction, VoteAction
 from bot.controllers.ActionController.types import VoteFailReason
 from bot.controllers.MessageController.MessageController import MessageController
 from bot.controllers.SessionController.Session import Session
-from bot.controllers.SessionController.types import SessionStatus
+from bot.controllers.SessionController.types import SessionStatus, RolesList
 from bot.models.Roles import Roles, get_cap, Incognito, BaseRole
 from bot.models.Roles.Civil import Civil
 from bot.models.Roles.Commissioner import Commissioner
@@ -46,8 +46,6 @@ def attach_roles(session: Session):
         session.roles[user.id] = role(user, session, index)
         index += 1
 
-    print(session.roles)  # todo: remove
-
 
 async def greet_roles(session: Session):
     await asyncio.wait([role.greet() for role in session.roles.values()])
@@ -67,6 +65,10 @@ def get_session_winner(alive: list[Union[BaseRole, RoleMeta]]) -> Optional[str]:
         peace_count = alive_count - mafia_count
         if mafia_count >= peace_count:
             return Team.maf
+    elif alive_count == 1:
+        return alive[0].team
+    elif alive_count == 0:
+        return Team.BOTH
     else:
         danger_roles = Mafia, Don, Maniac
         a, b = alive
@@ -152,11 +154,11 @@ async def send_roles_actions(session: Session):
     await asyncio.wait([role.send_action() for role in session.roles.values() if role.alive])
 
 
-async def promote_roles_if_need(session: Session):
-    for role in list(session.roles.values())[:]:
-        if (cap := get_cap(type(role))) and not any(isinstance(r, cap) for r in session.roles.values()):
-            session.roles[role.user.id] = cap(role.user, session, role.index)
-            await session.roles[role.user.id].send_promotion()
+async def promote_roles_if_need(roles: RolesList):
+    for role in [role for role in roles.values() if role.alive]:
+        if (cap := get_cap(type(role))) and not any(isinstance(r, cap) for r in roles.values() if r.alive):
+            roles[role.user.id] = cap(role.user, role.session, role.index)
+            await roles[role.user.id].send_promotion()
 
 
 async def apply_actions(session: Session, store: dict):

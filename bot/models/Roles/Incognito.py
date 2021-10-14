@@ -15,9 +15,9 @@ class Incognito(BaseRole):
         self.action = DayKillVoteAction(self, target)
         display_type = self.settings['game']['show_message_on_vote']
         if display_type == DisplayType.show:
-            text = f'{self.user.get_mention()} voted for {target.user.get_mention()}.'
+            text = self.t.group.game.vote_actor_chose_victim.format(self.user.get_mention(), target.user.get_mention())
         elif display_type == DisplayType.partially:
-            text = f'{self.user.get_mention()} voted.'
+            text = self.t.group.game.vote_actor_only.format(self.user.get_mention())
         else:
             return
         await self.session.bot.send_message(self.session.chat_id, text)
@@ -26,7 +26,7 @@ class Incognito(BaseRole):
         await MenuController.show_menu(
             self.user.id,
             players_list_menu_factory(
-                'Vote for the player',
+                self.t.group.game.vite_effect,
                 list(self.players.values()),
             ),
             get_description_factory(self.players, self, False),

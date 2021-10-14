@@ -64,7 +64,7 @@ class BaseRole(
             await MessageController.send_role_global_effect(self.session.chat_id, self.t, self.shortcut)
 
     async def send_promotion(self):
-        await MessageController.send_role_promotion(self.session.chat_id, self.t, self.shortcut)
+        await MessageController.send_role_promotion(self.user.id, self.t, self.shortcut)
 
     async def answer(self, other: 'BaseRole', action: 'BaseAction'):
         return

@@ -15,4 +15,6 @@ class LPrivate(DataclassFromDict):
     more_description: str = field_from_dict()
     user_connected: str = field_from_dict()
     user_left: str = field_from_dict()
+    kill: str = field_from_dict()
+    kill_with_words: str = field_from_dict()
     button: LPrivateButton = field_from_dict()

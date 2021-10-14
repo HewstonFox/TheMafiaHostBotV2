@@ -17,12 +17,15 @@ class Mafia(Incognito):
         if key != 'don':
             self.action = MafiaKillVoteAction(self, self.players[other])
         victim: Incognito = list(filter(lambda x: x.user.id == other, self.players.values()))[0]
-        for maf in [pl for pl in self.players.values() if isinstance(pl, Mafia) and pl != self]:
+        mafias = [pl for pl in self.players.values() if isinstance(pl, Mafia) and pl.alive]
+        for maf in mafias:
+            if maf == self:
+                continue
             await MessageController.send_actor_chose_victim(
                 maf.user.id, maf.t,
                 self.user.get_mention(), victim.user.get_mention()
             )
-        if all([pl.action for pl in self.players.values() if isinstance(pl, Mafia)]):
+        if all([pl.action for pl in mafias]):
             await super(Mafia, self).affect(other)
 
     async def send_action(self):

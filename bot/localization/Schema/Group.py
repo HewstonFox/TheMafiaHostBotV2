@@ -157,12 +157,20 @@ class LRegistration(DataclassFromDict):
 
 
 @dataclass
+class LKill(DataclassFromDict):
+    prefix: str = _()
+    target: str = _()
+    killer: str = _()
+
+
+@dataclass
 class LGame(DataclassFromDict):  #
     already_started: str = _()
     force_stopped: str = _()
     settings_unavailable: str = _()
     day_good: str = _()
     day_bad: str = _()
+    results: str = _()
     night: str = _()
     voting: str = _()
     polling: str = _()
@@ -170,10 +178,13 @@ class LGame(DataclassFromDict):  #
     player_left_game: str = _()
     player_left_game_extended: str = _()
     vote_actor_chose_victim: str = _()
+    vote_actor_only: str = _()
+    vite_effect: str = _()
     no_candidate: str = _()
     too_much_candidates: str = _()
     mind_changed: str = _()
     endgame: str = _()
+    kill: LKill = _()
 
 
 @dataclass

@@ -132,18 +132,19 @@ class MessageController(DispatcherProvider):
 
     @classmethod
     async def send_phase_results(cls, chat_id: ChatId, t: Localization, config: ResultConfig, display_type):
-        #  todo: add stickers for each role name
         alive = '\n'.join([f'{role.index}. {role.user.get_mention()}' for role in config['alive']])
-        roles = '' if display_type == DisplayType.hide else \
-            f'{t.strings.somebody_of_them}\n' + '\n'.join(
-                [f'{getattr(t.roles, k).name}: {v}' for k, v in config['alive_roles'].items()]
-                if display_type == DisplayType.show else [getattr(t.roles, k).name for k in config['alive_roles']])
-        text = f'''
-Alive players:
-{alive}
-        
-{roles}
-        '''
+
+        roles = '' if display_type == DisplayType.hide else f'{t.strings.somebody_of_them}\n'
+
+        #  todo: add stickers for each role name
+        if display_type == DisplayType.show:
+            roles_list = sorted(list(config['alive_roles'].items()), key=lambda x: f'{x[0]}{x[1]}', reverse=True)
+            roles += '\n'.join([f'{getattr(t.roles, k).name}: {v}' for k, v in roles_list])
+        else:
+            roles_list = sorted(list(config['alive_roles']))
+            roles += ', '.join([getattr(t.roles, k).name for k in roles_list])
+
+        text = t.group.game.results.format(alive, roles)
         return await cls.dp.bot.send_message(chat_id, text)
 
     @classmethod
