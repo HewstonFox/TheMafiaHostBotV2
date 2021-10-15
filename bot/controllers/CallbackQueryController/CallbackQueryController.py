@@ -40,7 +40,8 @@ class CallbackQueryController(DispatcherProvider):
         try:
             if not await user_collection.check_if_user_record_exists(user_id):
                 raise UserNotExistsError
-            res = await MessageController.send_user_connected_to_game(user_id, session.t, session.name)
+            link = f'<a href="{session.invite_url}">{session.name}</a>'
+            res = await MessageController.send_user_connected_to_game(user_id, session.t, link)
             raise_if_error(res)
         except (UserNotExistsError, Unauthorized):
             return await query.answer(url=f'https://t.me/{(await cls.dp.bot.me).username}?start={chat_id}')

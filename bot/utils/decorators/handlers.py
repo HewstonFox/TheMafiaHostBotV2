@@ -36,12 +36,14 @@ def with_session(func: Callable[[Union[Message, CallbackQuery], Session, ...], a
             session = await Session.create(
                 chat_id=chat.id,
                 name=chat.full_name,
+                invite_url=chat.invite_link,
                 status=SessionStatus.pending,
                 settings=Settings(lang=msg.from_user.language_code or get_default_translation_index()).values
             )
 
-        if chat.full_name != session.name:
+        if any((chat.full_name != session.name, not chat.invite_link, chat.invite_link != session.invite_url)):
             session.name = chat.full_name
+            session.invite_url = await chat.export_invite_link()
             session.update()
 
         session.bot = msg.bot

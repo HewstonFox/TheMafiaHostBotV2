@@ -26,6 +26,7 @@ class Session:
             chat_id: ChatId,
             lang: str = None,
             name: str = '',
+            invite_url: str = '',
             status: str = SessionStatus.pending,
             settings: dict = {},
             **kwargs
@@ -40,6 +41,7 @@ class Session:
         self.t: Localization = get_translation(_lang)
         self.handlers = []
         self.restrictions: dict[ChatId, dict] = {}
+        self.invite_url = invite_url
         self.__status: str = status
         if 'bot' in kwargs:
             self.bot = kwargs['bot']
@@ -155,7 +157,8 @@ class Session:
         data = {
             'name': self.name,
             'status': self.status,
-            'settings': self.settings.values
+            'settings': self.settings.values,
+            'invite_url': self.invite_url
         }
         asyncio.create_task(collection.update_session_record(self.chat_id, data))
 
