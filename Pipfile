@@ -1,0 +1,35 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+aiogram = "==2.14.3"
+aiohttp = "==3.7.4.post0"
+async = "-timeout==3.0.1"
+attrs = "==21.2.0"
+Babel = "==2.9.1"
+beautifulsoup4 = "==4.9.3"
+certifi = "==2021.5.30"
+chardet = "==4.0.0"
+dict = "-to-dataclass==0.0.8"
+dnspython = "==2.1.0"
+idna = "==2.10"
+motor = "==2.5.0"
+multidict = "==5.1.0"
+pymongo = "==3.12.0"
+python = "-dateutil==2.8.1"
+python = "-dotenv==0.18.0"
+pytz = "==2021.1"
+requests = "==2.25.1"
+six = "==1.16.0"
+soupsieve = "==2.2.1"
+typing = "-extensions==3.10.0.0"
+urllib3 = "==1.26.6"
+yarl = "==1.6.3"
+schema = "==0.7.4"
+
+[requires]
+python_version = "3.10"
