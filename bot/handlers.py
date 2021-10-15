@@ -66,7 +66,14 @@ async def private_start_handler(message: Message, t: Localization, *_, **__):
 @clean_command
 @with_locale
 async def private_help_handler(message: Message, t: Localization, *_, **__):
-    await MessageController.send_private_more(message.chat.id, t)
+    await MessageController.send_private_start_message(message.chat.id, t)
+
+
+@throttle_message_handler(filters.CommandHelp(), chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
+@clean_command
+@with_locale
+async def private_help_handler(message: Message, t: Localization, *_, **__):
+    await MessageController.send_group_help_message(message.chat.id, t)
 
 
 @throttle_message_handler(filters.CommandStart(), chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
@@ -76,7 +83,7 @@ async def group_start_handler(message: Message, session: Session, *_, **__):
     if session.status in (SessionStatus.registration, SessionStatus.game):
         await GameController.force_start(session)
     else:
-        await message.bot.send_message(message.chat.id, 'U wrote start in group')
+        await MessageController.send_group_start_message(session.chat_id, session.t)
 
 
 @throttle_message_handler(commands=['game'], chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])

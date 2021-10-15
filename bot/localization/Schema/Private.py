@@ -6,6 +6,7 @@ from dict_to_dataclass import DataclassFromDict, field_from_dict
 @dataclass
 class LPrivateButton(DataclassFromDict):
     more: str = field_from_dict()
+    add_to_group: str = field_from_dict()
 
 
 @dataclass

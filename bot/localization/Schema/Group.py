@@ -200,3 +200,6 @@ class LGroup(DataclassFromDict):
     settings_apply_failure: str = _()
     button: LGroupButton = _()
     settings_menu: LSettingsMenu = _()
+    start: str = _()
+    help: str = _()
+    telegraph_url: str = _()

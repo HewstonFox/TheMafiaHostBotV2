@@ -9,7 +9,8 @@
     "kill": "You were killed.",
     "kill_with_words": "You were killed, send your last words here",
     "button": {
-      "more": "More"
+      "more": "More",
+      "add_to_group": "Add me to group"
     }
   },
   "group": {
@@ -202,7 +203,10 @@
           }
         }
       }
-    }
+    },
+    "start": "Hi, I`m a bot for playing <b>Mafia</b> game in Telegram. Please make sure I have all admin rights, I need them for correct work. You can also read full information about me <a href='{}'>here</a>",
+    "telegraph_url": "https://telegra.ph/The-Mafia-Host-Bot-Tutorial-10-15",
+    "help": "Hi, you can read about all my features <a href='{}'>here</a>"
   },
   "callback_query": {
     "session": {

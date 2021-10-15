@@ -4,7 +4,10 @@ from bot.utils.message import arr2keyword_markup
 
 
 def more(t):
-    return arr2keyword_markup([[{'text': t.private.button.more, 'callback_data': CallbackQueryActions.more}]])
+    return arr2keyword_markup([
+        [{'text': t.private.button.more, 'url': t.group.telegraph_url}],
+        [{'text':  t.private.button.add_to_group, 'url': f'https://t.me/{getattr(bot, "_me").username}?startgroup=_'}]
+    ])
 
 
 def connect(t):

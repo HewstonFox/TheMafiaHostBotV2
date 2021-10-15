@@ -19,12 +19,20 @@ class MessageController(DispatcherProvider):
             await cls.dp.bot.delete_message(chat_id, msg_id)
 
     @classmethod
+    async def send_group_start_message(cls, chat_id: ChatId, t: Localization):
+        return await cls.dp.bot.send_message(chat_id, t.group.start.format(t.group.telegraph_url))
+
+    @classmethod
     async def send_private_start_message(cls, chat_id: ChatId, t: Localization):
         return await cls.dp.bot.send_message(chat_id, t.private.start, reply_markup=buttons.more(t))
 
     @classmethod
     async def send_private_more(cls, chat_id: ChatId, t: Localization):
         return await cls.dp.bot.send_message(chat_id, t.private.more_description)
+
+    @classmethod
+    async def send_group_help_message(cls, chat_id: ChatId, t: Localization):
+        return await cls.dp.bot.send_message(chat_id, t.group.help.format(t.group.telegraph_url))
 
     @classmethod
     async def send_registration_start(cls, chat_id: ChatId, t: Localization, players: str):
