@@ -44,10 +44,10 @@
       "no_candidate": "Seems like no one wants to hang anyone!",
       "too_much_candidates": "The opinions of the residents differed.",
       "mind_changed": "The townspeople changed their minds to hang {}.",
-      "endgame": "Game ended! Winner is {}!\n\nWinners:\n{}\n\nLosers:\n{}",
+      "endgame": "Game ended!\n{}!\n\nWinners:\n{}\n\nLosers:\n{}",
       "kill": {
         "prefix": "{} was killed.\n",
-        "lynch_prefix": "{} was lynched",
+        "lynch_prefix": "{} was lynched\n",
         "target": "They were {}.\n",
         "killer": "Seems killer was {}.\n"
       }
@@ -177,8 +177,8 @@
               "name": "Doctor"
             },
             "srg": {
-              "description": "Sheriff`s Settings",
-              "name": "Sheriff"
+              "description": "Sergeant`s Settings",
+              "name": "Sergeant"
             },
             "lwr": {
               "description": "Lawyer`s Settings",
@@ -245,7 +245,8 @@
     "no": "No",
     "was": "was",
     "kill": "Kill",
-    "check": "Check"
+    "check": "Check",
+    "author": "©️ Author: {}"
   },
   "roles": {
     "civ": {
@@ -349,6 +350,28 @@
         "kill_effect": "Who you want to kill?",
         "check_effect": "Who you want to check?"
       }
+    }
+  },
+  "teams": {
+    "maf": {
+      "name": "Mafia",
+      "won": "<b>Mafia</b> has won!"
+    },
+    "civ": {
+      "name": "Civilians",
+      "won": "<b>Civilians</b> won!"
+    },
+    "mnc": {
+      "name": "Maniac",
+      "won": "<b>Maniac</b> won!"
+    },
+    "scd": {
+      "name": "Suicide",
+      "won": ""
+    },
+    "BOTH": {
+      "name": "Draw",
+      "won": "Everyone is dead!"
     }
   }
 }

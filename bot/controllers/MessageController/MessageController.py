@@ -8,7 +8,7 @@ from bot.controllers.SessionController.settings.constants import DisplayType
 from bot.types import ChatId, ResultConfig, RoleMeta
 from bot.localization import Localization
 from bot.emoji import emoji
-from bot.utils.emoji_strings import get_role_name, get_global_action_message, get_action_message
+from bot.utils.emoji_strings import get_role_name, get_global_action_message, get_action_message, get_photo_text
 
 
 class MessageController(DispatcherProvider):
@@ -136,7 +136,7 @@ class MessageController(DispatcherProvider):
     async def send_role_greeting(cls, chat_id: ChatId, t: Localization, shortcut: str):
         try:
             with open(path.join('assets', 'roles', f'{shortcut}.png'), 'rb') as f:
-                return await cls.dp.bot.send_photo(chat_id, f, getattr(t.roles, shortcut).greeting)
+                return await cls.dp.bot.send_photo(chat_id, f, get_photo_text(t, getattr(t.roles, shortcut).greeting))
         except FileNotFoundError:
             return await cls.dp.bot.send_message(chat_id, shortcut)
 
@@ -160,12 +160,14 @@ class MessageController(DispatcherProvider):
     async def send_day(cls, chat_id: ChatId, t: Localization, day_number: int, with_kills: bool = True):
         with open(path.join('assets', 'states', f'day.png'), 'rb') as f:
             text = t.group.game.day_bad if with_kills else t.group.game.day_good
-            return await cls.dp.bot.send_photo(chat_id, f, text.format(day_number))
+            return await cls.dp.bot.send_photo(chat_id, f, get_photo_text(t, text.format(day_number)))
 
     @classmethod
     async def send_night(cls, chat_id: ChatId, t: Localization):
         with open(path.join('assets', 'states', f'night.png'), 'rb') as f:
-            return await cls.dp.bot.send_photo(chat_id, f, t.group.game.night, reply_markup=buttons.to_bot(t))
+            return await cls.dp.bot.send_photo(chat_id, f,
+                                               get_photo_text(t, t.group.game.night),
+                                               reply_markup=buttons.to_bot(t))
 
     @classmethod
     async def send_vote(cls, chat_id: ChatId, t: Localization):
@@ -194,10 +196,14 @@ class MessageController(DispatcherProvider):
 
     @classmethod
     async def send_game_results(cls, chat_id: ChatId, t: Localization, team: str, winners: str, losers: str):
-        text = t.group.game.endgame.format(*list(map(lambda x: x if x else t.strings.no, (team, winners, losers))))
+        text = t.group.game.endgame.format(*list(map(lambda x: x if x else t.strings.no, (
+            getattr(t.teams, team).won,
+            winners,
+            losers
+        ))))
         try:
             with open(path.join('assets', 'results', f'{team}.png'), 'rb') as f:
-                return await cls.dp.bot.send_photo(chat_id, f, text)
+                return await cls.dp.bot.send_photo(chat_id, f, get_photo_text(t, text))
         except FileNotFoundError:
             return await cls.dp.bot.send_message(chat_id, text)
 

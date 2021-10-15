@@ -12,3 +12,4 @@ class LStrings(DataclassFromDict):
     was: str = field_from_dict()
     kill: str = field_from_dict()
     check: str = field_from_dict()
+    author: str = field_from_dict()
