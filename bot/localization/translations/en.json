@@ -46,6 +46,7 @@
       "endgame": "Game ended! Winner is {}!\n\nWinners:\n{}\n\nLosers:\n{}",
       "kill": {
         "prefix": "{} was killed.\n",
+        "lynch_prefix": "{} was lynched",
         "target": "They were {}.\n",
         "killer": "Seems killer was {}.\n"
       }

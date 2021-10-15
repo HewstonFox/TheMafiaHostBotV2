@@ -7,6 +7,8 @@ from bot.controllers.MessageController import buttons
 from bot.controllers.SessionController.settings.constants import DisplayType
 from bot.types import ChatId, ResultConfig, RoleMeta
 from bot.localization import Localization
+from bot.emoji import emoji
+from bot.utils.emoji_strings import get_role_name, get_global_action_message, get_action_message
 
 
 class MessageController(DispatcherProvider):
@@ -136,13 +138,12 @@ class MessageController(DispatcherProvider):
 
         roles = '' if display_type == DisplayType.hide else f'{t.strings.somebody_of_them}\n'
 
-        #  todo: add stickers for each role name
         if display_type == DisplayType.show:
             roles_list = sorted(list(config['alive_roles'].items()), key=lambda x: f'{x[0]}{x[1]}', reverse=True)
-            roles += '\n'.join([f'{getattr(t.roles, k).name}: {v}' for k, v in roles_list])
+            roles += '\n'.join([f'{get_role_name(k, t)}: {v}' for k, v in roles_list])
         else:
             roles_list = sorted(list(config['alive_roles']))
-            roles += ', '.join([getattr(t.roles, k).name for k in roles_list])
+            roles += '\n'.join([get_role_name(k, t) for k in roles_list])
 
         text = t.group.game.results.format(alive, roles)
         return await cls.dp.bot.send_message(chat_id, text)
@@ -194,12 +195,14 @@ class MessageController(DispatcherProvider):
 
     @classmethod
     async def send_role_global_effect(cls, chat_id: ChatId, t: Localization, shortcut: str):
-        return await cls.dp.bot.send_message(chat_id, getattr(t.roles, shortcut).global_effect)
+        return await cls.dp.bot.send_message(chat_id, get_global_action_message(shortcut, t))
 
     @classmethod
     async def send_role_promotion(cls, chat_id: ChatId, t: Localization, shortcut: str):
-        return await cls.dp.bot.send_message(chat_id, getattr(t.roles.chore.promotion, shortcut))
+        return await cls.dp.bot.send_message(chat_id,
+                                             f'{getattr(emoji.role, shortcut)}'
+                                             f' {getattr(t.roles.chore.promotion, shortcut)}')
 
     @classmethod
     async def send_role_affect(cls, chat_id: ChatId, t: Localization, shortcut: str):
-        return await cls.dp.bot.send_message(chat_id, getattr(t.roles, shortcut).affect)
+        return await cls.dp.bot.send_message(chat_id, get_action_message(shortcut, t))

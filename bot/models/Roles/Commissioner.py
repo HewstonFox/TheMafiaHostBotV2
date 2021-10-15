@@ -10,6 +10,7 @@ from bot.models.Roles.BaseRole import is_active_session
 from bot.models.Roles.Sergeant import Sergeant
 from bot.models.Roles.constants import Team
 from bot.types import ChatId
+from bot.utils.emoji_strings import get_role_name
 from bot.utils.roles import get_description_factory, select_target_factory
 
 
@@ -36,7 +37,7 @@ class Commissioner(Sergeant):
                 sheriff.user.id,
                 self.t.roles.chore.com.check_result.format(
                     other.user.get_mention(),
-                    getattr(self.t.roles, role).name
+                    get_role_name(role, self.t)
                 )
             ))
 

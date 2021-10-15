@@ -159,6 +159,7 @@ class LRegistration(DataclassFromDict):
 @dataclass
 class LKill(DataclassFromDict):
     prefix: str = _()
+    lynch_prefix: str = _()
     target: str = _()
     killer: str = _()
 

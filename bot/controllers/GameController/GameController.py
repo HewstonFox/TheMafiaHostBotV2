@@ -25,6 +25,7 @@ from bot.models.Roles.Lawyer import Lawyer
 from bot.models.Roles.Whore import Whore
 from bot.models.Roles.constants import Team
 from bot.types import ChatId
+from bot.utils.emoji_strings import get_role_name
 from bot.utils.message import attach_last_words
 from bot.utils.restriction import restriction_with_prev_state, SEND_RESTRICTIONS
 from bot.utils.shared import is_error, async_timeout, async_wait
@@ -117,9 +118,9 @@ class GameController(DispatcherProvider):
         async def dead_schedule(role: BaseRole):
             global_text = role.t.group.game.kill.prefix.format(role.user.get_mention())
             if session.settings.values['game']['show_role_of_dead']:
-                global_text += role.t.group.game.kill.target.format(getattr(role.t.roles, role.shortcut).name)
+                global_text += role.t.group.game.kill.target.format(get_role_name(role.shortcut, t))
             if session.settings.values['game']['show_killer']:
-                global_text += role.t.group.game.kill.killer.format(getattr(role.t.roles, role.killed_by).name)
+                global_text += role.t.group.game.kill.killer.format(get_role_name(role.killed_by, t))
             await bot.send_message(session.chat_id, global_text)
 
         async def post_results_schedule(role: BaseRole):
@@ -139,7 +140,7 @@ class GameController(DispatcherProvider):
                 handler
             ))
 
-        async def apply_effect(user_id, role):
+        async def apply_effect(user_id, role: BaseRole):
             if session.settings.values['game']['show_private_night_actions']:
                 if role.cured:
                     await MessageController.send_role_affect(user_id, t, Doctor.shortcut)
@@ -161,9 +162,9 @@ class GameController(DispatcherProvider):
                     store['schedule'].append(lambda: dead_schedule(role))
                     store['post_schedule'].append(lambda: post_results_schedule(role))
                 else:
-                    text = f'{role.user.get_mention()} was lynched.'
+                    text = role.t.group.game.kill.lynch_prefix.format(role.user.get_mention())
                     if session.settings.values['game']['show_role_of_dead']:
-                        text += f'\nThey was {role.shortcut}'
+                        text += role.t.group.game.kill.target.format(get_role_name(role.shortcut, t))
                     await cls.dp.bot.send_message(session.chat_id, text)
                 if session.settings.values['game']['mute_messages_from_dead']:
                     await session.restrict_role(user_id)
@@ -180,7 +181,7 @@ class GameController(DispatcherProvider):
         for role in session.roles.values():
             line = f'{role.user.get_mention()} ' \
                    f'{session.t.strings.was} ' \
-                   f'{getattr(session.t.roles, role.shortcut).name}\n'
+                   f'{get_role_name(role.shortcut, session.t)}\n'
             if not role.alive:
                 if role.won:
                     winners += line
