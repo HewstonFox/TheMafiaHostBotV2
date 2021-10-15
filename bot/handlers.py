@@ -1,6 +1,7 @@
 import io
 import json
 import traceback
+from asyncio import sleep
 from pprint import pprint
 
 from aiogram.dispatcher import filters
@@ -11,6 +12,7 @@ from schema import SchemaError
 
 from bot.controllers.GameController.GameController import GameController
 from bot.controllers.MenuController.MenuController import MenuController
+from bot.controllers.ReactionCounterController.ReactionCounterController import ReactionCounterController
 from bot.controllers.SessionController.Session import Session
 from bot.controllers.SessionController.SessionController import SessionController
 from bot.controllers.SessionController.types import SessionStatus
@@ -202,6 +204,14 @@ if env.MODE == 'development':
         await dp.bot.send_message(session.chat_id, (getattr(session.t.roles.chore.promotion, 'don')))
         pprint(session)
 
+    @dp.message_handler(commands=['vote'], chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
+    @clean_command
+    async def send_agree(message: Message):
+        vote_msg = await ReactionCounterController.send_reaction_counter(message.chat.id, 'Lynch somebody',
+                                                                         ['👍', '👎'], False)
+        await sleep(60)
+        await ReactionCounterController.stop_reaction_counter(reaction_counter=vote_msg)
+        print(vote_msg.reactions)
 
     @dp.message_handler(commands=['error'])
     @clean_command
