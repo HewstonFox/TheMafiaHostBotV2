@@ -23,6 +23,10 @@ class ERole(DataclassFromDict):
 @dataclass
 class EAction(DataclassFromDict):
     kill: str = field_from_dict()
+    don: str = field_from_dict()
+    maf: str = field_from_dict()
+    mnc: str = field_from_dict()
+    com_kill: str = field_from_dict()
     doc: str = field_from_dict()
     com: str = field_from_dict()
     lwr: str = field_from_dict()

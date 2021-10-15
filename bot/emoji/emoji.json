@@ -15,6 +15,10 @@
   },
   "action": {
     "kill": "☠️",
+    "don": "\uD83D\uDD2B",
+    "maf": "\uD83D\uDD2B",
+    "mnc": "\uD83D\uDD2B",
+    "com_kill": "\uD83D\uDD2B",
     "doc": "💉",
     "com": "🛂",
     "lwr": "📃",

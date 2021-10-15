@@ -5,6 +5,7 @@ from bot.controllers.ActionController.Actions.CheckAction import CheckAction
 from bot.controllers.ActionController.Actions.KillAction import KillAction
 from bot.controllers.MenuController.MenuController import MenuController
 from bot.controllers.MenuController.types import MessageMenu, MessageMenuButton, ButtonType
+from bot.emoji import emoji
 from bot.models.Roles import BaseRole
 from bot.models.Roles.BaseRole import is_active_session
 from bot.models.Roles.Sergeant import Sergeant
@@ -28,7 +29,8 @@ class Commissioner(Sergeant):
         if action == self.__Actions.check:
             await super(Commissioner, self).affect(other, key)
         else:
-            await self.user.bot.send_message(self.session.chat_id, self.t.roles.chore.com.global_effect_kill)
+            await self.user.bot.send_message(self.session.chat_id,
+                                             f'{emoji.action.com_kill} {self.t.roles.chore.com.global_effect_kill}')
 
     async def answer(self, other: 'BaseRole', action: 'BaseAction'):
         role = Team.civ if other.ACQUITTED else other.shortcut
