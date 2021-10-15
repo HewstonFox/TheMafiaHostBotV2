@@ -1,8 +1,8 @@
 import asyncio
 import inspect
-from typing import Union, TypedDict, Callable, List
+from typing import Union, TypedDict, Callable
 
-from aiogram.types import LoginUrl, CallbackGame
+from aiogram.types import LoginUrl, CallbackGame, User
 
 ChatId = Union[int, str]
 
@@ -23,13 +23,16 @@ class Proxy(dict):
         super(Proxy, self).__init__(seq, **kwargs)
         self.__subscribers = []
 
-    def subscribe(self, *subscribers: Callable[[dict], any]):
+    def subscribe(self, *subscribers: Callable[['Proxy'], any]):
         self.__subscribers.extend(subscribers)
 
     def unsubscribe(self, *subscribers: Callable[[dict], any]):
         for subscriber in self.__subscribers[:]:
             if subscriber in subscribers:
                 self.__subscribers.remove(subscriber)
+
+    def unsubscribe_all(self):
+        self.__subscribers = []
 
     def __ping_subscribers(self):
         for subscriber in self.__subscribers:
@@ -49,3 +52,19 @@ class Proxy(dict):
     def pop(self, key):
         super(Proxy, self).pop(key)
         self.__ping_subscribers()
+
+
+class RoleMeta:
+    index: int
+    user: User
+    won: bool
+    alive: bool
+    shortcut: str
+
+
+class ResultConfig(TypedDict):
+    alive: list[RoleMeta]
+    dead: list[RoleMeta]
+    winners: list[RoleMeta]
+    losers: list[RoleMeta]
+    alive_roles: dict[str, int]

@@ -67,3 +67,9 @@ class Settings:
             if strict:
                 raise e
             return False
+
+    def __repr__(self):
+        return str(self.values)
+
+    def get_dump(self):
+        return self.values

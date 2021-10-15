@@ -1,9 +1,10 @@
 from aiogram.types import CallbackQuery, ChatMemberStatus
 from aiogram.utils.exceptions import Unauthorized
 
-from bot.controllers import BaseController
+from bot.controllers import DispatcherProvider
 from bot.controllers.MenuController.MenuController import MenuController
 from bot.controllers.MessageController.MessageController import MessageController
+from bot.controllers.ReactionCounterController.ReactionCounterController import ReactionCounterController
 from bot.controllers.SessionController.SessionController import SessionController
 from bot.controllers.SessionController.types import SessionStatus
 from bot.models.MafiaBotError import UserNotExistsError
@@ -13,7 +14,7 @@ from bot.controllers.UserController import collection as user_collection
 from bot.localization import Localization
 
 
-class CallbackQueryController(BaseController):
+class CallbackQueryController(DispatcherProvider):
 
     @classmethod
     async def more(cls, query: CallbackQuery, chat_id: ChatId, t: Localization):
@@ -30,7 +31,7 @@ class CallbackQueryController(BaseController):
             return await query.answer(t.callback_query.session.registration_already_ended)
 
         if len(session.players) == session.settings.values['players']['max']:
-            return await query.answer('*Too many players')  # todo: add translation
+            return await query.answer(t.callback_query.session.too_many_players)
 
         user_id = query.from_user.id
         if session.is_user_in(user_id):
@@ -54,6 +55,13 @@ class CallbackQueryController(BaseController):
             if query.message.chat.id == query.from_user.id or \
                     ChatMemberStatus.is_chat_admin((await query.message.chat.get_member(query.from_user.id)).status):
                 return await MenuController.callback_handler(query)
+        if key == 'vote':
+            if SessionController.is_active_session(query.message.chat.id):
+                session = SessionController.get_session(query.message.chat.id)
+                if session.status == SessionStatus.game and query.from_user.id not in map(
+                        lambda r: r.user.id if r.alive else None, session.roles.values()):
+                    return await query.answer(t.callback_query.player.not_allowed)
+            return await ReactionCounterController.callback_handler(query)
         if key in cls.__dict__:
             return await getattr(cls, key)(query, query.message.chat.id, t)
         else:

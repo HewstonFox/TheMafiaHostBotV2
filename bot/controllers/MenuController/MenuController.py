@@ -3,14 +3,15 @@ from typing import Callable, Any, Union, List
 from aiogram.types import CallbackQuery, Message
 from aiogram.utils.exceptions import MessageToEditNotFound, MessageNotModified
 
-from bot.controllers import BaseController
+from bot.controllers import DispatcherProvider
 from bot.controllers.MenuController.types import MessageMenu, MessageMenuButton, ButtonType, MessageMenuButtonOption
+from bot.localization import Localization
 from bot.types import Proxy, ChatId
 from bot.utils.message import arr2keyword_markup
 from bot.utils.shared import is_error
 
 
-class MenuController(BaseController):
+class MenuController(DispatcherProvider):
     __sessions = Proxy({})
 
     @classmethod
@@ -19,7 +20,8 @@ class MenuController(BaseController):
             chat_id: ChatId,
             config: MessageMenu,
             get_data: Callable[[str], Any],
-            set_data: Callable[[str, Any], Union[bool, None]]
+            set_data: Callable[[str, Any], Union[bool, None]],
+            t: Localization
     ):
 
         session_data = {
@@ -27,7 +29,8 @@ class MenuController(BaseController):
             'parents': [],
             'current': config,
             'get': get_data,
-            'set': set_data
+            'set': set_data,
+            't': t
         }
 
         if old_menu := cls.__sessions.get(chat_id):
@@ -45,8 +48,9 @@ class MenuController(BaseController):
             cls,
             buttons: List[Union[MessageMenuButton, MessageMenuButtonOption]],
             get_data,
+            t: Localization,
             parent: MessageMenuButton = None,
-            current: MessageMenuButton = None
+            current: MessageMenuButton = None,
     ):
         reply_markup = []
         for i, btn in enumerate(buttons):
@@ -107,9 +111,9 @@ class MenuController(BaseController):
 
         if not current.get('disable_special_buttons'):
             if parent:
-                reply_markup.append([{'text': '*🔙 Back', 'callback_data': f'menu back'}])  # todo: add translation
+                reply_markup.append([{'text': f'🔙 {t.strings.back}', 'callback_data': f'menu back'}])
             else:
-                reply_markup.append([{'text': '*❌ Close', 'callback_data': f'menu close'}])  # todo: add translation
+                reply_markup.append([{'text': f'❌ {t.strings.close}', 'callback_data': f'menu close'}])
         return arr2keyword_markup(reply_markup)
 
     @classmethod
@@ -228,8 +232,9 @@ class MenuController(BaseController):
                 session['current'].get(
                     'options' if session['current'].get('type') == ButtonType.select else 'buttons') or [],
                 session['get'],
+                session['t'],
                 session['parents'][-1] if len(session['parents']) else None,
-                session['current']
+                session['current'],
             )
         }
         try:

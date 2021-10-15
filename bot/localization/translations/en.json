@@ -2,29 +2,65 @@
   "language": "English",
   "private": {
     "start": "Hello, I'm the host of the <b>Mafia</b> game",
-    "help": "Help button writed",
+    "help": "Help button text",
     "more_description": "Description",
     "user_connected": "You connected to mafia game in {}",
     "user_left": "You left from mafia game in {}",
+    "kill": "You were killed.",
+    "kill_with_words": "You were killed, send your last words here",
     "button": {
-      "more": "More"
+      "more": "More",
+      "add_to_group": "Add me to group"
     }
   },
   "group": {
     "registration": {
       "start": "Registration for <b>Mafia</b> game started!\nParticipants ({}):\n\n{}\n\nPress <code>Connect</code> to connect to the game",
       "already_started": "Bot is already started registration!",
+      "nothing_to_skip": "Nothing to skip.",
+      "not_enough_players": "Not enough players to start.",
       "reminder": "Time left {} seconds",
       "force_stopped": "Registration canceled",
       "skipped": "The game was launched ahead of schedule",
       "reduced": "Registration time reduced by {0} seconds \n({1} seconds left)",
       "extended": "Registration time extended by {0} seconds \n({1} seconds left)"
     },
+    "game": {
+      "already_started": "Game is already started",
+      "force_stopped": "Game force stopped",
+      "settings_unavailable": "Settings unavailable in game",
+      "day_good": "Day {} started.\nNobody dead today!",
+      "day_bad": "Day {} started.\nBut not everyone woke up!",
+      "results": "Alive players:\n{}\n\n{}",
+      "night": "Night started, but somebody not going to stay in bed",
+      "voting": "Day lynching started. It`s time to hang villains!",
+      "polling": "Are you sure you want to lynch {}?",
+      "last_words": "Last words of {} was:",
+      "player_left_game": "Player {} left the game.",
+      "player_left_game_extended": "Player {} left the game!\nSeams they was {}.",
+      "vote_actor_chose_victim": "Player {} voted for {}.",
+      "vote_actor_only": "Player {} voted.",
+      "vite_effect": "Choose player to hang.",
+      "no_candidate": "Seems like no one wants to hang anyone!",
+      "too_much_candidates": "The opinions of the residents differed.",
+      "mind_changed": "The townspeople changed their minds to hang {}.",
+      "endgame": "Game ended!\n{}!\n\nWinners:\n{}\n\nLosers:\n{}",
+      "kill": {
+        "prefix": "{} was killed.\n",
+        "lynch_prefix": "{} was lynched\n",
+        "target": "They were {}.\n",
+        "killer": "Seems killer was {}.\n"
+      }
+    },
     "nothing_to_stop": "Nothing to stop",
     "nothing_to_reduce": "Nothing to reduce",
     "nothing_to_extend": "Nothing to extend",
+    "preset_applied": "Preset <code>{}</code> applied successfully.",
+    "settings_apply_success": "Got it!",
+    "settings_apply_failure": "Invalid format:\n<code>{}</code>",
     "button": {
-      "connect": "Connect"
+      "connect": "Connect",
+      "go_to_bot": "Go to bot"
     },
     "settings_menu": {
       "description": "Settings",
@@ -109,6 +145,7 @@
             "show_private_night_actions": "Show private night effects",
             "last_words": "Last words",
             "commissioner_can_kill": "The commissioner can kill",
+            "lynching_confirmation": "Request confirmation to lynch",
             "show_live_roles": "Show Live Roles",
             "show_message_on_vote": "Show message when voting"
           },
@@ -124,24 +161,40 @@
           "name": "Roles",
           "values": {
             "maf": {
-              "description": "Mafia settings",
+              "description": "Mafia`s settings",
               "name": "Mafia"
             },
             "scd": {
-              "description": "Suicide Settings",
+              "description": "Suicide`s Settings",
               "name": "Suicide"
             },
             "whr": {
-              "description": "Moth settings",
-              "name": "Moth"
+              "description": "Call girl`s settings",
+              "name": "Call girl"
             },
             "doc": {
-              "description": "Doctor settings",
+              "description": "Doctor`s settings",
               "name": "Doctor"
             },
-            "shr": {
-              "description": "Sheriff's Settings",
-              "name": "Sheriff"
+            "srg": {
+              "description": "Sergeant`s Settings",
+              "name": "Sergeant"
+            },
+            "lwr": {
+              "description": "Lawyer`s Settings",
+              "name": "Lawyer"
+            },
+            "lck": {
+              "description": "Lucky`s Settings",
+              "name": "Lucky"
+            },
+            "mnc": {
+              "description": "Maniac`s Settings",
+              "name": "Maniac"
+            },
+            "bum": {
+              "description": "Bom`s Settings",
+              "name": "Bom"
             }
           },
           "options": {
@@ -150,16 +203,23 @@
           }
         }
       }
-    }
+    },
+    "start": "Hi, I`m a bot for playing <b>Mafia</b> game in Telegram. Please make sure I have all admin rights, I need them for correct work. You can also read full information about me <a href='{}'>here</a>",
+    "telegraph_url": "https://telegra.ph/The-Mafia-Host-Bot-Tutorial-10-15",
+    "help": "Hi, you can read about all my features <a href='{}'>here</a>"
   },
   "callback_query": {
     "session": {
       "is_not_active": "Session is not active",
-      "registration_already_ended": "Session already start"
+      "registration_already_ended": "Session already started",
+      "too_many_players": "Too many players"
     },
     "player": {
       "already_join": "You are already in session",
-      "joined": "You Successfully connected"
+      "joined": "You Successfully connected",
+      "not_allowed": "Not allowed",
+      "choose_target": "You chose {}",
+      "already_dead": "You already dead"
     }
   },
   "commands": {
@@ -176,6 +236,142 @@
       "leave": "Leave a game",
       "settings": "Open bot settings",
       "stop": "Stop a game/registration"
+    }
+  },
+  "strings": {
+    "somebody_of_them": "Somebody of them",
+    "back": "Back",
+    "close": "Close",
+    "no": "No",
+    "was": "was",
+    "kill": "Kill",
+    "check": "Check",
+    "author": "©️ Author: {}"
+  },
+  "roles": {
+    "civ": {
+      "name": "Civilian",
+      "greeting": "You are civilian today...",
+      "effect": "",
+      "global_effect": "",
+      "affect": ""
+    },
+    "bum": {
+      "name": "Bum",
+      "greeting": "You are bum today...",
+      "effect": "Choose somebody to spy tonight.",
+      "global_effect": "Bum bought a new bottle of bear...",
+      "affect": ""
+    },
+    "com": {
+      "name": "Commissioner",
+      "greeting": "You are Commissioner today...",
+      "effect": "Choose somebody to check or kill.",
+      "global_effect": "Commissioner went to look for villains...",
+      "affect": "You was checked by commissioner"
+    },
+    "doc": {
+      "name": "Doctor",
+      "greeting": "You are Doctor today...",
+      "effect": "Choose somebody to heal.",
+      "global_effect": "Doctor came out on duty...",
+      "affect": "You was healed by doctor"
+    },
+    "don": {
+      "name": "Don",
+      "greeting": "You are Don today...",
+      "effect": "Choose somebody to kill.",
+      "global_effect": "Mafia found a victim...",
+      "affect": ""
+    },
+    "lwr": {
+      "name": "Lawyer",
+      "greeting": "You are Lawyer today...",
+      "effect": "Choose somebody to acquit.",
+      "global_effect": "Lawyer went to forge documents...",
+      "affect": "You was acquit by lawyer"
+    },
+    "lck": {
+      "name": "Lucky",
+      "greeting": "You are Lucky today...",
+      "effect": "",
+      "global_effect": "",
+      "affect": ""
+    },
+    "maf": {
+      "name": "Mafia",
+      "greeting": "You are Mafia today...",
+      "effect": "Choose somebody to kill.",
+      "global_effect": "Mafia found a victim...",
+      "affect": ""
+    },
+    "mnc": {
+      "name": "Maniac",
+      "greeting": "You are Maniac today...",
+      "effect": "Choose somebody to kill.",
+      "global_effect": "Maniac went to kill...",
+      "affect": ""
+    },
+    "srg": {
+      "name": "Sergeant",
+      "greeting": "You are Sergeant today...",
+      "effect": "",
+      "global_effect": "",
+      "affect": ""
+    },
+    "scd": {
+      "name": "Suicide",
+      "greeting": "You are Suicide today...",
+      "effect": "",
+      "global_effect": "",
+      "affect": ""
+    },
+    "whr": {
+      "name": "Call girl",
+      "greeting": "You are Call girl today...",
+      "effect": "Choose who you will come to tonight.",
+      "global_effect": "Call girl found Somon Tofak...",
+      "affect": "You spent your night with call girl"
+    },
+    "chore": {
+      "mafia_opinion_divided": "The opinion of the mafias is divided",
+      "promotion": {
+        "don": "You are a new Don from now",
+        "com": "You are a new Commissioner now"
+      },
+      "bum": {
+        "actor_visited_target": "You saw how {} visited {} tonight.",
+        "nothing_interesting": "Nothing interesting happened with {} tonight.",
+        "was_together": "You saw how {} and {} were together tonight."
+      },
+      "com": {
+        "check_result": "{} turned out to be {}.",
+        "global_effect_kill": "Commissioner loaded his revolver...",
+        "kill_effect": "Who you want to kill?",
+        "check_effect": "Who you want to check?"
+      }
+    }
+  },
+  "teams": {
+    "maf": {
+      "name": "Mafia",
+      "won": "<b>Mafia</b> has won!"
+    },
+    "civ": {
+      "name": "Civilians",
+      "won": "<b>Civilians</b> won!"
+    },
+    "mnc": {
+      "name": "Maniac",
+      "won": "<b>Maniac</b> won!"
+    },
+    "scd": {
+      "name": "Suicide",
+      "won": ""
+    },
+    "BOTH": {
+      "name": "Draw",
+      "won": "Everyone is dead!"
     }
   }
 }

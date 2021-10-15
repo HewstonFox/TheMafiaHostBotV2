@@ -1,8 +1,10 @@
 import asyncio
+from itertools import islice
+from asyncio import ALL_COMPLETED
 from collections.abc import Mapping
 from time import time
 import copy
-from typing import Awaitable, Callable, Any
+from typing import Awaitable, Callable, Any, Type
 
 
 def get_current_time() -> int:
@@ -44,3 +46,33 @@ def dict_merge(*dicts: dict):
 async def async_timeout(timeout: int, func: Callable[[...], Awaitable[None]], *args, **kwargs):
     await asyncio.sleep(timeout)
     await func(*args, **kwargs)
+
+
+async def async_wait(fs, *, loop=None, timeout=None, return_when=ALL_COMPLETED):
+    if not fs:
+        return
+    return await asyncio.wait(fs, loop=loop, timeout=timeout, return_when=return_when)
+
+
+def count_bases_depth(class_type: Type) -> int:
+    bases = class_type.__bases__
+    if not len(bases):
+        return 1
+    return 1 + max([count_bases_depth(sub) for sub in bases])
+
+
+def chunks(lst, n: int):
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), n):
+        yield islice(lst, i, i + n)
+
+
+def flat_list(lst: Any) -> list:
+    result = []
+    if not isinstance(lst, list):
+        return [lst]
+
+    for item in list(lst):
+        result.extend(flat_list(item))
+
+    return result
