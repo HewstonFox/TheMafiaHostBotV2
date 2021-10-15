@@ -5,7 +5,10 @@ from typing import Callable
 
 from aiogram import Bot
 from aiogram.utils.exceptions import Unauthorized, MessageToDeleteNotFound, MessageToReplyNotFound, RetryAfter, \
-    MessageNotModified, InvalidQueryID, MessageToEditNotFound, UserIsAnAdministratorOfTheChat, CantRestrictChatOwner
+    MessageNotModified, InvalidQueryID, MessageToEditNotFound, UserIsAnAdministratorOfTheChat, CantRestrictChatOwner, \
+    MethodIsNotAvailable, MessageToForwardNotFound, MessageIdInvalid, MessageToPinNotFound, MessageCantBeEdited, \
+    MessageCantBeDeleted, MessageCantBeForwarded, ChatAdminRequired, NotEnoughRightsToPinMessage, \
+    NotEnoughRightsToRestrict
 
 from bot.utils.shared import raise_if_error
 from config import env
@@ -21,14 +24,24 @@ def message_retry(func: Callable) -> Callable:
             try:
                 return await func(self, *args, **kwargs)
             except (
-                    Unauthorized,
-                    MessageToDeleteNotFound,
-                    MessageToReplyNotFound,
                     MessageNotModified,
+                    MessageToForwardNotFound,
+                    MessageIdInvalid,
+                    MessageToDeleteNotFound,
+                    MessageToPinNotFound,
+                    MessageToReplyNotFound,
+                    MessageCantBeEdited,
+                    MessageCantBeDeleted,
+                    MessageCantBeForwarded,
                     MessageToEditNotFound,
                     InvalidQueryID,
-                    UserIsAnAdministratorOfTheChat,
+                    ChatAdminRequired,
+                    NotEnoughRightsToPinMessage,
+                    NotEnoughRightsToRestrict,
+                    MethodIsNotAvailable,
                     CantRestrictChatOwner,
+                    UserIsAnAdministratorOfTheChat,
+                    Unauthorized,
             ) as e:
                 return e
             except RetryAfter as e:

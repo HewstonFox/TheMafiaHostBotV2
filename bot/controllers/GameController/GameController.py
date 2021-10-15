@@ -289,6 +289,7 @@ class GameController(DispatcherProvider):
 
     @classmethod
     async def night_restriction(cls, session: Session, restrict: bool = True):
+
         roles = [role for role in session.roles.values() if role.alive]
         if restrict:
             for role in roles:
