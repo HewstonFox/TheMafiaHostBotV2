@@ -3,4 +3,4 @@ class Team:
     civ = 'civ'
     mnc = 'mnc'
     scd = 'scd'
-    BOTH = 'BOTH'
+    BOTH = 'both'

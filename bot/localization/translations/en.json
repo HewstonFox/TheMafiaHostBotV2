@@ -369,7 +369,7 @@
       "name": "Suicide",
       "won": ""
     },
-    "BOTH": {
+    "both": {
       "name": "Draw",
       "won": "Everyone is dead!"
     }
