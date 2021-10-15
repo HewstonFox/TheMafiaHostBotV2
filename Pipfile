@@ -32,4 +32,4 @@ yarl = "==1.6.3"
 schema = "==0.7.4"
 
 [requires]
-python_version = "3.10"
+python_version = "3.10.0"
