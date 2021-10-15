@@ -2,6 +2,7 @@ from functools import wraps
 from typing import Callable, Union
 
 from aiogram.types import Message, CallbackQuery, ChatMemberStatus
+from aiogram.utils.exceptions import BadRequest
 
 from bot.controllers.SessionController.Session import Session
 from bot.controllers.SessionController.SessionController import SessionController
@@ -43,7 +44,10 @@ def with_session(func: Callable[[Union[Message, CallbackQuery], Session, ...], a
 
         if any((chat.full_name != session.name, not chat.invite_link, chat.invite_link != session.invite_url)):
             session.name = chat.full_name
-            session.invite_url = await chat.export_invite_link()
+            try:
+                session.invite_url = await chat.export_invite_link()
+            except BadRequest:
+                session.invite_url = ''
             session.update()
 
         session.bot = msg.bot
