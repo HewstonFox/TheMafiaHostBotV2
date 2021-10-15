@@ -2,7 +2,7 @@ import asyncio
 
 from aiogram.types import Message
 
-from bot.controllers import BaseController
+from bot.controllers import DispatcherProvider
 from bot.controllers.MessageController.MessageController import MessageController
 from bot.controllers.SessionController.SessionController import SessionController
 from bot.controllers.UserController import collection as user_collection
@@ -10,7 +10,7 @@ from bot.controllers.UserController.types import UserRecord
 from bot.localization import Localization
 
 
-class UserController(BaseController):
+class UserController(DispatcherProvider):
 
     @classmethod
     async def start_user(cls, message: Message, t: Localization):

@@ -1,5 +1,7 @@
 import io
+import json
 import traceback
+from pprint import pprint
 
 from aiogram.dispatcher import filters
 from aiogram.dispatcher.filters import Command
@@ -19,6 +21,8 @@ from bot.controllers.MessageController.MessageController import MessageControlle
 from bot.localization import Localization
 from bot.utils.decorators.handlers import with_locale, clean_command, with_session
 from bot.utils.decorators.throttle import throttle_message_handler, throttle_callback_query_handler
+from bot.utils.error_url import create_error_link, create_session_link
+from bot.utils.filters import ForwardFromMe
 from bot.utils.message import parse_timer
 from config import env
 
@@ -26,10 +30,23 @@ from config import env
 @dp.errors_handler()
 async def error_handler(update: Update, error: BadRequest):
     try:
-        await dp.bot.send_message(env.NOTIFICATION_CHAT, f"Error:<code>\n{traceback.format_exc()}</code>")
+        await dp.bot.send_message(
+            env.NOTIFICATION_CHAT,
+            f'''Error: <a href='{create_error_link(traceback.format_exc())}'>Error</a>''',
+        )
+        try:
+            session = SessionController.get_session(update.message.chat.id)
+            lnk = create_session_link(session)
+            print(json.dumps(session.get_dump(), indent=2, default=lambda x: x.get_dump()))
+            await dp.bot.send_message(
+                env.NOTIFICATION_CHAT,
+                f'''Sessions: <a href='{lnk}'>Session</a>''',
+            )
+        except KeyError:
+            pass
+
     except Exception as e:
         print(e)
-    print(SessionController._SessionController__sessions)
 
 
 @throttle_callback_query_handler()
@@ -49,7 +66,14 @@ async def private_start_handler(message: Message, t: Localization, *_, **__):
 @clean_command
 @with_locale
 async def private_help_handler(message: Message, t: Localization, *_, **__):
-    await MessageController.send_private_more(message.chat.id, t)
+    await MessageController.send_private_start_message(message.chat.id, t)
+
+
+@throttle_message_handler(filters.CommandHelp(), chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
+@clean_command
+@with_locale
+async def private_help_handler(message: Message, t: Localization, *_, **__):
+    await MessageController.send_group_help_message(message.chat.id, t)
 
 
 @throttle_message_handler(filters.CommandStart(), chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
@@ -59,7 +83,7 @@ async def group_start_handler(message: Message, session: Session, *_, **__):
     if session.status in (SessionStatus.registration, SessionStatus.game):
         await GameController.force_start(session)
     else:
-        await message.bot.send_message(message.chat.id, 'U wrote start in group')
+        await MessageController.send_group_start_message(session.chat_id, session.t)
 
 
 @throttle_message_handler(commands=['game'], chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
@@ -151,9 +175,9 @@ async def settings_export_handler(msg: Message, session: Session, *_, **__):
 async def settings_import_handler(message: Message, session: Session, *_, **__):
     try:
         session.import_settings_from_file(await (await message.document.get_file()).download(destination=io.BytesIO()))
-        await message.reply('*Got it!')  # todo: add translation
+        await message.reply(session.t.group.settings_apply_success)
     except SchemaError as e:
-        await message.reply(f'*Invalid format:\n<code>{e.code}</code>')  # todo: add translation
+        await message.reply(session.t.group.settings_apply_failure.format(e.code))
 
 
 @dp.message_handler(content_types=[ContentType.PINNED_MESSAGE])
@@ -161,3 +185,25 @@ async def clear_pined_by_bot(message: Message):
     username = (await dp.bot.me).username
     if message.from_user.username == username:
         await message.delete()
+
+
+if env.MODE != 'development':
+    @dp.message_handler(ForwardFromMe, chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
+    @with_session
+    async def forward_from_bot(msg: Message, session: Session, *_, **__):
+        if session.status == SessionStatus.game:
+            await msg.delete()
+
+if env.MODE == 'development':
+    @dp.message_handler(commands=['session'], chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
+    @clean_command
+    @with_session
+    async def current_session(message: Message, session: Session, *_, **__):
+        await dp.bot.send_message(session.chat_id, (getattr(session.t.roles.chore.promotion, 'don')))
+        pprint(session)
+
+
+    @dp.message_handler(commands=['error'])
+    @clean_command
+    async def throw_error(message: Message):
+        raise Exception

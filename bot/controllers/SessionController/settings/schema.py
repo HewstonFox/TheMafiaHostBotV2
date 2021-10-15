@@ -20,7 +20,7 @@ settings_schema = Schema({
         'night': And(Or(int, float), field_range(night_min)),
         'day': And(Or(int, float), field_range(day_min)),
         'poll': And(Or(int, float), field_range(poll_min)),
-        'vote': And(Or(int, float), field_range(vote_min)),
+        'vote': And(Or(int, float), field_range(vote_min)),  #
     },
     'players': {
         'max': And(int, field_range(min_players)),
@@ -37,8 +37,9 @@ settings_schema = Schema({
         'show_private_night_actions': bool,
         'last_words': bool,
         'commissioner_can_kill': bool,
-        'show_live_roles': Or('show', 'partially', 'hide'),
-        'show_message_on_vote': Or('show', 'partially', 'hide'),
+        'lynching_confirmation': bool,
+        'show_live_roles': Or(*DisplayType.values()),
+        'show_message_on_vote': Or(*DisplayType.values()),
     },
     'roles': {
         'maf': {
@@ -56,7 +57,7 @@ settings_schema = Schema({
             'enable': bool,
             'n': And(Or(int, float), field_range(min_role_n))
         },
-        'shr': {
+        'srg': {
             'enable': bool,
             'n': And(Or(int, float), field_range(min_role_n))
         },

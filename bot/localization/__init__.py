@@ -1,7 +1,7 @@
 import os
 import json
 
-from bot.localization.Localization import Localization
+from bot.localization.Schema.Localization import Localization
 
 __translations: dict[str, Localization] = {}
 
