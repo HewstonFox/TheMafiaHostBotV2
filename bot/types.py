@@ -1,6 +1,6 @@
 import asyncio
 import inspect
-from typing import Union, TypedDict, Callable
+from typing import Union, TypedDict, Callable, Any
 
 from aiogram.types import LoginUrl, CallbackGame, User
 
@@ -23,10 +23,10 @@ class Proxy(dict):
         super(Proxy, self).__init__(seq, **kwargs)
         self.__subscribers = []
 
-    def subscribe(self, *subscribers: Callable[['Proxy'], any]):
+    def subscribe(self, *subscribers: Callable[['Proxy'], Any]):
         self.__subscribers.extend(subscribers)
 
-    def unsubscribe(self, *subscribers: Callable[[dict], any]):
+    def unsubscribe(self, *subscribers: Callable[[dict], Any]):
         for subscriber in self.__subscribers[:]:
             if subscriber in subscribers:
                 self.__subscribers.remove(subscriber)
