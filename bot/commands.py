@@ -1,8 +1,7 @@
 import asyncio
 
 from aiogram import Dispatcher
-from aiogram.types import BotCommand, BotCommandScopeType, BotCommandScopeAllPrivateChats, BotCommandScopeAllGroupChats, \
-    BotCommandScope
+from aiogram.types import BotCommand, BotCommandScopeType, BotCommandScope
 
 from bot.localization import Localization, get_default_translation, get_all_translations
 
@@ -27,8 +26,8 @@ def get_group_commands_list(t: Localization):
     ]
 
 
-AllPrivateChats = BotCommandScope.from_type(BotCommandScopeType.ALL_PRIVATE_CHATS)
-AllGroupChats = BotCommandScope.from_type(BotCommandScopeType.ALL_GROUP_CHATS)
+AllPrivateChats = BotCommandScope.from_type(str(BotCommandScopeType.ALL_PRIVATE_CHATS))
+AllGroupChats = BotCommandScope.from_type(str(BotCommandScopeType.ALL_GROUP_CHATS))
 
 
 async def set_commands_list(dp: Dispatcher):
