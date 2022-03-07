@@ -14,4 +14,4 @@ class LTeams(DataclassFromDict):
     civ: LTeam = field_from_dict()
     mnc: LTeam = field_from_dict()
     scd: LTeam = field_from_dict()
-    BOTH: LTeam = field_from_dict()
+    both: LTeam = field_from_dict()
