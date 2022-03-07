@@ -54,7 +54,7 @@
     },
     "nothing_to_stop": "Нечего останавливать",
     "nothing_to_reduce": "Нечего уменьшать",
-    "nothing_to_extend": "Нечего увиличивать",
+    "nothing_to_extend": "Нечего увеличивать",
     "preset_applied": "Предустановка <code>{}</code> успешно применена.",
     "settings_apply_success": "Понял, принял!",
     "settings_apply_failure": "Кажется формат настроек не верен, подробнее:\n<code>{}</code>",

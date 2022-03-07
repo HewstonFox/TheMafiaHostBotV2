@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Callable, Union
+from typing import Callable, Union, Any
 
 from aiogram.types import Message, CallbackQuery, ChatMemberStatus
 from aiogram.utils.exceptions import BadRequest
@@ -11,7 +11,7 @@ from bot.controllers.SessionController.types import SessionStatus
 from bot.localization import Localization, get_translation, get_default_translation_index
 
 
-def with_locale(func: Callable[[Union[Message, CallbackQuery], Localization, ...], any]) -> Callable:
+def with_locale(func: Callable[[Union[Message, CallbackQuery], Localization, ...], Any]) -> Callable:
     """func(*args, **kwargs)"""
 
     @wraps(func)
@@ -21,7 +21,7 @@ def with_locale(func: Callable[[Union[Message, CallbackQuery], Localization, ...
     return wrapper
 
 
-def with_session(func: Callable[[Union[Message, CallbackQuery], Session, ...], any]) -> Callable:
+def with_session(func: Callable[[Union[Message, CallbackQuery], Session, ...], Any]) -> Callable:
     """func(*args, **kwargs)"""
 
     @wraps(func)
@@ -65,7 +65,7 @@ def with_session(func: Callable[[Union[Message, CallbackQuery], Session, ...], a
     return wrapper
 
 
-def clean_command(func: Callable[[Message, ...], any]) -> Callable:
+def clean_command(func: Callable[[Message, ...], Any]) -> Callable:
     """func(*args, **kwargs)"""
 
     @wraps(func)

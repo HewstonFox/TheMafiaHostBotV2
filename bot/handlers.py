@@ -38,6 +38,8 @@ async def error_handler(update: Update, error: BadRequest):
         )
         try:
             session = SessionController.get_session(update.message.chat.id)
+            if not session: 
+                raise KeyError
             lnk = create_session_link(session)
             print(json.dumps(session.get_dump(), indent=2, default=lambda x: x.get_dump()))
             await dp.bot.send_message(
