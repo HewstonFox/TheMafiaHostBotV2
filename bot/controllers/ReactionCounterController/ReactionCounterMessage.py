@@ -56,12 +56,9 @@ class ReactionCounterMessage(DispatcherProvider):
 
         if current_reaction == reaction:
             reactions[current_reaction] = list(filter(lambda m: m.id != user.id, reactions[reaction]))
-            return
-
-        if self.multiply or not current_reaction:
-            reactions[reaction] = reactions[reaction] + [user]
-            return
-
-        # optimization: append operation will not trigger proxy subscribers, it is need to update message once
-        reactions[reaction].append(user)
-        reactions[current_reaction] = list(filter(lambda m: m.id != user.id, reactions[reaction]))
+        elif self.multiply or not current_reaction:
+            reactions[reaction] = [*reactions[reaction], user]
+        else:
+            # optimization: append operation will not trigger proxy subscribers, it is needed to update message once
+            reactions[reaction].append(user)
+            reactions[current_reaction] = list(filter(lambda m: m.id != user.id, reactions[current_reaction]))
