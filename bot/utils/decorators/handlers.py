@@ -1,7 +1,7 @@
 from functools import wraps
 from typing import Callable, Union
 
-from aiogram.types import Message, CallbackQuery, ChatMemberStatus
+from aiogram.types import Message, CallbackQuery, ChatMemberStatus, ChatInviteLink
 from aiogram.utils.exceptions import BadRequest
 
 from bot.controllers.SessionController.Session import Session
@@ -36,17 +36,25 @@ def with_session(func: Callable[[Union[Message, CallbackQuery], Session, ...], a
             session = await Session.create(
                 chat_id=chat.id,
                 name=chat.full_name,
-                invite_url=chat.invite_link,
+                invite_url='',
                 status=SessionStatus.pending,
                 settings=Settings(lang=msg.from_user.language_code or get_default_translation_index()).values
             )
 
-        if any((chat.full_name != session.name, not chat.invite_link, chat.invite_link != session.invite_url)):
+        should_update = False
+        if chat.full_name != session.name:
             session.name = chat.full_name
+            should_update = True
+
+        if session.invite_url:
             try:
-                session.invite_url = await chat.export_invite_link()
+                await chat.revoke_invite_link(session.invite_url)
+                session.invite_url = (await chat.create_invite_link()).invite_link
             except BadRequest:
                 session.invite_url = ''
+            should_update = True
+
+        if should_update:
             session.update()
 
         session.bot = msg.bot
