@@ -1,3 +1,5 @@
+from typing import Union
+
 from aiogram import Bot
 
 from bot.utils.decorators.bot_instance import message_retry, soft_error
@@ -51,3 +53,7 @@ class RetryBot(Bot):
     @message_retry
     async def restrict_chat_member(self, *args, **kwargs):
         return await super(RetryBot, self).restrict_chat_member(*args, **kwargs)
+
+    @message_retry
+    async def export_chat_invite_link(self, *args, **kwargs):
+        return await super(RetryBot, self).export_chat_invite_link(*args, **kwargs)
