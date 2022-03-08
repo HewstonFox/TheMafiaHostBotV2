@@ -1,5 +1,6 @@
 import asyncio
 from asyncio import sleep
+from pprint import pprint
 
 from aiogram.types import ChatActions, Message
 from aiogram.utils.exceptions import BadRequest
@@ -223,6 +224,8 @@ class GameController(DispatcherProvider):
             )
             await sleep(session.settings.values['time']['vote'])
             await ReactionCounterController.stop_reaction_counter(reaction_counter=vote_msg)
+
+            pprint(vote_msg.reactions)
 
             if session.status != SessionStatus.game:
                 return

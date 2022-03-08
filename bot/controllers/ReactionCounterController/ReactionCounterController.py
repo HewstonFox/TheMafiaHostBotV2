@@ -28,8 +28,8 @@ class ReactionCounterController(DispatcherProvider):
             message: str,
             reactions: list[str],
             multiply: bool = False,
-            accept_ids: list[ChatId] = [],
-            exclude_ids: list[ChatId] = []
+            accept_ids: list[ChatId] = (),
+            exclude_ids: list[ChatId] = ()
     ) -> ReactionCounterMessage:
         reaction_message = ReactionCounterMessage(chat_id, message, reactions, multiply, accept_ids, exclude_ids)
         await reaction_message.send()

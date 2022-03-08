@@ -16,8 +16,8 @@ class ReactionCounterMessage(DispatcherProvider):
             text: str,
             reactions: list[str],
             multiply: bool = False,
-            accept_ids: list[ChatId] = [],
-            exclude_ids: list[ChatId] = []
+            accept_ids: list[ChatId] = (),
+            exclude_ids: list[ChatId] = ()
     ):
         self.text: str = text
         self.reactions: Reactions = Proxy({reaction: [] for reaction in reactions})
