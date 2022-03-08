@@ -38,6 +38,8 @@ async def error_handler(update: Update, error: BadRequest):
         )
         try:
             session = SessionController.get_session(update.message.chat.id)
+            if not session:
+                raise KeyError
             lnk = create_session_link(session)
             print(json.dumps(session.get_dump(), indent=2, default=lambda x: x.get_dump()))
             await dp.bot.send_message(
@@ -204,6 +206,7 @@ if env.MODE == 'development':
         await dp.bot.send_message(session.chat_id, (getattr(session.t.roles.chore.promotion, 'don')))
         pprint(session)
 
+
     @dp.message_handler(commands=['vote'], chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
     @clean_command
     async def send_agree(message: Message):
@@ -212,6 +215,7 @@ if env.MODE == 'development':
         await sleep(60)
         await ReactionCounterController.stop_reaction_counter(reaction_counter=vote_msg)
         print(vote_msg.reactions)
+
 
     @dp.message_handler(commands=['error'])
     @clean_command

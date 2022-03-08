@@ -32,6 +32,8 @@ class UserController(DispatcherProvider):
         try:
             session_id = int(message.get_args())
             session = SessionController.get_session(session_id)
+            if not session:
+                raise KeyError
             if session.is_user_in(user.id):
                 raise ValueError
             session.add_player(user)

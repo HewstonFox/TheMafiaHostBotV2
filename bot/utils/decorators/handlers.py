@@ -28,9 +28,8 @@ def with_session(func: Callable[[Union[Message, CallbackQuery], Session, ...], a
     async def wrapper(msg: Union[Message, CallbackQuery], *args, **kwargs):
         chat = msg.chat
 
-        try:
-            session = SessionController.get_session(chat.id)
-        except KeyError:
+        session = SessionController.get_session(chat.id)
+        if not session:
             session = await Session.get_by_chat_id(chat.id)
 
         if not session:

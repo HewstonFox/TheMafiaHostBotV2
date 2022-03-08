@@ -382,7 +382,7 @@ class GameController(DispatcherProvider):
     async def force_start(cls, session: Session):
         t = session.t
         chat_id = session.chat_id
-        if session.status != SessionStatus.registration:
+        if session.status != SessionStatus.registration or not SessionController.get_session(chat_id):
             await MessageController.send_nothing_to_skip(chat_id, t)
             return
 
