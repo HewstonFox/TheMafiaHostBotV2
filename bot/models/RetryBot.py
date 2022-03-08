@@ -67,3 +67,7 @@ class RetryBot(Bot):
     @message_retry
     async def edit_chat_invite_link(self, *args, **kwargs):
         return await super(RetryBot, self).edit_chat_invite_link(*args, **kwargs)
+
+    @message_retry
+    async def get_chat_administrators(self, *args, **kwargs):
+        return await super(RetryBot, self).get_chat_administrators(*args, **kwargs)
