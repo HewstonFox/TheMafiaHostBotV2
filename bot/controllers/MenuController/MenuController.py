@@ -1,7 +1,7 @@
 from typing import Callable, Any, Union, List
 
 from aiogram.types import CallbackQuery, Message
-from aiogram.utils.exceptions import MessageToEditNotFound, MessageNotModified
+from aiogram.utils.exceptions import MessageToEditNotFound, MessageNotModified, MessageIdInvalid
 
 from bot.controllers import DispatcherProvider
 from bot.controllers.MenuController.types import MessageMenu, MessageMenuButton, ButtonType, MessageMenuButtonOption
@@ -246,7 +246,7 @@ class MenuController(DispatcherProvider):
             res = await session['msg'].edit_text(**params)
             if is_error(res):
                 raise res
-        except (MessageToEditNotFound, AttributeError):
+        except (MessageToEditNotFound, AttributeError, MessageIdInvalid):
             session['msg'] = await cls.dp.bot.send_message(chat_id, **params)
         except MessageNotModified:
             pass
