@@ -1,7 +1,7 @@
 from typing import Callable, Any, Union, List
 
 from aiogram.types import CallbackQuery, Message
-from aiogram.utils.exceptions import MessageToEditNotFound, MessageNotModified
+from aiogram.utils.exceptions import MessageToEditNotFound, MessageNotModified, MessageIdInvalid
 
 from bot.controllers import DispatcherProvider
 from bot.controllers.MenuController.types import MessageMenu, MessageMenuButton, ButtonType, MessageMenuButtonOption
@@ -155,8 +155,11 @@ class MenuController(DispatcherProvider):
     @classmethod
     async def back(cls, chat_id):
         session = cls.__sessions[chat_id]
-        session['current'] = session['parents'].pop()
-        await cls.render(chat_id)
+        try:
+            session['current'] = session['parents'].pop()
+            await cls.render(chat_id)
+        except IndexError:
+            await cls.close(chat_id)
 
     @classmethod
     async def mutator(cls, chat_id: ChatId, i: int, meta: List[str], query: CallbackQuery):
@@ -243,7 +246,7 @@ class MenuController(DispatcherProvider):
             res = await session['msg'].edit_text(**params)
             if is_error(res):
                 raise res
-        except (MessageToEditNotFound, AttributeError):
+        except (MessageToEditNotFound, AttributeError, MessageIdInvalid):
             session['msg'] = await cls.dp.bot.send_message(chat_id, **params)
         except MessageNotModified:
             pass

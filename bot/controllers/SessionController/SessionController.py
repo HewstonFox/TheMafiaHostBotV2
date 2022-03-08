@@ -28,18 +28,22 @@ class SessionController(DispatcherProvider):
 
     @classmethod
     def get_session(cls, chat_id: ChatId) -> Union[Session, None]:
-        return cls.__sessions[chat_id]
+        try:
+            return cls.__sessions[chat_id]
+        except KeyError:
+            return None
 
     @classmethod
     def kill_session(cls, chat_id: ChatId):
         try:
             session = cls.get_session(chat_id)
+            if not session:
+                raise KeyError
+            del cls.__sessions[chat_id]
+            session.status = SessionStatus.pending
+            return session
         except KeyError:
             return
-        if session:
-            del cls.__sessions[chat_id]
-        session.status = SessionStatus.pending
-        return session
 
     @classmethod
     def is_active_session(cls, chat_id: ChatId):

@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-
 from dict_to_dataclass import DataclassFromDict, field_from_dict
 
 

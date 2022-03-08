@@ -1,7 +1,7 @@
 import asyncio
 from typing import List, Tuple, Union, Callable, Awaitable
 from bot.bot import dp
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, ContentType, User
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, ContentType
 
 from bot.types import MarkupKeyboardDict, ChatId, RoleMeta
 from bot.utils.shared import async_wait
@@ -35,7 +35,7 @@ async def attach_last_words(
     return handler
 
 
-async def attach_mafia_chat(mafias: list[RoleMeta], spies: list[RoleMeta] = []):
+async def attach_mafia_chat(mafias: list[RoleMeta], spies: list[RoleMeta] = ()):
     mafia_dict = {maf.user.id: maf for maf in mafias}
 
     async def handler(msg: Message):
