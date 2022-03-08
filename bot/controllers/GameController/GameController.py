@@ -393,7 +393,7 @@ class GameController(DispatcherProvider):
         chat_id = session.chat_id
         t = session.t
         if session.status != SessionStatus.registration:
-            if sign:
+            if sign > 0:
                 await MessageController.send_nothing_to_extend(chat_id, t)
             else:
                 await MessageController.send_nothing_to_reduce(chat_id, t)
