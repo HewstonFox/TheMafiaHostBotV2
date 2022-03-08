@@ -114,11 +114,11 @@ class MessageController(DispatcherProvider):
 
     @classmethod
     async def send_nothing_to_reduce(cls, chat_id: ChatId, t: Localization):
-        return await cls.dp.bot.send_message(chat_id, t.group.nothing_to_stop)
+        return await cls.dp.bot.send_message(chat_id, t.group.nothing_to_reduce)
 
     @classmethod
     async def send_nothing_to_extend(cls, chat_id: ChatId, t: Localization):
-        return await cls.dp.bot.send_message(chat_id, t.group.nothing_to_stop)
+        return await cls.dp.bot.send_message(chat_id, t.group.nothing_to_extend)
 
     @classmethod
     async def send_user_connected_to_game(cls, chat_id: ChatId, t: Localization, session_name: str):
