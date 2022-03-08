@@ -31,6 +31,8 @@ def with_session(func: Callable[[Union[Message, CallbackQuery], Session, ...], a
         session = SessionController.get_session(chat.id)
         if not session:
             session = await Session.get_by_chat_id(chat.id)
+            if session and session.status != SessionStatus.pending:
+                session.status = SessionStatus.pending
 
         if not session:
             session = await Session.create(
@@ -42,6 +44,7 @@ def with_session(func: Callable[[Union[Message, CallbackQuery], Session, ...], a
             )
 
         should_update = False
+
         if chat.full_name != session.name:
             session.name = chat.full_name
             should_update = True
