@@ -2,7 +2,7 @@
   "language": "English",
   "private": {
     "start": "Hello, I'm the host of the <b>Mafia</b> game",
-    "help": "Help button text",
+    "help": "I'm a bot for playing <b>Mafia</b> in Telegram\n\nClick <code>More</code> to know how it works\n\nIf you find a bug or want to provide feedback, please contact @Hewston.",
     "more_description": "Description",
     "user_connected": "You connected to mafia game in {}",
     "user_left": "You left from mafia game in {}",
@@ -204,7 +204,7 @@
         }
       }
     },
-    "start": "Hi, I`m a bot for playing <b>Mafia</b> game in Telegram. Please make sure I have all admin rights, I need them for correct work. You can also read full information about me <a href='{}'>here</a>",
+    "start": "Hi, I`m a bot for playing <b>Mafia</b> game in Telegram. Please make sure I have all admin rights, I need them for correct work. You can also read full information about me <a href='{}'>here</a>\n\nIn case of any problems contact @Hewston",
     "telegraph_url": "https://telegra.ph/The-Mafia-Host-Bot-Tutorial-10-15",
     "help": "Hi, you can read about all my features <a href='{}'>here</a>"
   },

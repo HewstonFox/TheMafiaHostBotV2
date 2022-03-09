@@ -77,7 +77,7 @@ async def private_start_handler(message: Message, t: Localization, *_, **__):
 @clean_command
 @with_locale
 async def private_help_handler(message: Message, t: Localization, *_, **__):
-    await MessageController.send_private_start_message(message.chat.id, t)
+    await MessageController.send_private_help_message(message.chat.id, t)
 
 
 @throttle_message_handler(filters.CommandHelp(), chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
