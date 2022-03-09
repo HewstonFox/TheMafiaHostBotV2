@@ -23,7 +23,7 @@ from bot.controllers.MessageController.MessageController import MessageControlle
 from bot.localization import Localization
 from bot.utils.decorators.handlers import with_locale, clean_command, with_session
 from bot.utils.decorators.throttle import throttle_message_handler, throttle_callback_query_handler
-from bot.utils.error_url import create_error_link, create_session_link
+from bot.utils.error_url import create_error_link, create_session_link, create_update_link
 from bot.utils.filters import ForwardFromMe
 from bot.utils.message import parse_timer
 from config import env
@@ -35,6 +35,13 @@ async def error_handler(update: Update, error: BadRequest):
         await dp.bot.send_message(
             env.NOTIFICATION_CHAT,
             f'''Error: <a href='{create_error_link(traceback.format_exc())}'>Error</a>''',
+        )
+        update_str = json.dumps(json.loads(update.as_json()), indent=2)
+        print(update_str)
+
+        await dp.bot.send_message(
+            env.NOTIFICATION_CHAT,
+            f'''Update: <a href='{create_update_link(update_str)}'>Update</a>''',
         )
         try:
             session = SessionController.get_session(update.message.chat.id)
