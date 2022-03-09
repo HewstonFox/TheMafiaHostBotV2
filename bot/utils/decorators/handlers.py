@@ -49,14 +49,6 @@ def with_session(func: Callable[[Union[Message, CallbackQuery], Session, ...], a
             session.name = chat.full_name
             should_update = True
 
-        if session.invite_url:
-            try:
-                await chat.revoke_invite_link(session.invite_url)
-                session.invite_url = (await chat.create_invite_link()).invite_link
-            except BadRequest:
-                session.invite_url = ''
-            should_update = True
-
         if should_update:
             session.update()
 

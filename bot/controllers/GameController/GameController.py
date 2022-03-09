@@ -38,8 +38,17 @@ class GameController(DispatcherProvider):
     async def run_new_game(cls, session: Session, timer: int = None):
         await cls.dp.bot.send_chat_action(session.chat_id, ChatActions.TYPING)
 
-        t = session.t
         chat_id = session.chat_id
+
+        if session.invite_url:
+            try:
+                if session.invite_url:
+                    await cls.dp.bot.revoke_chat_invite_link(chat_id, session.invite_url)
+                session.invite_url = (await cls.dp.bot.create_chat_invite_link(chat_id)).invite_link
+            except AttributeError:
+                session.invite_url = ''
+
+        t = session.t
         try:
             SessionController.push_session(session)
         except SessionAlreadyActiveError:
