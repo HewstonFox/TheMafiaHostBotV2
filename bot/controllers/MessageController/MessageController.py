@@ -19,6 +19,10 @@ class MessageController(DispatcherProvider):
             await cls.dp.bot.delete_message(chat_id, msg_id)
 
     @classmethod
+    async def send_bot_stopped(cls, chat_id: ChatId, t: Localization):
+        return await cls.dp.bot.send_message(chat_id, t.group.bot_stopped)
+
+    @classmethod
     async def send_group_start_message(cls, chat_id: ChatId, t: Localization):
         return await cls.dp.bot.send_message(chat_id, t.group.start.format(t.group.telegraph_url))
 

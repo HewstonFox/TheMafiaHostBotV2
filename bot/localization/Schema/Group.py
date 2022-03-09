@@ -202,3 +202,4 @@ class LGroup(DataclassFromDict):
     start: str = _()
     help: str = _()
     telegraph_url: str = _()
+    bot_stopped: str = _()

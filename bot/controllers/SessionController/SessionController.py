@@ -1,5 +1,7 @@
 from typing import Union
 
+from aiogram import Dispatcher
+
 from bot.controllers import DispatcherProvider
 from bot.controllers.MessageController.MessageController import MessageController
 from bot.controllers.SessionController.Session import Session
@@ -57,3 +59,10 @@ class SessionController(DispatcherProvider):
 
         session.remove_player(user_id)
         await MessageController.send_user_left_game(user_id, session.t, session.name)
+
+    @classmethod
+    async def notify_shutdown(cls, dp: Dispatcher):
+        for session in cls.__sessions.values():
+            if session.status == SessionStatus.pending:
+                continue
+            await MessageController.send_bot_stopped(session.chat_id, session.t)

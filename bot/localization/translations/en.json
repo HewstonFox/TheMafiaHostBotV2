@@ -206,7 +206,8 @@
     },
     "start": "Hi, I`m a bot for playing <b>Mafia</b> game in Telegram. Please make sure I have all admin rights, I need them for correct work. You can also read full information about me <a href='{}'>here</a>\n\nIn case of any problems contact @Hewston",
     "telegraph_url": "https://telegra.ph/The-Mafia-Host-Bot-Tutorial-10-15",
-    "help": "Hi, you can read about all my features <a href='{}'>here</a>"
+    "help": "Hi, you can read about all my features <a href='{}'>here</a>",
+    "bot_stopped": "I am disconnected, most likely for an update. Will be available soon (5-10 sec).\nIf you have any questions please contact @Hewston"
   },
   "callback_query": {
     "session": {
