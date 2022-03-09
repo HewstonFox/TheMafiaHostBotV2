@@ -27,6 +27,10 @@ class MessageController(DispatcherProvider):
         return await cls.dp.bot.send_message(chat_id, t.private.start, reply_markup=buttons.more(t))
 
     @classmethod
+    async def send_private_help_message(cls, chat_id: ChatId, t: Localization):
+        return await cls.dp.bot.send_message(chat_id, t.private.help, reply_markup=buttons.more(t))
+
+    @classmethod
     async def send_private_more(cls, chat_id: ChatId, t: Localization):
         return await cls.dp.bot.send_message(chat_id, t.private.more_description)
 
