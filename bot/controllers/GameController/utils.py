@@ -2,6 +2,9 @@ import asyncio
 from random import shuffle
 from typing import Optional, Iterable, Callable, Any, Awaitable, Union
 
+from aiogram.types import User
+from aiogram.utils.exceptions import Unauthorized
+
 from bot.controllers.ActionController.ActionController import ActionController
 from bot.controllers.ActionController.Actions.VoteAction import MafiaKillVoteAction, VoteAction
 from bot.controllers.ActionController.types import VoteFailReason
@@ -47,8 +50,16 @@ def attach_roles(session: Session):
         index += 1
 
 
+async def private_message_error_wrapper(task: Awaitable, session: Session, user: User):
+    try:
+        return await task
+    except Unauthorized:
+        session.remove_player(user.id)
+
+
 async def greet_roles(session: Session):
-    await asyncio.wait([role.greet() for role in session.roles.values()])
+    await asyncio.wait(
+        [private_message_error_wrapper(role.greet(), session, role.user) for role in session.roles.values()])
 
 
 async def send_roles_vote(session: Session):
@@ -151,14 +162,16 @@ async def send_game_phase(session: Session, cross_pipeline_store: dict):
 
 
 async def send_roles_actions(session: Session):
-    await asyncio.wait([role.send_action() for role in session.roles.values() if role.alive])
+    await asyncio.wait(
+        [private_message_error_wrapper(role.send_action(), session, role.user) for role in session.roles.values() if
+         role.alive])
 
 
 async def promote_roles_if_need(roles: RolesList):
     for role in [role for role in roles.values() if role.alive]:
         if (cap := get_cap(type(role))) and not any(isinstance(r, cap) for r in roles.values() if r.alive):
             roles[role.user.id] = cap(role.user, role.session, role.index)
-            await roles[role.user.id].send_promotion()
+            await private_message_error_wrapper(roles[role.user.id].send_promotion(), role.session, role.user)
 
 
 async def apply_actions(session: Session, store: dict):

@@ -41,6 +41,8 @@ class MenuController(DispatcherProvider):
 
         cls.__sessions[chat_id] = session_data
         await cls.render(chat_id)
+        if is_error(session_data['msg']):
+            raise session_data['msg']
         await session_data['msg'].pin()
 
     @classmethod
