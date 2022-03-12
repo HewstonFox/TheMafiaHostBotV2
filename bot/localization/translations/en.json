@@ -331,7 +331,7 @@
       "name": "Call girl",
       "greeting": "You are Call girl today.\nEvery night, when you go hunting, you can lure someone into your apartment. Distract them with yourself, it could save someone's life... or vice versa...",
       "effect": "Choose who you will come to tonight.",
-      "global_effect": "Call girl found a place to stay...",
+      "global_effect": "Call girl found a target...",
       "affect": "You spent your night with call girl"
     },
     "chore": {
