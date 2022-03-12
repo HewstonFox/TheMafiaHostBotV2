@@ -16,7 +16,11 @@ class Civil(Incognito):
 
     async def send_action(self):
         async with ClientSession() as session:
+            retry_count = 10
             while True:
+                if retry_count <= 0:
+                    return
+                retry_count -= 1
                 try:
                     response = await session.get(choice((env.RANDOM_CAT_API_URL, env.RANDOM_DOG_API_URL)))
                     data = await response.json()
