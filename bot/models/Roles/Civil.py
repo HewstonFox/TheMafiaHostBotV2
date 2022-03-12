@@ -1,6 +1,6 @@
 from random import choice
 
-from aiohttp import ClientSession
+from aiohttp import ClientSession, ClientConnectorError
 
 from bot.models.Roles.BaseRole import BaseRole
 from bot.models.Roles.Incognito import Incognito
@@ -17,8 +17,11 @@ class Civil(Incognito):
     async def send_action(self):
         async with ClientSession() as session:
             while True:
-                response = await session.get(choice((env.RANDOM_CAT_API_URL, env.RANDOM_DOG_API_URL)))
-                data = await response.json()
+                try:
+                    response = await session.get(choice((env.RANDOM_CAT_API_URL, env.RANDOM_DOG_API_URL)))
+                    data = await response.json()
+                except ClientConnectorError:
+                    continue
                 image_url: str = data[0]['url']
                 lower_image_url = image_url.lower()
                 if not lower_image_url.endswith('webm'):
