@@ -184,7 +184,8 @@ class MessageController(DispatcherProvider):
     @classmethod
     async def send_player_left_game(cls, chat_id: ChatId, t: Localization, role: RoleMeta, display_role: bool):
         text = t.group.game.player_left_game_extended if display_role else t.group.game.player_left_game
-        return await cls.dp.bot.send_message(chat_id, text.format(role.user.get_mention(), role.shortcut))
+        return await cls.dp.bot.send_message(chat_id,
+                                             text.format(role.user.get_mention(), get_role_name(role.shortcut, t)))
 
     @classmethod
     async def send_actor_chose_victim(cls, chat_id: ChatId, t: Localization, actor: str, victim: str):
