@@ -71,8 +71,9 @@ async def send_roles_vote(session: Session):
 def get_session_winner(alive: list[Union[BaseRole, RoleMeta]]) -> Optional[str]:
     if (alive_count := len(alive)) > 2:
         angry_roles = [role for role in alive if role.is_angry]
-        if not len(angry_roles):
+        if len(angry_roles) == 0:
             return Team.civ
+
         mafia_count = len([mafia for mafia in angry_roles if isinstance(mafia, Mafia)])
         if mafia_count >= (alive_count - mafia_count):
             return Team.maf
@@ -185,7 +186,7 @@ async def attach_mafia_chat(session: Session):
     if not session.settings.values['game']['allow_mafia_chat']:
         return
 
-    session.mafia_chat_handler = await amc([role for role in session.roles.values() if isinstance(role, Mafia)])
+    session.mafia_chat_handler = await amc([role for role in session.roles.values() if role.team == Team.maf])
 
 
 async def resolve_failure_votes(session: Session, failure_votes: dict[VoteAction, Optional[VoteFailReason]]):
