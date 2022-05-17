@@ -36,6 +36,7 @@ class BaseRole(
 ):
     shortcut: str = 'base'
     team: str = ''
+    is_angry: bool = False
 
     def __init__(self, user: User, session: Session, index: int = 0):
         self.action: Optional['BaseAction'] = None

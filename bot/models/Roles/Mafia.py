@@ -11,6 +11,7 @@ from bot.utils.roles import get_players_list_menu
 class Mafia(Incognito):
     shortcut = 'maf'
     team = Team.maf
+    is_angry = True
 
     @is_active_session
     async def affect(self, other: ChatId, key=None):
