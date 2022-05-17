@@ -261,7 +261,7 @@
       "name": "Bum",
       "greeting": "You are Bum today.\nEvery night you can spy on someone. Can you see someone you know? Or even murder?",
       "effect": "Choose somebody to spy tonight.",
-      "global_effect": "Bum bought a new bottle of beer...",
+      "global_effect": "Bum went to buy another bottle of beer...",
       "affect": ""
     },
     "com": {
