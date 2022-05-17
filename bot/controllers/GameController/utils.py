@@ -70,28 +70,32 @@ async def send_roles_vote(session: Session):
 
 def get_session_winner(alive: list[Union[BaseRole, RoleMeta]]) -> Optional[str]:
     if (alive_count := len(alive)) > 2:
-        mafia_count = len([mafia for mafia in alive if isinstance(mafia, Mafia)])
-        if not mafia_count:
+        angry_roles = [role for role in alive if role.is_angry]
+        if len(angry_roles) == 0:
             return Team.civ
-        peace_count = alive_count - mafia_count
-        if mafia_count >= peace_count:
+
+        mafia_count = len([mafia for mafia in angry_roles if isinstance(mafia, Mafia)])
+        if mafia_count >= (alive_count - mafia_count):
             return Team.maf
     elif alive_count == 1:
         return alive[0].team
     elif alive_count == 0:
         return Team.BOTH
     else:
-        danger_roles = Mafia, Don, Maniac
         a, b = alive
-        type_a = type(a)
-        type_b = type(b)
-        is_danger_a = type_a in danger_roles
-        is_danger_b = type_b in danger_roles
         if a.team == b.team == Team.civ:
+            return Team.civ
+        if a.team == b.team == Team.maf:
+            return Team.maf
+        if a.is_angry and b.is_angry:
+            return Team.BOTH
+        if isinstance(a, Commissioner) or isinstance(b, Commissioner):
+            return Team.BOTH
+        if a.is_angry:
             return a.team
-        elif is_danger_a != is_danger_b and Commissioner not in (type_a, type_b):
-            return a.team if is_danger_a else b.team
-        return Mafia.team if a.team == b.team == Team.maf else Team.BOTH
+        if b.is_angry:
+            return b.team
+        return Team.civ
 
 
 def get_result_config(session: Session) -> ResultConfig:
@@ -182,7 +186,7 @@ async def attach_mafia_chat(session: Session):
     if not session.settings.values['game']['allow_mafia_chat']:
         return
 
-    session.mafia_chat_handler = await amc([role for role in session.roles.values() if isinstance(role, Mafia)])
+    session.mafia_chat_handler = await amc([role for role in session.roles.values() if role.team == Team.maf])
 
 
 async def resolve_failure_votes(session: Session, failure_votes: dict[VoteAction, Optional[VoteFailReason]]):

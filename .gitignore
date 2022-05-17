@@ -11,3 +11,5 @@ credentials
 .env.develop
 /env_activator.ps1
 scratch.py
+
+deploy/

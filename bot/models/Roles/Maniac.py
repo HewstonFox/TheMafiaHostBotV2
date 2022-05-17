@@ -10,6 +10,7 @@ from bot.utils.roles import get_players_list_menu
 class Maniac(Incognito):
     shortcut = 'mnc'
     team = Team.mnc
+    is_angry = True
 
     @is_active_session
     async def affect(self, other: ChatId, key=None):
