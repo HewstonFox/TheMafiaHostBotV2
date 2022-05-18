@@ -14,9 +14,7 @@ from bot.controllers.SessionController.types import SessionStatus, RolesList
 from bot.models.Roles import Roles, get_cap, Incognito, BaseRole
 from bot.models.Roles.Civil import Civil
 from bot.models.Roles.Commissioner import Commissioner
-from bot.models.Roles.Don import Don
 from bot.models.Roles.Mafia import Mafia
-from bot.models.Roles.Maniac import Maniac
 from bot.models.Roles.constants import Team
 from bot.types import ResultConfig, RoleMeta
 from bot.utils.message import attach_mafia_chat as amc
@@ -74,7 +72,7 @@ def get_session_winner(alive: list[Union[BaseRole, RoleMeta]]) -> Optional[str]:
         if len(angry_roles) == 0:
             return Team.civ
 
-        mafia_count = len([mafia for mafia in angry_roles if isinstance(mafia, Mafia)])
+        mafia_count = len([role for role in alive if role.team == Team.maf])
         if mafia_count >= (alive_count - mafia_count):
             return Team.maf
     elif alive_count == 1:
