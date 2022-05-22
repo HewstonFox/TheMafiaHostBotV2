@@ -63,7 +63,7 @@ class GameController(DispatcherProvider):
             msg = await MessageController.send_registration_start(chat_id, t, ', '.join(
                 map(lambda x: x.get_mention(), session.players.values())))
             to_clean_msg.insert(0, msg.message_id)
-            await msg.pin(False)
+            await msg.pin()
 
         await send_connect_message()
 
