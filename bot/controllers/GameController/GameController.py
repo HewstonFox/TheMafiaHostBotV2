@@ -40,13 +40,12 @@ class GameController(DispatcherProvider):
 
         chat_id = session.chat_id
 
-        if session.invite_url:
-            try:
-                if session.invite_url:
-                    await cls.dp.bot.revoke_chat_invite_link(chat_id, session.invite_url)
-                session.invite_url = (await cls.dp.bot.create_chat_invite_link(chat_id)).invite_link
-            except AttributeError:
-                session.invite_url = ''
+        try:
+            if session.invite_url:
+                await cls.dp.bot.revoke_chat_invite_link(chat_id, session.invite_url)
+            session.invite_url = (await cls.dp.bot.create_chat_invite_link(chat_id)).invite_link
+        except AttributeError:
+            session.invite_url = ''
 
         t = session.t
         try:
@@ -64,7 +63,7 @@ class GameController(DispatcherProvider):
             msg = await MessageController.send_registration_start(chat_id, t, ', '.join(
                 map(lambda x: x.get_mention(), session.players.values())))
             to_clean_msg.insert(0, msg.message_id)
-            await cls.dp.bot.pin_chat_message(chat_id, msg.message_id, True)
+            await msg.pin(False)
 
         await send_connect_message()
 
@@ -85,9 +84,12 @@ class GameController(DispatcherProvider):
         while session.timer > 0:
             if session.status != SessionStatus.registration:
                 break
-            await sleep(1)
+
             session.timer -= 1
-            if not session.timer % 30 and session.timer > 0:
+            if 0 < session.timer <= 5:
+                m = await cls.dp.bot.send_message(chat_id, str(session.timer))
+                to_clean_msg.append(m.message_id)
+            elif not session.timer % 30 and session.timer > 0:
                 try:
                     m = await MessageController.send_registration_reminder(chat_id, t, session.timer, to_clean_msg[0])
                     if is_error(m):
@@ -96,11 +98,20 @@ class GameController(DispatcherProvider):
                 except BadRequest:
                     await send_connect_message()
 
-            if 0 < session.timer <= 5:
-                m = await cls.dp.bot.send_message(chat_id, str(session.timer))
-                to_clean_msg.append(m.message_id)
+            await sleep(1)
+
+        await cls.dp.bot.unpin_chat_message(chat_id, to_clean_msg[0])
+        await MessageController.cleanup_messages(chat_id, to_clean_msg)
 
         session.players.unsubscribe(player_subscriber)
+
+        if session.status != SessionStatus.registration:
+            return
+
+        if len(session.players) < session.settings.values['players']['min']:
+            await MessageController.send_not_enough_players(chat_id, session.t)
+            SessionController.kill_session(chat_id)
+            return
 
         async def in_game_disconnection_subscriber(players):
             roles = session.roles
@@ -110,15 +121,7 @@ class GameController(DispatcherProvider):
 
         session.players.subscribe(in_game_disconnection_subscriber)
 
-        await cls.dp.bot.unpin_chat_message(chat_id, to_clean_msg[0])
-        await MessageController.cleanup_messages(chat_id, to_clean_msg)
-
-        if session.status == SessionStatus.registration:
-            if len(session.players) < session.settings.values['players']['min']:
-                await MessageController.send_not_enough_players(chat_id, session.t)
-                SessionController.kill_session(chat_id)
-                return
-            asyncio.create_task(GameController.start_game(session))
+        asyncio.create_task(GameController.start_game(session))
 
     @classmethod
     async def affect_roles(cls, session: Session, store: dict):
@@ -233,8 +236,6 @@ class GameController(DispatcherProvider):
             )
             await sleep(session.settings.values['time']['vote'])
             await ReactionCounterController.stop_reaction_counter(reaction_counter=vote_msg)
-
-            pprint(vote_msg.reactions)
 
             if session.status != SessionStatus.game:
                 return
