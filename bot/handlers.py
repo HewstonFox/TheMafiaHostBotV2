@@ -131,7 +131,7 @@ async def group_start_handler(message: Message, session: Session, *_, **__):
 async def game_handler(message: Message, session: Session, *_, **__):
     time, sign = parse_timer(message.text)
     await MenuController.close(session.chat_id)
-    asyncio.create_task(GameController.run_new_game(session, time))
+    await GameController.run_new_game(session, time)
 
 
 @throttle_message_handler(commands=['stop'], chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
