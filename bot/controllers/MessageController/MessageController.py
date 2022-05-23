@@ -229,3 +229,11 @@ class MessageController(DispatcherProvider):
     @classmethod
     async def send_role_affect(cls, chat_id: ChatId, t: Localization, shortcut: str):
         return await cls.dp.bot.send_message(chat_id, get_action_message(shortcut, t))
+
+    @classmethod
+    async def send_authorization_request(cls, chat_id: ChatId, t: Localization, source: str):
+        return await cls.dp.bot.send_message(
+            chat_id,
+            t.auth.request.format(source),
+            reply_markup=buttons.auth_request(t, source)
+        )

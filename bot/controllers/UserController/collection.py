@@ -12,6 +12,13 @@ async def get_user_record_by_chat_id(chat_id: ChatId) -> Union[UserRecord, None]
     return await users_collection.find_one({'chat_id': chat_id})
 
 
+async def find_user_record(accessor: str) -> Union[UserRecord, None]:
+    query: dict = {'$or': [{'username': accessor}]}
+    if accessor.isnumeric():
+        query['$or'].append({'chat_id': int(accessor)})
+    return await users_collection.find_one(query)
+
+
 async def create_user_record(**kwargs) -> UserRecord:
     record: UserRecord = kwargs
     record['created_at'] = record['updated_at'] = get_current_time()

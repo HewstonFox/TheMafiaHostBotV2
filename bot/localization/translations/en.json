@@ -374,5 +374,15 @@
       "name": "Draw",
       "won": "Everyone is dead!"
     }
+  },
+  "auth": {
+    "request": "Authorization request:\nSource {}\nPlease confirm it is you.",
+    "success": "You confirmed authorization",
+    "reject": "You rejected authorization",
+    "failure": "The request is not actual",
+    "options": {
+      "confirm": "Confirm",
+      "reject": "Reject"
+    }
   }
 }
