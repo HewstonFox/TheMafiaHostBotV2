@@ -1,3 +1,5 @@
+import signal
+import sys
 import asyncio
 import logging
 from typing import Optional
@@ -13,6 +15,7 @@ from bot.commands import set_commands_list
 from bot.constants import WEBHOOK_URL, IS_WEBHOOK, WEBHOOK_PATH, WEBAPP_HOST, WEBAPP_PORT
 from bot.controllers.SessionController.SessionController import SessionController
 from bot.routes.main import MainRoutes
+from bot.utils.shared import ping_pong
 from config import env
 
 
@@ -37,9 +40,15 @@ def start_webhook(
 
 
 async def on_startup_callback(dispatcher: Dispatcher):
+    def sys_exit(*_):
+        sys.exit(2)
+
+    signal.signal(signal.SIGINT, sys_exit)
+    signal.signal(signal.SIGTERM, sys_exit)
     await set_commands_list(dispatcher)
     if IS_WEBHOOK:
         await dispatcher.bot.set_webhook(WEBHOOK_URL)
+        asyncio.create_task(ping_pong())
 
 
 async def on_shutdown_callback(dispatcher: Dispatcher):

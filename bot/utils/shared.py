@@ -6,6 +6,10 @@ from time import time
 import copy
 from typing import Awaitable, Callable, Any, Type
 
+from aiohttp import ClientSession
+
+from bot.constants import WEBHOOK_HOST
+
 
 def get_current_time() -> int:
     return int(time() * 1000)
@@ -76,3 +80,15 @@ def flat_list(lst: Any) -> list:
         result.extend(flat_list(item))
 
     return result
+
+
+async def ping_pong(timeout: int = 60):
+    while True:
+        async with ClientSession() as session:
+            response = await session.get(f'{WEBHOOK_HOST}/ping')
+            text = await response.text()
+            if text != 'pong':
+                print('Ping-Pong: WTF???', text)
+            else:
+                print('Ping-Pong: Success...')
+        await asyncio.sleep(timeout)

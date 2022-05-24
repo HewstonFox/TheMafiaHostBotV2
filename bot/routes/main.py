@@ -56,6 +56,11 @@ async def login_handler(request: Request):
     return res
 
 
+@MainRoutes.get('/ping')
+async def ping_handler(request: Request):
+    return web.Response(text='pong')
+
+
 @MainRoutes.get('/{tail:.*}')
 async def index(request: Request):
     raise web.HTTPFound('/app')
