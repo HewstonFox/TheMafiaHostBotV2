@@ -19,6 +19,32 @@ def unauthorizedRedirect():
     return res
 
 
+@MainRoutes.get('/')
+async def index(request: Request):
+    raise web.HTTPFound('/app')
+
+
+@MainRoutes.get('/ping')
+async def ping_handler(request: Request):
+    return web.Response(text='pong')
+
+
+@MainRoutes.post('/login/{user}')
+async def login_handler(request: Request):
+    user: UserRecord = await find_user_record(request.match_info['user'])
+    if not user or not user.get('is_admin'):
+        raise web.HTTPUnauthorized()
+
+    token = await AuthController.auth(user['chat_id'], WEBHOOK_HOST)
+    if not token:
+        raise web.HTTPUnauthorized()
+
+    res = web.Response(status=200, text='Success')
+    res.set_cookie(env.COOKIE_KEY, token, secure=True)
+
+    return res
+
+
 @MainRoutes.get('/app')
 @MainRoutes.get('/app/{tail:.*}')
 async def app(request: Request):
@@ -38,29 +64,3 @@ async def app(request: Request):
     with req_path.open('rb') as f:
         content = f.read()
     return web.Response(body=content, content_type=';'.join(filter(lambda x: x, guess_type(str(req_path)))))
-
-
-@MainRoutes.post('/login/{user}')
-async def login_handler(request: Request):
-    user: UserRecord = await find_user_record(request.match_info['user'])
-    if not user or not user.get('is_admin'):
-        raise web.HTTPUnauthorized()
-
-    token = await AuthController.auth(user['chat_id'], WEBHOOK_HOST)
-    if not token:
-        raise web.HTTPUnauthorized()
-
-    res = web.Response(status=200, text='Success')
-    res.set_cookie(env.COOKIE_KEY, token, secure=True)
-
-    return res
-
-
-@MainRoutes.get('/ping')
-async def ping_handler(request: Request):
-    return web.Response(text='pong')
-
-
-@MainRoutes.get('/{tail:.*}')
-async def index(request: Request):
-    raise web.HTTPFound('/app')
