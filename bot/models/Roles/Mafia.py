@@ -15,7 +15,7 @@ class Mafia(Incognito):
 
     async def greet(self):
         await super(Mafia, self).greet()
-        team = [pl for pl in self.players.values() if pl.team == Team.maf]
+        team = [pl for pl in self.players.values() if pl.team == Team.maf and self.user.id != pl.user.id]
         if len(team) > 0:
             await MessageController.send_team_greeting(self.user.id, self.t, self.shortcut, get_roles_list(team))
 

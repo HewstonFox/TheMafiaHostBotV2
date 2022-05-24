@@ -8,7 +8,7 @@ class Sergeant(Incognito):
 
     async def greet(self):
         await super(Sergeant, self).greet()
-        team = [pl for pl in self.players.values() if isinstance(pl, Sergeant)]
+        team = [pl for pl in self.players.values() if isinstance(pl, Sergeant) and self.user.id != pl.user.id]
         if len(team) > 0:
             await MessageController.send_team_greeting(self.user.id, self.t, self.shortcut, get_roles_list(team))
 
