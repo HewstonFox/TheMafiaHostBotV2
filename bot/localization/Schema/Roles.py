@@ -9,6 +9,7 @@ class LRole(DataclassFromDict):
     effect: str = field_from_dict()
     global_effect: str = field_from_dict()
     affect: str = field_from_dict()
+    team: str = field_from_dict()
 
 
 @dataclass

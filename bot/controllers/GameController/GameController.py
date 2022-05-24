@@ -1,6 +1,5 @@
 import asyncio
 from asyncio import sleep
-from pprint import pprint
 
 from aiogram.types import ChatActions, Message
 from aiogram.utils.exceptions import BadRequest
@@ -331,7 +330,7 @@ class GameController(DispatcherProvider):
 
     @classmethod
     async def start_game(cls, session: Session):
-        await cls.dp.loop.run_in_executor(None, attach_roles, session)
+        attach_roles(session)
         session.status = SessionStatus.game
         await greet_roles(session)
         if session.is_night:

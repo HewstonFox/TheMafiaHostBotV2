@@ -1,8 +1,7 @@
 from functools import wraps
 from typing import Callable, Union
 
-from aiogram.types import Message, CallbackQuery, ChatMemberStatus, ChatInviteLink
-from aiogram.utils.exceptions import BadRequest
+from aiogram.types import Message, CallbackQuery, ChatMemberStatus
 
 from bot.controllers.SessionController.Session import Session
 from bot.controllers.SessionController.SessionController import SessionController

@@ -1,3 +1,4 @@
+import asyncio
 from typing import Callable
 
 from aiogram.types import Message, CallbackQuery
@@ -17,9 +18,9 @@ def throttle_message_handler(*args, **kwargs):
                     throttle_key = msg.text
                 await dp.throttle(throttle_key, rate=3, chat_id=msg.chat.id)
             except Throttled:
-                return
+                pass
             else:
-                return await func(msg, *_args, **_kwargs)
+                asyncio.create_task(func(msg, *_args, **_kwargs))
 
         return _wrapper
 

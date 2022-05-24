@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from dict_to_dataclass import DataclassFromDict, field_from_dict
 
+from bot.localization.Schema.Auth import LAuth
 from bot.localization.Schema.CallbackQuery import LCallbackQuery
 from bot.localization.Schema.Commands import LCommands
 from bot.localization.Schema.Group import LGroup
@@ -21,3 +22,4 @@ class Localization(DataclassFromDict):
     strings: LStrings = field_from_dict()
     roles: LRoles = field_from_dict()
     teams: LTeams = field_from_dict()
+    auth: LAuth = field_from_dict()
