@@ -255,84 +255,96 @@
       "greeting": "You are Civilian today.\nThe mafia has started up in the city, and you can be the victim. Do not allow this, hang all the mafias during the day so that they cannot go wild at night.",
       "effect": "",
       "global_effect": "",
-      "affect": ""
+      "affect": "",
+      "team": ""
     },
     "bum": {
       "name": "Bum",
       "greeting": "You are Bum today.\nEvery night you can spy on someone. Can you see someone you know? Or even murder?",
       "effect": "Choose somebody to spy tonight.",
       "global_effect": "Bum went to buy another bottle of beer...",
-      "affect": ""
+      "affect": "",
+      "team": ""
     },
     "com": {
       "name": "Commissioner",
       "greeting": "You are Commissioner today.\nAt night, you can check whether one of the players is a mafia. Or maybe you already know everything and it makes no sense to waste time on extra checks?",
       "effect": "Choose somebody to check or kill.",
       "global_effect": "Commissioner went to look for villains...",
-      "affect": "You was checked by commissioner"
+      "affect": "You was checked by commissioner",
+      "team": "Remember your team:\n{}"
     },
     "doc": {
       "name": "Doctor",
       "greeting": "You are Doctor today.\nIn the evening you can go to one of the residents of the city or stay at home. The one you cure will remain alive even if he is assassinated. Moral principles do not give you the right to heal yourself more than once.",
       "effect": "Choose somebody to heal.",
       "global_effect": "Doctor came out on duty...",
-      "affect": "You was healed by doctor"
+      "affect": "You was healed by doctor",
+      "team": ""
     },
     "don": {
       "name": "Don",
       "greeting": "You are Don today.\nThe Mafia is counting on you, but once you're gone, someone will take your place. Your vote carries more weight when choosing a victim, but it's still not decisive...",
       "effect": "Choose somebody to kill.",
       "global_effect": "Mafia found a victim...",
-      "affect": ""
+      "affect": "",
+      "team": "Remember your team:\n{}"
     },
     "lwr": {
       "name": "Lawyer",
       "greeting": "You are Lawyer today.\nThe Mafia needed a man who could cover for them before the Commissar. Don't disappoint them...",
       "effect": "Choose somebody to acquit.",
       "global_effect": "Lawyer went to forge documents...",
-      "affect": "You was acquit by lawyer"
+      "affect": "You was acquit by lawyer",
+      "team": "Remember your team:\n{}"
     },
     "lck": {
       "name": "Lucky",
       "greeting": "You are Lucky today \uD83D\uDE01 \nEither the rope breaks or the bullet bounces. Is this luck forever?",
       "effect": "",
       "global_effect": "",
-      "affect": ""
+      "affect": "",
+      "team": ""
     },
     "maf": {
       "name": "Mafia",
       "greeting": "You are Mafia today.\nAt the mafia meeting, vote for the murder of one of the inhabitants of the city. Whoever the majority votes for will be killed.",
       "effect": "Choose somebody to kill.",
       "global_effect": "Mafia found a victim...",
-      "affect": ""
+      "affect": "",
+      "team": "Remember your team:\n{}"
     },
     "mnc": {
       "name": "Maniac",
       "greeting": "You are Maniac today.\nLet's kill everybody \uD83C\uDF1A",
       "effect": "Choose somebody to kill.",
       "global_effect": "Maniac went to kill...",
-      "affect": ""
+      "affect": "",
+      "team": ""
     },
     "srg": {
       "name": "Sergeant",
       "greeting": "You are Sergeant today.\nWhen a commissar dies, one of the sergeants takes his place. Perhaps it will be you. The Commissioner reports his observations to you.",
       "effect": "",
       "global_effect": "",
-      "affect": ""
+      "affect": "",
+      "team": "Remember your team:\n{}"
     },
     "scd": {
       "name": "Suicide",
       "greeting": "You are Suicide today...\nThe only thing you want is to be hanged at the afternoon meeting",
       "effect": "",
       "global_effect": "",
-      "affect": ""
+      "affect": "",
+      "team": ""
     },
     "whr": {
       "name": "Call girl",
       "greeting": "You are Call girl today.\nEvery night, when you go hunting, you can lure someone into your apartment. Distract them with yourself, it could save someone's life... or vice versa...",
       "effect": "Choose who you will come to tonight.",
       "global_effect": "Call girl found a target...",
-      "affect": "You spent your night with call girl"
+      "affect": "You spent your night with call girl",
+      "team": ""
     },
     "chore": {
       "mafia_opinion_divided": "The opinion of the mafias is divided",

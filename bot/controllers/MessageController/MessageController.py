@@ -237,3 +237,7 @@ class MessageController(DispatcherProvider):
             t.auth.request.format(source),
             reply_markup=buttons.auth_request(t, source)
         )
+
+    @classmethod
+    async def send_team_greeting(cls, chat_id: ChatId, t: Localization, shortcut: str, team: str):
+        return await cls.dp.bot.send_message(chat_id, getattr(t.roles, shortcut).team.format(team))

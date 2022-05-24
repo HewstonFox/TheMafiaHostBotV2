@@ -5,13 +5,19 @@ from bot.models.Roles.BaseRole import is_active_session
 from bot.models.Roles.Incognito import Incognito
 from bot.models.Roles.constants import Team
 from bot.types import ChatId
-from bot.utils.roles import get_players_list_menu
+from bot.utils.roles import get_players_list_menu, get_roles_list
 
 
 class Mafia(Incognito):
     shortcut = 'maf'
     team = Team.maf
     is_angry = True
+
+    async def greet(self):
+        await super(Mafia, self).greet()
+        team = [pl for pl in self.players.values() if pl.team == Team.maf]
+        if len(team) > 0:
+            await MessageController.send_team_greeting(self.user.id, self.t, self.shortcut, get_roles_list(team))
 
     @is_active_session
     async def affect(self, other: ChatId, key=None):
