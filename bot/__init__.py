@@ -9,12 +9,12 @@ from aiogram.dispatcher.webhook import DEFAULT_ROUTE_NAME
 from aiogram.utils.executor import start_polling, set_webhook
 from aiohttp.web_app import Application
 
+import bot.routes
 from bot import handlers
 from bot.bot import dp
 from bot.commands import set_commands_list
 from bot.constants import WEBHOOK_URL, IS_WEBHOOK, WEBHOOK_PATH, WEBAPP_HOST, WEBAPP_PORT
 from bot.controllers.SessionController.SessionController import SessionController
-from bot.routes.main import MainRoutes
 from bot.utils.shared import ping_pong
 from config import env
 
@@ -52,7 +52,7 @@ async def on_startup_callback(dispatcher: Dispatcher):
 
 
 async def on_shutdown_callback(dispatcher: Dispatcher):
-    await SessionController.notify_shutdown(dispatcher)
+    await SessionController.notify_shutdown()
     if IS_WEBHOOK:
         await dispatcher.bot.delete_webhook()
 
@@ -77,15 +77,13 @@ def start():
 
     if IS_WEBHOOK:
         from aiohttp import web
-        web_app = web.Application()
-        web_app.add_routes(MainRoutes)
         start_webhook(
             **options,
             loop=asyncio.get_event_loop(),
             webhook_path=WEBHOOK_PATH,
             host=WEBAPP_HOST,
             port=WEBAPP_PORT,
-            web_app=web_app
+            web_app=routes.apply(web.Application())
         )
 
     else:

@@ -1,7 +1,5 @@
 from typing import Union
 
-from aiogram import Dispatcher
-
 from bot.controllers import DispatcherProvider
 from bot.controllers.MessageController.MessageController import MessageController
 from bot.controllers.SessionController.Session import Session
@@ -11,7 +9,11 @@ from bot.types import ChatId, Proxy
 
 
 class SessionController(DispatcherProvider):
-    __sessions: Proxy = Proxy({})
+    __sessions: Proxy[ChatId, Session] = Proxy({})
+
+    @classmethod
+    def get_active_sessions(cls) -> Proxy[ChatId, Session]:
+        return cls.__sessions
 
     @classmethod
     def create_session(cls, chat_id: ChatId) -> Union[Session, None]:
@@ -61,7 +63,7 @@ class SessionController(DispatcherProvider):
         await MessageController.send_user_left_game(user_id, session.t, session.name)
 
     @classmethod
-    async def notify_shutdown(cls, dp: Dispatcher):
+    async def notify_shutdown(cls):
         for session in cls.__sessions.values():
             if session.status == SessionStatus.pending:
                 continue

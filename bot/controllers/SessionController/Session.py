@@ -1,4 +1,5 @@
 import asyncio
+import json
 from typing import Optional
 
 from aiogram import Bot, Dispatcher
@@ -173,3 +174,6 @@ class Session:
                k not in ('t', 'bot', 'players', 'handlers', 'mafia_chat_handler', 'dp')},
             'players': {idx: user.to_python() for idx, user in self.players.items()}
         }
+
+    def json(self) -> str:
+        return json.dumps({"data": self.get_dump()}, default=lambda x: x.get_dump())
