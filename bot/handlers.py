@@ -219,11 +219,11 @@ async def settings_import_handler(message: Message, session: Session, *_, **__):
         await message.reply(session.t.group.settings_apply_failure.format(e.code))
 
 
-# @dp.message_handler(content_types=[ContentType.PINNED_MESSAGE])
-# async def clear_pined_by_bot(message: Message):
-#     username = (await dp.bot.me).username
-#     if message.from_user.username == username:
-#         await message.delete()
+@dp.message_handler(content_types=[ContentType.PINNED_MESSAGE])
+async def clear_pined_by_bot(message: Message):
+    username = (await dp.bot.me).username
+    if message.from_user.username == username:
+        await message.delete()
 
 
 if env.MODE != 'development':
