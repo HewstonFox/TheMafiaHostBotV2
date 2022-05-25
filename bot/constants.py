@@ -7,3 +7,4 @@ WEBHOOK_HOST = sys.argv[2] if len(sys.argv) > 2 else env.BASE_URI
 WEBHOOK_URL = f'{WEBHOOK_HOST}{WEBHOOK_PATH}'
 WEBAPP_HOST = '0.0.0.0'
 WEBAPP_PORT = sys.argv[1] if IS_WEBHOOK else env.PORT
+TELEGRAM_MESSAGE_MAX_SIZE = 4096

@@ -1,14 +1,16 @@
 import io
 import json
-import traceback
 from asyncio import sleep
 
+from aiogram.dispatcher.webhook import SendMessage
 from aiogram.dispatcher import filters
 from aiogram.dispatcher.filters import Command
 from aiogram.types import CallbackQuery, Message, ChatType, Update, ContentType, InputFile
 from aiogram.utils.exceptions import BadRequest
 from schema import SchemaError
 
+from bot.constants import WEBHOOK_HOST, TELEGRAM_MESSAGE_MAX_SIZE
+from bot.controllers.ErrorController.ErrorController import ErrorController
 from bot.controllers.GameController.GameController import GameController
 from bot.controllers.MenuController.MenuController import MenuController
 from bot.controllers.ReactionCounterController.ReactionCounterController import ReactionCounterController
@@ -22,41 +24,38 @@ from bot.controllers.MessageController.MessageController import MessageControlle
 from bot.localization import Localization
 from bot.utils.decorators.handlers import with_locale, clean_command, with_session
 from bot.utils.decorators.throttle import throttle_message_handler, throttle_callback_query_handler
-from bot.utils.error_url import create_error_link, create_session_link, create_update_link
 from bot.utils.filters import ForwardFromMe
 from bot.utils.message import parse_timer
+from bot.utils.shared import batch_str
 from config import env
 
 
 @dp.errors_handler()
-async def error_handler(update: Update, _: BadRequest):
-    try:
-        await dp.bot.send_message(
-            env.NOTIFICATION_CHAT,
-            f'''Error: <a href='{create_error_link(traceback.format_exc())}'>Error</a>''',
-        )
-        update_str = json.dumps(json.loads(update.as_json()), indent=2)
-        print(update_str)
+async def error_handler(update: Update, error: BadRequest):
+    print('UPDATE:', update.update_id)
+    context = {
+        'update': update.to_python(),
+    }
 
-        await dp.bot.send_message(
-            env.NOTIFICATION_CHAT,
-            f'''Update: <a href='{create_update_link(update_str)}'>Update</a>''',
-        )
-        try:
-            session = SessionController.get_session(update.message.chat.id)
-            if not session:
-                raise KeyError
-            lnk = create_session_link(session)
-            print(json.dumps(session.get_dump(), indent=2, default=lambda x: x.get_dump()))
-            await dp.bot.send_message(
-                env.NOTIFICATION_CHAT,
-                f'''Sessions: <a href='{lnk}'>Session</a>''',
-            )
-        except KeyError:
-            pass
+    session = SessionController.get_session(update.message.chat.id)
+    if session:
+        context['session'] = session.get_dump()
 
-    except Exception as e:
-        print(e)
+    error_record = ErrorController.add_error(error, context)
+
+    if not WEBHOOK_HOST:
+        ErrorController.remove_error(error_record['id'])
+
+        error_json = json.dumps(error_record, indent=2)
+        print(error_json)
+        for msg in batch_str(error_json, TELEGRAM_MESSAGE_MAX_SIZE):
+            await dp.bot.send_message(env.NOTIFICATION_CHAT, f'<code>{msg}</code>')
+        return
+
+    return SendMessage(
+        env.NOTIFICATION_CHAT,
+        f'Error: <a href="{WEBHOOK_HOST}/app/private/errors?error={error_record["id"]}">Link</a>'
+    )
 
 
 @dp.message_handler(
@@ -79,12 +78,7 @@ async def current_session(message: Message, session: Session, *_, **__):
         f'Message id: {message.message_id}\n'
         f''
     )
-    lnk = create_session_link(session)
     print(json.dumps(session.get_dump(), indent=2, default=lambda x: x.get_dump()))
-    await dp.bot.send_message(
-        env.NOTIFICATION_CHAT,
-        f'''Sessions: <a href='{lnk}'>Session</a>''',
-    )
 
 
 @throttle_callback_query_handler()
