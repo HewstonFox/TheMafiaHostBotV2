@@ -14,7 +14,7 @@ from bot import handlers
 from bot.bot import dp
 from bot.commands import set_commands_list
 from bot.constants import WEBHOOK_URL, IS_WEBHOOK, WEBHOOK_PATH, WEBAPP_HOST, WEBAPP_PORT
-from bot.controllers.SessionController.SessionController import SessionController
+from bot.controllers.GameController.GameController import GameController
 from bot.utils.shared import ping_pong
 from config import env
 
@@ -52,7 +52,7 @@ async def on_startup_callback(dispatcher: Dispatcher):
 
 
 async def on_shutdown_callback(dispatcher: Dispatcher):
-    await SessionController.notify_shutdown()
+    await GameController.shutdown_handler()
     if IS_WEBHOOK:
         await dispatcher.bot.delete_webhook()
 
