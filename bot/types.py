@@ -2,6 +2,7 @@ import asyncio
 import inspect
 from typing import Union, TypedDict, Callable, Any
 
+from aiogram import Bot
 from aiogram.types import LoginUrl, CallbackGame, User
 
 ChatId = Union[int, str]
@@ -68,3 +69,7 @@ class ResultConfig(TypedDict):
     winners: list[RoleMeta]
     losers: list[RoleMeta]
     alive_roles: dict[str, int]
+
+
+class RetryBotBase(Bot):
+    repeat: int

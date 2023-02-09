@@ -92,3 +92,7 @@ async def ping_pong(timeout: int = 60):
             else:
                 print('Ping-Pong: Success...')
         await asyncio.sleep(timeout)
+
+
+def batch_str(value: str, size: int) -> list[str]:
+    return [value[i:i + size] for i in range(0, len(value), size)]
