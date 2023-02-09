@@ -1,15 +1,14 @@
-aiogram==2.20
+aiogram==2.25.1
 schema==0.7.5
-python-dotenv==0.20.0
+python-dotenv==0.21.1
 dict-to-dataclass==0.0.8
-motor==3.0.0
-dnspython==2.2.1
+motor[srv]==3.1.1
+dnspython==2.3.0
 
-certifi==2022.5.18.1
-aiohttp==3.8.1
+aiohttp==3.8.3
 cchardet==2.1.7
 aiodns==3.0.0
 
-pymongo==4.1.1
+pymongo[srv]==4.3.3
 
-pyjwt==2.4.0
+pyjwt==2.6.0
