@@ -5,6 +5,7 @@ services:
     container_name: 'bot'
     build: .
     ports:
-      - "80:5555"
+      - "5555:5555"
+    restart: always
     env_file:
-      - .env.prod
+      - .env.develop

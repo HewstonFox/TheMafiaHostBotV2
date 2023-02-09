@@ -1,9 +1,8 @@
-from aiogram import Bot
-
+from bot.types import RetryBotBase
 from bot.utils.decorators.bot_instance import message_retry, soft_error
 
 
-class RetryBot(Bot):
+class RetryBot(RetryBotBase):
     def __init__(self, *args, **kwargs):
         super(RetryBot, self).__init__(*args, **kwargs)
         self.repeat = 5

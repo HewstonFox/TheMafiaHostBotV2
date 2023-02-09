@@ -2,6 +2,7 @@ import io
 import json
 import operator
 from functools import reduce
+from typing import Optional
 
 from schema import SchemaError
 
@@ -12,8 +13,12 @@ from bot.utils.shared import dict_merge
 
 
 class Settings:
-    def __init__(self, *, lang: str = None, config: dict = {}):
-        self.values = dict_merge(SettingsPreset.default, {'language': lang or get_default_translation_index()}, config)
+    def __init__(self, *, lang: str = None, config: Optional[dict] = None):
+        self.values = dict_merge(
+            SettingsPreset.default,
+            {'language': lang or get_default_translation_index()},
+            config or {}
+        )
 
     def apply_preset(self, preset: str):
         if not hasattr(SettingsPreset, preset):

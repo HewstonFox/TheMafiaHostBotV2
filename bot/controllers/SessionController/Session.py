@@ -1,4 +1,5 @@
 import asyncio
+import json
 from typing import Optional
 
 from aiogram import Bot, Dispatcher
@@ -42,7 +43,7 @@ class Session:
         _lang = lang or settings.get('language') or get_default_translation_index()
         self.t: Localization = get_translation(_lang)
         self.handlers = []
-        self.restrictions: dict[ChatId, dict] = {}
+        self.restrictions: dict[ChatId, dict[str, bool]] = {}
         self.invite_url = invite_url
         self.__status: str = status
         if 'bot' in kwargs:
@@ -170,6 +171,10 @@ class Session:
     def get_dump(self):
         return {
             **{k: v for k, v in self.__dict__.items() if
-               k not in ('t', 'bot', 'players', 'handlers', 'mafia_chat_handler', 'dp')},
+               k not in ('t', 'bot', 'players', 'handlers', 'mafia_chat_handler', 'dp', 'settings')},
+            'settings': self.settings.get_dump(),
             'players': {idx: user.to_python() for idx, user in self.players.items()}
         }
+
+    def json(self) -> str:
+        return json.dumps(self.get_dump(), default=lambda x: x.get_dump())

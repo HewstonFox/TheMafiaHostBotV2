@@ -417,3 +417,12 @@ class GameController(DispatcherProvider):
             await MessageController.send_registration_extended(chat_id, t, time, session.timer)
         else:
             await MessageController.send_registration_reduced(chat_id, t, time, session.timer)
+
+    @classmethod
+    async def shutdown_handler(cls):
+        return await asyncio.gather(
+            *[asyncio.gather(
+                cls.force_stop(session),
+                MessageController.send_bot_stopped(session.chat_id, session.t)
+            ) for session in SessionController.get_active_sessions().values()]
+        )
