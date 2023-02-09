@@ -22,6 +22,7 @@ class ERole(DataclassFromDict):
 
 @dataclass
 class EAction(DataclassFromDict):
+    bum: str = field_from_dict()
     kill: str = field_from_dict()
     don: str = field_from_dict()
     maf: str = field_from_dict()

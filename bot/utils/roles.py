@@ -1,10 +1,12 @@
-from asyncio import create_task
-from typing import Dict, Optional, Tuple, Callable, Awaitable
+from functools import reduce
+import asyncio
+from typing import Dict, Optional, Tuple, Callable, Coroutine
 import re
 
 from bot.controllers.MenuController.types import MessageMenu, MessageMenuButton, ButtonType
 from bot.models.Roles.BaseRole import BaseRole
 from bot.types import ChatId
+from bot.utils.emoji_strings import get_role_name
 
 
 def valid_player(
@@ -39,8 +41,8 @@ def select_target_factory(players: Dict[ChatId, 'BaseRole'], role: 'BaseRole', n
             if night_action != is_night or not role.alive:
                 return True
             task = getattr(role, method)(target.user.id, key)
-            if isinstance(task, Awaitable):
-                create_task(task)
+            if isinstance(task, Coroutine):
+                asyncio.create_task(task)
             return True
         return False
 
@@ -75,3 +77,10 @@ def get_players_list_menu(role: 'BaseRole', should_display: Callable[['BaseRole'
         'set_data': select_target_factory(role.players, role),
         't': role.t
     }
+
+
+def get_roles_list(roles: list[BaseRole]) -> str:
+    return reduce(
+        lambda acc, role: acc + f'    {role.user.get_mention()} - {get_role_name(role.shortcut, role.t)}\n',
+        roles, ''
+    )

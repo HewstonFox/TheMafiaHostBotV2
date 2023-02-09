@@ -28,9 +28,11 @@ class Session:
             name: str = '',
             invite_url: str = '',
             status: str = SessionStatus.pending,
-            settings: dict = {},
+            settings: dict = None,
             **kwargs
     ):
+        if settings is None:
+            settings = {}
         if int(chat_id) > 0:
             raise MafiaBotError.InvalidSessionIdError
         self.chat_id: ChatId = chat_id

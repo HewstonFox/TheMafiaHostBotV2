@@ -1,13 +1,13 @@
 import asyncio
-from typing import List, Tuple, Union, Callable, Awaitable
+from typing import List, Tuple, Union, Callable, Awaitable, Dict
 from bot.bot import dp
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, ContentType
 
-from bot.types import MarkupKeyboardDict, ChatId, RoleMeta
+from bot.types import ChatId, RoleMeta
 from bot.utils.shared import async_wait
 
 
-def arr2keyword_markup(buttons: List[List[MarkupKeyboardDict]]):
+def arr2keyword_markup(buttons: List[List[Dict]]):
     return InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(**btn) for btn in row] for row in buttons])
 
 

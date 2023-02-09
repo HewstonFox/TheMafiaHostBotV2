@@ -2,6 +2,7 @@ from aiogram.types import CallbackQuery, ChatMemberStatus
 from aiogram.utils.exceptions import Unauthorized
 
 from bot.controllers import DispatcherProvider
+from bot.controllers.AuthController.AuthController import AuthController
 from bot.controllers.MenuController.MenuController import MenuController
 from bot.controllers.MessageController.MessageController import MessageController
 from bot.controllers.ReactionCounterController.ReactionCounterController import ReactionCounterController
@@ -56,6 +57,8 @@ class CallbackQueryController(DispatcherProvider):
             if query.message.chat.id == query.from_user.id or \
                     ChatMemberStatus.is_chat_admin((await query.message.chat.get_member(query.from_user.id)).status):
                 return await MenuController.callback_handler(query)
+        if key == 'auth':
+            return await AuthController.callback_handler(query, t)
         if key == 'vote':
             if SessionController.is_active_session(query.message.chat.id):
                 session = SessionController.get_session(query.message.chat.id)

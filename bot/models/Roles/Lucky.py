@@ -9,4 +9,3 @@ class Lucky(Incognito):
     def kill(self, by: str):
         if choice((True, False)):
             super(Lucky, self).kill(by)
-            self.alive = False

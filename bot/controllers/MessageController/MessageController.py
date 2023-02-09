@@ -229,3 +229,15 @@ class MessageController(DispatcherProvider):
     @classmethod
     async def send_role_affect(cls, chat_id: ChatId, t: Localization, shortcut: str):
         return await cls.dp.bot.send_message(chat_id, get_action_message(shortcut, t))
+
+    @classmethod
+    async def send_authorization_request(cls, chat_id: ChatId, t: Localization, source: str):
+        return await cls.dp.bot.send_message(
+            chat_id,
+            t.auth.request.format(source),
+            reply_markup=buttons.auth_request(t, source)
+        )
+
+    @classmethod
+    async def send_team_greeting(cls, chat_id: ChatId, t: Localization, shortcut: str, team: str):
+        return await cls.dp.bot.send_message(chat_id, getattr(t.roles, shortcut).team.format(team))

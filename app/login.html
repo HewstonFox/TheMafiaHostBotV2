@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+</head>
+<body>
+<form id="loginForm">
+    <input type="text" name="user" id="user" placeholder="User nickname or id">
+</form>
+<script>
+    document.getElementById('loginForm').addEventListener('submit', e => {
+        e.preventDefault()
+        fetch(`/login/${new FormData(e.target).get('user')}`, {method: 'POST'}).then(r => {
+            console.log(r.status)
+            if (r.status === 200) location.href = '/app'
+        })
+    })
+</script>
+</body>
+</html>

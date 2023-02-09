@@ -1,8 +1,8 @@
+import asyncio
 import io
 import json
 import traceback
 from asyncio import sleep
-from pprint import pprint
 
 from aiogram.dispatcher import filters
 from aiogram.dispatcher.filters import Command
@@ -30,7 +30,7 @@ from config import env
 
 
 @dp.errors_handler()
-async def error_handler(update: Update, error: BadRequest):
+async def error_handler(update: Update, _: BadRequest):
     try:
         await dp.bot.send_message(
             env.NOTIFICATION_CHAT,
@@ -58,6 +58,34 @@ async def error_handler(update: Update, error: BadRequest):
 
     except Exception as e:
         print(e)
+
+
+@dp.message_handler(
+    commands=['session'],
+    chat_type=[ChatType.GROUP, ChatType.SUPERGROUP],
+    user_id=env.NOTIFICATION_CHAT
+)
+@clean_command
+@with_session
+async def current_session(message: Message, session: Session, *_, **__):
+    await dp.bot.send_message(
+        env.NOTIFICATION_CHAT,
+        f'Session: \n'
+        f'Name: {session.name}\n'
+        f'Status: {session.status}\n'
+        f'Chat Id: {session.chat_id}\n'
+        f'Invite url: {session.invite_url}\n'
+        f'Players: {", ".join(map(lambda u: u.mention, session.players.values()))}'
+        f'\n'
+        f'Message id: {message.message_id}\n'
+        f''
+    )
+    lnk = create_session_link(session)
+    print(json.dumps(session.get_dump(), indent=2, default=lambda x: x.get_dump()))
+    await dp.bot.send_message(
+        env.NOTIFICATION_CHAT,
+        f'''Sessions: <a href='{lnk}'>Session</a>''',
+    )
 
 
 @throttle_callback_query_handler()
@@ -206,14 +234,6 @@ if env.MODE != 'development':
             await msg.delete()
 
 if env.MODE == 'development':
-    @dp.message_handler(commands=['session'], chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
-    @clean_command
-    @with_session
-    async def current_session(message: Message, session: Session, *_, **__):
-        await dp.bot.send_message(session.chat_id, (getattr(session.t.roles.chore.promotion, 'don')))
-        pprint(session)
-
-
     @dp.message_handler(commands=['vote'], chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
     @clean_command
     async def send_agree(message: Message):
@@ -227,4 +247,4 @@ if env.MODE == 'development':
     @dp.message_handler(commands=['error'])
     @clean_command
     async def throw_error(message: Message):
-        raise Exception
+        raise Exception('Synthetic error')

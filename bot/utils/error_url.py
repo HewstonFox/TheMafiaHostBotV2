@@ -2,8 +2,6 @@ from os import path
 import urllib.parse
 import json
 
-from aiogram.types import Update
-
 from bot.controllers.SessionController.Session import Session
 from config import env
 
