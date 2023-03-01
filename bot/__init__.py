@@ -61,9 +61,11 @@ async def on_shutdown_callback(dispatcher: Dispatcher):
 
 def start():
     logging.info(f'Starting in {env.MODE} mode.')
-    logging.info(f'Connection type: {"webhook" if IS_WEBHOOK else "long-polling"}')
+    logging.info(
+        f'Connection type: {"webhook" if IS_WEBHOOK else "long-polling"}')
     if IS_WEBHOOK:
         logging.info(f'Webhook: {WEBHOOK_URL}')
+        logging.info(f'Port: {WEBAPP_PORT}')
 
     if handlers:
         logging.info("Handlers attached")
@@ -87,7 +89,6 @@ def start():
             port=WEBAPP_PORT,
             web_app=routes.apply(web.Application())
         )
-
     else:
         start_polling(
             **options,
