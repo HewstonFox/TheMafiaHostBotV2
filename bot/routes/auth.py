@@ -1,11 +1,10 @@
 from aiohttp import web
 from aiohttp.web_request import Request
 
-from bot.constants import WEBHOOK_HOST
+from bot.constants import WEBHOOK_HOST, COOKIE_KEY
 from bot.controllers.AuthController.AuthController import AuthController
 from bot.controllers.UserController.collection import find_user_record
 from bot.controllers.UserController.types import UserRecord
-from config import env
 
 AuthRoutes = web.RouteTableDef()
 
@@ -21,7 +20,7 @@ async def login_handler(request: Request):
         raise web.HTTPUnauthorized()
 
     res = web.Response(status=200, text='Success')
-    res.set_cookie(env.COOKIE_KEY, token, secure=True)
+    res.set_cookie(COOKIE_KEY, token, secure=True)
 
     return res
 
@@ -29,5 +28,5 @@ async def login_handler(request: Request):
 @AuthRoutes.post('/logout')
 async def logout_handler(request: Request):
     res = web.Response(status=200, text='Success')
-    res.del_cookie(env.COOKIE_KEY)
+    res.del_cookie(COOKIE_KEY)
     return res

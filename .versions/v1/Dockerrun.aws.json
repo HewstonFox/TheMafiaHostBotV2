@@ -1,0 +1,11 @@
+{
+  "AWSEBDockerrunVersion": "1",
+  "Image": {
+    "Name": "833182465176.dkr.ecr.eu-central-1.amazonaws.com/the-mafia-host-bot:latest"
+  },
+  "Ports": [
+    {
+      "ContainerPort": 5555
+    }
+  ]
+}

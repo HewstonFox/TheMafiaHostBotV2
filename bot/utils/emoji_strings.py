@@ -1,6 +1,6 @@
+from bot.constants import IMAGE_AUTHOR_HTML_LINK
 from bot.emoji import emoji
 from bot.localization import Localization
-from config import env
 
 
 def get_role_name(shortcut: str, t: Localization) -> str:
@@ -16,7 +16,7 @@ def get_global_action_message(shortcut: str, t: Localization) -> str:
 
 
 def get_photo_author(t: Localization) -> str:
-    return t.strings.author.format(env.IMAGE_AUTHOR_HTML_LINK)
+    return t.strings.author.format(IMAGE_AUTHOR_HTML_LINK)
 
 
 def get_photo_text(t: Localization, text: str):
