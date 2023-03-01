@@ -13,7 +13,8 @@ import bot.routes
 from bot import handlers
 from bot.bot import dp
 from bot.commands import set_commands_list
-from bot.constants import WEBHOOK_URL, IS_WEBHOOK, WEBHOOK_PATH, WEBAPP_HOST, WEBAPP_PORT
+from bot.constants import WEBHOOK_URL, IS_WEBHOOK, WEBHOOK_PATH, WEBAPP_HOST, \
+    WEBAPP_PORT, IS_PING_PONG
 from bot.controllers.GameController.GameController import GameController
 from bot.utils.shared import ping_pong
 from config import env
@@ -48,7 +49,8 @@ async def on_startup_callback(dispatcher: Dispatcher):
     await set_commands_list(dispatcher)
     if IS_WEBHOOK:
         await dispatcher.bot.set_webhook(WEBHOOK_URL)
-        asyncio.create_task(ping_pong())
+        if IS_PING_PONG:
+            asyncio.create_task(ping_pong())
 
 
 async def on_shutdown_callback(dispatcher: Dispatcher):
